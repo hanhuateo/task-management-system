@@ -34,7 +34,3 @@ exports.verifyToken = async (req, res, next) => {
     req.user = decoded_payload.username;
     next();
 }
-
-exports.checkGroup = async (req, res, next) => {
-    let username = req.user;
-}
