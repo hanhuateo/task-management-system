@@ -111,7 +111,7 @@
           <h2>{app.name}</h2>
           <p>{app.description}</p>
           <div class="number">{app.number}</div>
-          <a href="#" class="view-link">View</a>
+          <!-- <a href="#" class="view-link">View</a> -->
         </div>
       {/each}
     </div>

@@ -40,13 +40,13 @@ exports.getUserDetails = async (req, res, next) => {
 
 exports.createNewUser = async (req, res, next) => {
 
-    let is_admin = checkGroup(username, groupname);
+    // let is_admin = checkGroup(username, groupname);
 
-    if (!is_admin) {
-        return res.status(500).json({
-            message : "Do not have permission to access this resource"
-        })
-    }
+    // if (!is_admin) {
+    //     return res.status(500).json({
+    //         message : "Do not have permission to access this resource"
+    //     })
+    // }
 
     try {
         let {username, password, active, group_id} = req.body;

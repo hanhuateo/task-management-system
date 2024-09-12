@@ -5,7 +5,8 @@ const dotenv = require('dotenv').config({path : './config/config.env'});
 
 exports.login = async (req, res, next) => {
     const {username, password} = req.body;
-
+    console.log(username);
+    console.log(password);
     if (!username && !password) {
         return res.status(401).json({error : 'Invalid credentials'});
     }
@@ -15,12 +16,10 @@ exports.login = async (req, res, next) => {
         let check_user_exist_sql = "SELECT * FROM user WHERE user_name = ?";
         const [val, field] = await pool.execute(check_user_exist_sql, [username]);
         console.log(val);
-        // console.log(field);
-        
         if (val.length === 0) {
             return res.status(401).json({error : 'Invalid Credentials'});
         }
-
+        
         const passwordMatch = await bcrypt.compare(password, val[0].password);
         if (!passwordMatch) {
             return res.status(401).json({error : 'Invalid Credentials'});
@@ -52,14 +51,19 @@ exports.login = async (req, res, next) => {
 
         res.status(200).cookie("token", jwtToken, cookie_options).json({
             message : "cookie created successfully",
+            success : true
             // jwtToken is placed here for postman usage ONLY
-            jwtToken
+            // jwtToken
         })
+
+        console.log(jwtToken);
     } catch (err) {
         console.log(err);
     }
 }
 
 exports.logout = async (req, res, next) => {
-    return res.clearCookie("token").status(200).send();
+    return res.clearCookie("token").status(200).json({
+        message : "cookie destroyed, logged out"
+    });
 }
