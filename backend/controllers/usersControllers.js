@@ -2,6 +2,15 @@ const pool = require('../utils/db');
 const bcrypt = require('bcrypt');
 
 exports.getAllUsersDetails = async (req, res, next) => {
+    let {username, groupname} = req.body;
+
+    let is_admin = checkGroup(username, groupname);
+
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
     try {
         let [val, fields] = await pool.query("SELECT * FROM user");
         res.status(200).json({message : "Get all users details successful", val});
@@ -30,6 +39,15 @@ exports.getUserDetails = async (req, res, next) => {
 }
 
 exports.createNewUser = async (req, res, next) => {
+
+    let is_admin = checkGroup(username, groupname);
+
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
+
     try {
         let {username, password, active, group_id} = req.body;
 
@@ -144,6 +162,15 @@ exports.updateUserPassword = async (req, res, next) => {
 }
 
 exports.updateUserStatus = async (req, res, next) => {
+
+    let is_admin = checkGroup(username, groupname);
+
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
+
     try {
         let {username,  active} = req.body;
         const values = [active, username];
@@ -163,6 +190,15 @@ exports.updateUserStatus = async (req, res, next) => {
 }
 
 exports.updateUserGroup = async (req, res, next) => {
+
+    let is_admin = checkGroup(username, groupname);
+
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
+
     try {
         let {username, group_id} = req.body;
         const values = [group_id, username];

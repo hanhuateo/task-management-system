@@ -1,5 +1,14 @@
 const pool = require('../utils/db');
 exports.createNewGroup = async (req, res, next) => {
+
+    let is_admin = checkGroup(username, groupname);
+
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
+
     try {
         let {group_name} = req.body;
         let sql = 'INSERT INTO group_list (Group_name) VALUES (?)';
@@ -14,6 +23,15 @@ exports.createNewGroup = async (req, res, next) => {
 }
 
 exports.getAllUserGroup = async (req, res, next) => {
+
+    let is_admin = checkGroup(username, groupname);
+
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
+
     try {
         let sql = 'SELECT Group_name FROM group_list WHERE Group_name != ?';
         let [val, fields] = await pool.execute(sql, ['admin'])
@@ -26,6 +44,15 @@ exports.getAllUserGroup = async (req, res, next) => {
 }
 
 exports.getUserGroup = async (req, res, next) => {
+
+    let is_admin = checkGroup(username, groupname);
+
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
+
     try {
         const {username} = req.body;
         let sql = 'SELECT Group_name FROM user_group WHERE User_name = ?';
