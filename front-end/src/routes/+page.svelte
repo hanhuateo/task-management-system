@@ -1,4 +1,6 @@
 <script>
+  import { goto } from '$app/navigation';
+    import axios from 'axios';
     // Sample list of apps
     let apps = [
       { name: "App_Acronym", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "<r number>" },
@@ -6,9 +8,18 @@
     ];
   
     let userName = "user_name"; // Placeholder for user name, you can replace it dynamically.
-  </script>
+
+    const logout = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/auth/logout');
+            goto('http://localhost:5173/login');
+        } catch (error) {
+            console.log(error);
+        }
+    }
+</script>
   
-  <style>
+<style>
     /* Container styles */
     .container {
       padding: 2rem;
@@ -70,17 +81,6 @@
       margin-bottom: 1rem;
     }
   
-    .view-link {
-      color: #007bff;
-      cursor: pointer;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  
-    .view-link:hover {
-      text-decoration: underline;
-    }
-  
     /* User icon styles */
     .user-icon {
       width: 30px;
@@ -92,28 +92,28 @@
       justify-content: center;
       font-size: 1.2rem;
     }
-  </style>
+</style>
   
-  <div class="container">
+<div class="container">
     <!-- Header Section -->
     <div class="header">
-      <h1>App List</h1>
-      <div class="user-info">
-        <span>{userName}</span>
-        <div class="user-icon">👤</div>
-      </div>
+        <h1>App List</h1>
+        <div class="user-info">
+            <span>{userName}</span>
+            <div class="user-icon">👤</div>
+        </div>
     </div>
   
     <!-- App List Section -->
     <div class="app-list">
-      {#each apps as app}
-        <div class="app-card">
-          <h2>{app.name}</h2>
-          <p>{app.description}</p>
-          <div class="number">{app.number}</div>
-          <!-- <a href="#" class="view-link">View</a> -->
-        </div>
-      {/each}
+        {#each apps as app}
+            <div class="app-card">
+                <h2>{app.name}</h2>
+                <p>{app.description}</p>
+                <div class="number">{app.number}</div>
+            </div>
+        {/each}
     </div>
-  </div>
-  
+    <br/>
+    <button on:click|preventDefault={logout} type="submit">Logout</button>
+</div>  

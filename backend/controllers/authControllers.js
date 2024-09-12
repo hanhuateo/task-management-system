@@ -63,7 +63,8 @@ exports.login = async (req, res, next) => {
 }
 
 exports.logout = async (req, res, next) => {
-    return res.clearCookie("token").status(200).json({
-        message : "cookie destroyed, logged out"
+    return res.clearCookie("token", {path : '/'} ).status(200).json({
+        message : "cookie destroyed, logged out",
+        success : true
     });
 }

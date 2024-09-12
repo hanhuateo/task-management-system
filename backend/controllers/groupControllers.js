@@ -64,3 +64,23 @@ exports.getUserGroup = async (req, res, next) => {
         })    
     }
 }
+
+async function checkGroup(username, groupname) {
+
+    try {
+        let sql1 = "SELECT gl.group_name" + 
+                    "FROM user_group ug" + 
+                    "JOIN group_list gl ON ug.group_id = gl.group_id" + 
+                    "WHERE ug.user_name = ?";
+        const [result] = await pool.execute(sql1, [username])
+
+        if (groupname in result) {
+            return true
+        }
+        else {
+            return false
+        }
+    } catch (err) {
+        console.log(err);
+    }
+}
