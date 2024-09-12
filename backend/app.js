@@ -18,6 +18,12 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
+const corsOption = {
+    origin: 'http://localhost:5173',
+    optionsSuccessStatus: 200
+}
+app.use(cors(corsOption));
+
 app.use("/users", users);
 app.use("/group", group);
 app.use("/auth", auth);
