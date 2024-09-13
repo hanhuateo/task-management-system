@@ -6,10 +6,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 exports.verifyToken = async (req, res, next) => {
     try {
         // check if token exist
-        if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-            token = req.headers.authorization.split(' ')[1];
-        }
-        else{
+        const token = req.cookies.token;
+        if (!token) {
             return res.status(401).json({
                 message : "login first thank you"
             })
@@ -26,7 +24,6 @@ exports.verifyToken = async (req, res, next) => {
             })
         }
     } catch (err) {
-        //console.log(err);
         return res.status(401).json({
             message : "invalid token"
         }); 

@@ -1,31 +1,83 @@
 <script>
-    // Simulating current user data
-    let user = {
-      username: 'admin',
-      email: 'admin@gmail.com'
-    };
-  
-    // State to manage new email and password inputs
-    let newEmail = user.email;
-    let newPassword = '';
-  
-    // Function to handle email update
-    function updateEmail() {
-        if (newEmail !== user.email) {
-            user.email = newEmail;
-            alert('Email updated successfully!');
-        } else {
-            alert('Please provide a new email.');
+    import axios from 'axios';
+    import {onMount} from 'svelte';
+
+    let email = '';
+    let password = '';
+    let current_email = '';
+    let is_successful = false;
+    let username = '';
+    let email_message = '';
+    let password_message = '';
+
+    onMount(async () => {
+        const storedUsername = localStorage.getItem("username");
+        if (storedUsername) {
+            username = storedUsername;
+        } 
+
+        try {
+            const response = await axios.post('http://localhost:3000/users/getUserDetails', {
+                username
+            }, 
+            {
+                withCredentials: true
+            });
+            // console.log(response);
+            current_email = response.data.val[0].email;
+            // console.log(current_email);
+        } catch (error) {
+            console.log(error);
+        }
+    })
+
+    const updateEmail = async () => {
+        try {
+            const response = await axios.patch('http://localhost:3000/users/updateUserEmail', 
+            {
+                username, 
+                email
+            }, 
+            {
+                withCredentials: true
+            });
+            // console.log(response);
+            is_successful = response.data.success;
+            if (!is_successful) {
+                email_message = response.data.message;
+                console.error(email_message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+        if (is_successful) {
+            window.location.reload();
         }
     }
-  
-    // Function to handle password update
-    function updatePassword() {
-        if (newPassword) {
-            alert('Password updated successfully!');
-            newPassword = ''; // Reset password field
-        } else {
-            alert('Please enter a new password.');
+
+    const updatePassword = async () => {
+        try {
+            const response = await axios.patch('http://localhost:3000/users/updateUserPassword', 
+                {
+                    username,
+                    password
+                }, 
+                {
+                    withCredentials: true
+                }
+            );
+            is_successful = response.data.success;
+            if (!is_successful) {
+                password_message = response.data.message;
+                console.log(password_message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+        if (is_successful) {
+            window.location.reload();
         }
     }
 </script>
@@ -75,28 +127,34 @@
         background-color: #0056b3;
     }
   
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+    }
 </style>
   
 <div class="container">
-    <h2>User profile</h2>
-  
+    <nav class="navbar">
+        <h2>User profile</h2>
+        <div class="user-profile">{username}</div>
+    </nav>
     <!-- User Details Section -->
     <div class="user-details">
-        <p><strong>Username:</strong> {user.username}</p>
-        <p><strong>Email:</strong> {user.email}</p>
+        <p><strong>Username:</strong> {username}</p>
+        <p><strong>Email:</strong> {current_email}</p>
     </div>
   
     <!-- Update Email Section -->
     <div class="form-section">
         <label for="email">Update Email</label>
-        <input type="email" id="email" bind:value={newEmail} placeholder="New email" />
+        <input type="email" id="email" bind:value={email } placeholder="New email" />
         <button on:click={updateEmail}>Update email</button>
     </div>
-  
+
     <!-- Change Password Section -->
     <div class="form-section">
         <label for="password">Change password</label>
-        <input type="password" id="password" bind:value={newPassword} placeholder="New Password" />
+        <input type="password" id="password" bind:value={password} placeholder="New Password" />
         <button on:click={updatePassword}>Change password</button>
     </div>
 </div>  

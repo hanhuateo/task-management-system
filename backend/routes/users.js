@@ -4,10 +4,10 @@ const userController = require('../controllers/usersControllers');
 const authMiddle = require('../middlewares/authMiddle');
 
 router.get('/getAllUsersDetails', authMiddle.verifyToken, userController.getAllUsersDetails);
-router.get('/getUserDetails', authMiddle.verifyToken, userController.getUserDetails);
+router.post('/getUserDetails', authMiddle.verifyToken, userController.getUserDetails);
 router.post('/createNewUser', authMiddle.verifyToken, userController.createNewUser);
-router.put('/updateUserEmail', authMiddle.verifyToken, userController.updateUserEmail);
-router.put('/updateUserPassword', authMiddle.verifyToken, userController.updateUserPassword);
-router.put('/updateUserStatus', authMiddle.verifyToken, userController.updateUserStatus);
-router.put('/updateUserGroup', authMiddle.verifyToken, userController.updateUserGroup);
+router.patch('/updateUserEmail', authMiddle.verifyToken, userController.updateUserEmail);
+router.patch('/updateUserPassword', authMiddle.verifyToken, userController.updateUserPassword);
+router.patch('/updateUserStatus', authMiddle.verifyToken, userController.updateUserStatus);
+router.patch('/updateUserGroup', authMiddle.verifyToken, userController.updateUserGroup);
 module.exports = router;

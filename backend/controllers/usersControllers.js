@@ -101,7 +101,8 @@ exports.updateUserEmail = async (req, res, next) => {
         const values = [email, username]
         if (!email) {
             return res.status(400).json({
-                message : 'Email is required'
+                message : 'Email is required',
+                success: false
             })
         }
 
@@ -109,7 +110,8 @@ exports.updateUserEmail = async (req, res, next) => {
         const emailRegex = new RegExp('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
         if (!emailRegex.test(email)) {
             return res.status(400).json({
-                message : 'Please follow email pattern - blablabla@blablabla.com'
+                message : 'Please follow email pattern - blablabla@blablabla.com',
+                success: false
             })
         }
         
@@ -118,11 +120,13 @@ exports.updateUserEmail = async (req, res, next) => {
         console.log(result);
         res.status(200).json({
             message:'User email has been updated', 
+            success: true,
             result
         });
     } catch (err) {
         return res.status(500).json({
-            message : "Server Error"
+            message : "Server Error",
+            success: false
         })
     }
 }
@@ -132,15 +136,18 @@ exports.updateUserPassword = async (req, res, next) => {
         let {username, password} = req.body;
         if (!password) {
             return res.status(400).json({
-                message : "Password is required"
+                message : "Password is required",
+                success: false
             })
         }
         
         const regex = new RegExp('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\[\\]{};\':"\\\\|,.<>?/-]).{8,10}$');
         if (!regex.test(password)){
             return res.status(400).json({
-                message : 'Password minimum 8 characters, max 10 characters, comprise of alphabets, numbers and special characters'})
-            }
+                message : 'Password minimum 8 characters, max 10 characters, comprise of alphabets, numbers and special characters',
+                success : false
+            })
+        }
             
         let sql = 'UPDATE user SET password = ? WHERE User_name = ?';
 
@@ -152,11 +159,13 @@ exports.updateUserPassword = async (req, res, next) => {
         console.log(result);
         res.status(200).json({
             message:'User password has been updated',
+            success : true,
             result
         });
     } catch (err) {
         return res.status(500).json({
-            message : "Server Error"
+            message : "Server Error",
+            success : false
         })    
     }
 }

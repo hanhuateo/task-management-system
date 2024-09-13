@@ -36,18 +36,6 @@
     function cancelEdit() {
       editingIndex = null;  // Reset the editing state
     }
-
-    import popup from './createGroupPopup.svelte'; // Import the popup component
-
-    let showModal = false;
-
-    function openModal() {
-        showModal = true;
-    }
-
-    function closeModal() {
-        showModal = false;
-    }
 </script>
   
 <style>
@@ -74,12 +62,7 @@
       color: red;
       cursor: pointer;
     }
-    .form-row input, .form-row select {
-      padding: 0.5rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      width: 100%;
-    }
+
     .btn {
       padding: 0.5rem 1rem;
       background-color: #007bff;
@@ -95,76 +78,102 @@
     .btn:hover {
       background-color: #0056b3;
     }
-  </style>
+
+    .create-user {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    .create .btn {
+        float: right;
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+    }
+
+</style>
   
-  <div class="container">
-    <h2>User Management</h2>
+<div class="container">
+    <nav class="navbar">
+        <h2>User Management</h2>
+        <div class="user-profile">username</div>
+    </nav>
+
+    <div>
+        <button class="create btn">Create New Group</button>
+    </div>
     <table>
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Password</th>
-          <th>Email</th>
-          <th>Active</th>
-          <th>Group</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each users as user, index}
-          {#if editingIndex === index}
-            <!-- Render editable form in place of the current row -->
+        <thead>
             <tr>
-              <td>{user.username}</td>
-              <td><input type="password" bind:value={user.password} placeholder="Password" /></td>
-              <td><input type="email" bind:value={user.email} placeholder="Email" /></td>
-              <td>
-                <select bind:value={user.active}>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-              </td>
-              <td>
-                <select bind:value={user.group}>
-                  <option value="Project Lead">Project Lead</option>
-                  <option value="Developer">Developer</option>
-                  <option value="Project Manager">Project Manager</option>
-                </select>
-              </td>
-              <td>
-                <button class="btn" on:click={() => saveUser(index)}>Save</button>
-                <button class="btn cancel" on:click={cancelEdit}>Cancel</button>
-              </td>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Email</th>
+                <th>Active</th>
+                <th>Group</th>
+                <th>Action</th>
             </tr>
-          {:else}
-            <!-- Regular row when not editing -->
-            <tr>
-              <td>{user.username}</td>
-              <td>{user.password}</td>
-              <td>{user.email}</td>
-              <td>{user.active}</td>
-              <td>{user.group}</td>
-              <td>
-                <span class="actions" on:click={() => editUser(index)}>Edit</span>
-              </td>
-            </tr>
-          {/if}
-        {/each}
-      </tbody>
+        </thead>
+        <tbody>
+            {#each users as user, index}
+                {#if editingIndex === index}
+                    <!-- Render editable form in place of the current row -->
+                    <tr>
+                        <td>{user.username}</td>
+                        <td><input type="password" bind:value={user.password} placeholder="Password" /></td>
+                        <td><input type="email" bind:value={user.email} placeholder="Email" /></td>
+                        <td>
+                            <select bind:value={user.active}>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select bind:value={user.group}>
+                                <option value="Project Lead">Project Lead</option>
+                                <option value="Developer">Developer</option>
+                                <option value="Project Manager">Project Manager</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="btn" on:click={() => saveUser(index)}>Save</button>
+                            <button class="btn cancel" on:click={cancelEdit}>Cancel</button>
+                        </td>   
+                    </tr>
+                {:else}
+                    <!-- Regular row when not editing -->
+                    <tr>
+                        <td>{user.username}</td>
+                        <td>{user.password}</td>
+                        <td>{user.email}</td>
+                        <td>{user.active}</td>
+                        <td>{user.group}</td>
+                        <td>
+                            <span class="actions" on:click={() => editUser(index)}>Edit</span>
+                        </td>
+                    </tr>
+                {/if}
+            {/each}
+        </tbody>
     </table>
   
     <!-- Create New User Form -->
     <h3>Create New User</h3>
-    <div class="form-row">
-      <input type="text" bind:value={newUser.username} placeholder="Username" />
-      <input type="password" bind:value={newUser.password} placeholder="Password" />
-      <input type="email" bind:value={newUser.email} placeholder="Email" />
-      <select bind:value={newUser.active}>
-        <option value="Yes">Yes</option>
-        <option value="No">No</option>
-      </select>
-      <input type="text" bind:value={newUser.group} placeholder="Group" />
-      <button class="btn" on:click={addUser}>Create User</button>
+    <div class="create-user">
+        <input type="password" bind:value={newUser.password} placeholder="Password" />
+        <input type="email" bind:value={newUser.email} placeholder="Email" />
+        <select bind:value={newUser.active}>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+        <select bind:value={newUser.group} placeholder="Gr">
+            <option value=2>Project Lead</option>
+            <option value=3>Project Manager</option>
+            <option value=4>Developer</option>
+        </select>
+        <button class="btn" on:click={addUser}>Create User</button>
     </div>
-  </div>
-  
+</div>

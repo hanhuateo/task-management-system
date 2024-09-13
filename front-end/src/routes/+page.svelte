@@ -11,7 +11,8 @@
 
     const logout = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/auth/logout');
+            const response = await axios.get('http://localhost:3000/auth/logout');
+            console.log(response);
             goto('http://localhost:5173/login');
         } catch (error) {
             console.log(error);

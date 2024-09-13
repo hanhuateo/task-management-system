@@ -5,8 +5,8 @@ const dotenv = require('dotenv').config({path : './config/config.env'});
 
 exports.login = async (req, res, next) => {
     const {username, password} = req.body;
-    console.log(username);
-    console.log(password);
+    // console.log(username);
+    // console.log(password);
     if (!username && !password) {
         return res.status(401).json({error : 'Invalid credentials'});
     }
@@ -63,8 +63,6 @@ exports.login = async (req, res, next) => {
 }
 
 exports.logout = async (req, res, next) => {
-    return res.clearCookie("token", {path : '/'} ).status(200).json({
-        message : "cookie destroyed, logged out",
-        success : true
-    });
+    res.clearCookie('token');
+    res.status(200).send('Cookie has been cleared');
 }

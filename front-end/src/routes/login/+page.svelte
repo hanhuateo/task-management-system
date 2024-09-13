@@ -1,6 +1,7 @@
 <script>
     import axios from 'axios';
     import { goto } from '$app/navigation';
+    import { onMount } from 'svelte';
 
     let username = '';
     let password = '';
@@ -16,6 +17,7 @@
             is_successful = response.data.success;
 
             if (is_successful) {
+                localStorage.setItem("username", username);
                 goto('http://localhost:5173/');
             }
         } catch (error) {
