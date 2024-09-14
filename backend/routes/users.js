@@ -4,7 +4,7 @@ const userController = require('../controllers/usersControllers');
 const authMiddle = require('../middlewares/authMiddle');
 
 router.get('/getAllUsersDetails', authMiddle.verifyToken, userController.getAllUsersDetails);
-router.post('/getUserDetails', authMiddle.verifyToken, userController.getUserDetails);
+router.get('/getUserDetails', authMiddle.verifyToken, userController.getUserDetails);
 router.post('/createNewUser', authMiddle.verifyToken, userController.createNewUser);
 router.patch('/updateUserEmail', authMiddle.verifyToken, userController.updateUserEmail);
 router.patch('/updateUserPassword', authMiddle.verifyToken, userController.updateUserPassword);

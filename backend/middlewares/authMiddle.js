@@ -23,11 +23,12 @@ exports.verifyToken = async (req, res, next) => {
                 message : "invalid token1"
             })
         }
+        req.user = decoded_payload.username;
+        // console.log(req.user);
+        next();
     } catch (err) {
         return res.status(401).json({
             message : "invalid token"
         }); 
     }
-    req.user = decoded_payload.username;
-    next();
 }

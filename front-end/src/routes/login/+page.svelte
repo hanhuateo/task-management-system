@@ -17,7 +17,6 @@
             is_successful = response.data.success;
 
             if (is_successful) {
-                localStorage.setItem("username", username);
                 goto('http://localhost:5173/');
             }
         } catch (error) {

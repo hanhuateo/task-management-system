@@ -24,7 +24,8 @@ exports.getAllUsersDetails = async (req, res, next) => {
 
 exports.getUserDetails = async (req, res, next) => {
     try {
-        const {username} = req.body;
+        // const {username} = req.body;
+        const username = req.user;
         let [val, fields] = await pool.execute("SELECT * FROM user WHERE user_name = ?", [username]);
         // no need to check whether user exist because already logged in;
         res.status(200).json({

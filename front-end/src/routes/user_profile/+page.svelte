@@ -9,22 +9,19 @@
     let username = '';
     let email_message = '';
     let password_message = '';
+    let showDropdown= false;
+    let active = 0;
 
     onMount(async () => {
-        const storedUsername = localStorage.getItem("username");
-        if (storedUsername) {
-            username = storedUsername;
-        } 
 
         try {
-            const response = await axios.post('http://localhost:3000/users/getUserDetails', {
-                username
-            }, 
+            const response = await axios.get('http://localhost:3000/users/getUserDetails',
             {
                 withCredentials: true
             });
-            // console.log(response);
+
             current_email = response.data.val[0].email;
+            username = response.data.val[0].user_name;
             // console.log(current_email);
         } catch (error) {
             console.log(error);
@@ -80,6 +77,15 @@
             window.location.reload();
         }
     }
+
+    const handleMouseEnter = () => {
+        showDropdown = true;
+    }
+
+    const handleMouseLeave = () => {
+        showDropdown = false;
+    }
+
 </script>
   
 <style>
@@ -131,12 +137,42 @@
         display: flex;
         justify-content: space-between;
     }
+
+    .dropdown {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        padding: 12px 16px;
+        z-index: 1;
+    }
+
+    .dropdown-visible {
+        display: block;
+    }
+
+    .user-profile {
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
+    }
 </style>
   
 <div class="container">
+    <div><a href='/'>App List</a></div>
     <nav class="navbar">
         <h2>User profile</h2>
-        <div class="user-profile">{username}</div>
+        <div role="button" class="user-profile" tabindex=0
+        on:mouseenter={handleMouseEnter}
+        on:mouseleave={handleMouseLeave}>
+            {username}
+            <div class="dropdown" class:dropdown-visible={showDropdown}>
+                <div><a href='/user_profile'>View/Edit Profile</a></div>
+                <div><a href='/user_management'>User Management</a></div>
+                <div>Logout</div>
+            </div>
+        </div>
     </nav>
     <!-- User Details Section -->
     <div class="user-details">
