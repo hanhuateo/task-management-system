@@ -35,7 +35,7 @@
         background: #f9f9f9;
     }
     input {
-        width: 100%;
+        width: 92%;
         padding: 10px;
         margin-bottom: 10px;
         border-radius: 5px;
