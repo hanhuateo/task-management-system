@@ -44,6 +44,7 @@ exports.getUserDetails = async (req, res, next) => {
 exports.createNewUser = async (req, res, next) => {
     let username = req.user;
     let is_admin = await checkGroup(username, "admin");
+    // console.log("is_admin : " + is_admin);
 
     if (!is_admin) {
         return res.status(500).json({
@@ -239,8 +240,10 @@ async function checkGroup(username, groupname) {
                     "JOIN group_list gl ON ug.group_id = gl.group_id " + 
                     "WHERE ug.user_name = ?";
         const [result] = await pool.execute(sql1, [username])
-
-        if (groupname in result) {
+        // console.log("checkGroup result is : ");
+        // console.log(result);
+        // console.log(result[0].group_name);
+        if (groupname === result[0].group_name) {
             return true
         }
         else {

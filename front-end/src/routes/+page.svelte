@@ -5,7 +5,6 @@
 
     let showDropdown= false;
     let username = '';
-    let group_id = '';
     let isAdmin = false;
     // Sample list of apps
     let apps = [

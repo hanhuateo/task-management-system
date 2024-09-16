@@ -76,7 +76,7 @@ async function checkGroup(username, groupname) {
                     "JOIN group_list gl ON ug.group_id = gl.group_id " + 
                     "WHERE ug.user_name = ?";
         const [result] = await pool.execute(sql1, [username]);
-        if (groupname in result) {
+        if (groupname === result[0].group_name) {
             return true
         }
         else {
