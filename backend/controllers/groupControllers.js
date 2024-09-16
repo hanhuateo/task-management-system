@@ -1,8 +1,8 @@
 const pool = require('../utils/db');
 exports.createNewGroup = async (req, res, next) => {
-
-    let is_admin = checkGroup(username, groupname);
-
+    let username = req.user;
+    let is_admin = await checkGroup(username, "admin");
+    console.log(is_admin);
     if (!is_admin) {
         return res.status(500).json({
             message : "Do not have permission to access this resource"
@@ -23,8 +23,8 @@ exports.createNewGroup = async (req, res, next) => {
 }
 
 exports.getAllUserGroup = async (req, res, next) => {
-
-    let is_admin = checkGroup(username, groupname);
+    let username = req.user;
+    let is_admin = await checkGroup(username, 'admin');
 
     if (!is_admin) {
         return res.status(500).json({
@@ -44,8 +44,8 @@ exports.getAllUserGroup = async (req, res, next) => {
 }
 
 exports.getUserGroup = async (req, res, next) => {
-
-    let is_admin = checkGroup(username, groupname);
+    let username = req.user;
+    let is_admin = await checkGroup(username, 'admin');
 
     if (!is_admin) {
         return res.status(500).json({
@@ -68,12 +68,12 @@ exports.getUserGroup = async (req, res, next) => {
 async function checkGroup(username, groupname) {
 
     try {
-        let sql1 = "SELECT gl.group_name" + 
-                    "FROM user_group ug" + 
-                    "JOIN group_list gl ON ug.group_id = gl.group_id" + 
+        let sql1 = "SELECT gl.group_name " + 
+                    "FROM user_group ug " + 
+                    "JOIN group_list gl ON ug.group_id = gl.group_id " + 
                     "WHERE ug.user_name = ?";
         const [result] = await pool.execute(sql1, [username])
-
+        console.log(result);
         if (groupname in result) {
             return true
         }
