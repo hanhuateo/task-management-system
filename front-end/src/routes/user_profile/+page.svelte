@@ -1,6 +1,7 @@
 <script>
     import axios from 'axios';
     import {onMount} from 'svelte';
+    import {goto} from '$app/navigation';
 
     let email = '';
     let password = '';
@@ -10,7 +11,7 @@
     let email_message = '';
     let password_message = '';
     let showDropdown= false;
-    let active = 0;
+    // let active = 0;
 
     onMount(async () => {
 
@@ -86,6 +87,17 @@
         showDropdown = false;
     }
 
+    const logout = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/auth/logout', {
+                withCredentials: true
+            });
+            console.log(response);
+            goto('http://localhost:5173/login');
+        } catch (error) {
+            console.log(error);
+        }
+    }
 </script>
   
 <style>
@@ -170,7 +182,7 @@
             <div class="dropdown" class:dropdown-visible={showDropdown}>
                 <div><a href='/user_profile'>View/Edit Profile</a></div>
                 <div><a href='/user_management'>User Management</a></div>
-                <div>Logout</div>
+                <div><button on:click|preventDefault={logout} type="submit">Logout</button></div>
             </div>
         </div>
     </nav>

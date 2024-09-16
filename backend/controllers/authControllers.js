@@ -15,7 +15,6 @@ exports.login = async (req, res, next) => {
         // check 1. if user exists 2. if password matches 3. if user is active
         let check_user_exist_sql = "SELECT * FROM user WHERE user_name = ?";
         const [val, field] = await pool.execute(check_user_exist_sql, [username]);
-        console.log(val);
         if (val.length === 0) {
             return res.status(401).json({error : 'Invalid Credentials'});
         }
@@ -55,8 +54,6 @@ exports.login = async (req, res, next) => {
             // jwtToken is placed here for postman usage ONLY
             // jwtToken
         })
-
-        console.log(jwtToken);
     } catch (err) {
         console.log(err);
     }

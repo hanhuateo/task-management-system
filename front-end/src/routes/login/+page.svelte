@@ -43,10 +43,14 @@
     button {
         width: 100%;
         padding: 10px;
-        background-color: #4CAF50;
+        background-color: #007bff;
         color: white;
         border: none;
         border-radius: 5px;
+    }
+
+    h2 {
+        text-align: center;
     }
 </style>
 

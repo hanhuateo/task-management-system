@@ -1,6 +1,10 @@
 <script>
-  import { goto } from '$app/navigation';
+    import { goto } from '$app/navigation';
     import axios from 'axios';
+    import {onMount} from 'svelte';
+
+    let showDropdown= false;
+    let username = '';
     // Sample list of apps
     let apps = [
       { name: "App_Acronym", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "<r number>" },
@@ -19,6 +23,29 @@
         } catch (error) {
             console.log(error);
         }
+    }
+
+    onMount(async () => {
+
+        try {
+            const response = await axios.get('http://localhost:3000/users/getUserDetails',
+            {
+                withCredentials: true
+            });
+
+            username = response.data.val[0].user_name;
+            // console.log(current_email);
+        } catch (error) {
+            console.log(error);
+        }
+    })
+
+    const handleMouseEnter = () => {
+        showDropdown = true;
+    }
+
+    const handleMouseLeave = () => {
+        showDropdown = false;
     }
 </script>
   
@@ -41,16 +68,6 @@
   
     h1 {
       font-size: 1.5rem;
-    }
-  
-    .user-info {
-      display: flex;
-      align-items: center;
-      font-size: 1.1rem;
-    }
-  
-    .user-info span {
-      margin-right: 0.5rem;
     }
   
     .app-list {
@@ -83,28 +100,49 @@
       font-size: 0.9rem;
       margin-bottom: 1rem;
     }
-  
-    /* User icon styles */
-    .user-icon {
-      width: 30px;
-      height: 30px;
-      background-color: #ccc;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .dropdown {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        padding: 12px 16px;
+        z-index: 1;
+    }
+
+    .dropdown-visible {
+        display: block;
+    }
+
+    .user-profile {
+        display: inline-block;
+        position: relative;
+        cursor: pointer;
     }
 </style>
   
 <div class="container">
     <!-- Header Section -->
     <div class="header">
-        <h1>App List</h1>
-        <div class="user-info">
-            <span>{userName}</span>
-            <div class="user-icon">👤</div>
-        </div>
+        <a href='/'><h1>App List</h1></a>
+        <nav class="navbar">
+            <div role="button" class="user-profile" tabindex=0
+            on:mouseenter={handleMouseEnter}
+            on:mouseleave={handleMouseLeave}>
+                {username}
+                <div class="dropdown" class:dropdown-visible={showDropdown}>
+                    <div><a href='/user_profile'>View/Edit Profile</a></div>
+                    <div><a href='/user_management'>User Management</a></div>
+                    <div><button on:click|preventDefault={logout} type="submit">Logout</button></div>
+                </div>
+            </div>
+        </nav>
     </div>
   
     <!-- App List Section -->
@@ -118,5 +156,5 @@
         {/each}
     </div>
     <br/>
-    <button on:click|preventDefault={logout} type="submit">Logout</button>
+    
 </div>  
