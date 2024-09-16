@@ -2,7 +2,6 @@ const pool = require('../utils/db');
 exports.createNewGroup = async (req, res, next) => {
     let username = req.user;
     let is_admin = await checkGroup(username, "admin");
-    console.log(is_admin);
     if (!is_admin) {
         return res.status(500).json({
             message : "Do not have permission to access this resource"
@@ -72,8 +71,7 @@ async function checkGroup(username, groupname) {
                     "FROM user_group ug " + 
                     "JOIN group_list gl ON ug.group_id = gl.group_id " + 
                     "WHERE ug.user_name = ?";
-        const [result] = await pool.execute(sql1, [username])
-        console.log(result);
+        const [result] = await pool.execute(sql1, [username]);
         if (groupname in result) {
             return true
         }
