@@ -64,5 +64,6 @@ exports.login = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
     res.clearCookie("token");
+    res.clearCookie('connect.sid');
     res.status(200).send('Cookie has been cleared');
 }

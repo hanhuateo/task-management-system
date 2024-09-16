@@ -26,6 +26,9 @@ exports.getUserDetails = async (req, res, next) => {
     try {
         // const {username} = req.body;
         const username = req.user;
+        if (!username) {
+            res.status(401).send("Do not have permission to access this resource")
+        }
         let [val, fields] = await pool.execute("SELECT * FROM user WHERE user_name = ?", [username]);
         // no need to check whether user exist because already logged in;
         res.status(200).json({
@@ -63,6 +66,7 @@ exports.createNewUser = async (req, res, next) => {
         if (!group_id) {
             missingFields.push('Group');
         }
+
         if (missingFields.length > 0) {
             return res.status(400).json({
                 message : `The following fields are required: ${missingFields.join(', ')}`
