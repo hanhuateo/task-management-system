@@ -2,9 +2,8 @@ const pool = require('../utils/db');
 const bcrypt = require('bcrypt');
 
 exports.getAllUsersDetails = async (req, res, next) => {
-    let {username, groupname} = req.body;
-
-    let is_admin = checkGroup(username, groupname);
+    let username = req.user;
+    let is_admin = await checkGroup(username, "admin");
 
     if (!is_admin) {
         return res.status(500).json({
@@ -43,14 +42,14 @@ exports.getUserDetails = async (req, res, next) => {
 }
 
 exports.createNewUser = async (req, res, next) => {
+    let username = req.user;
+    let is_admin = await checkGroup(username, "admin");
 
-    // let is_admin = checkGroup(username, groupname);
-
-    // if (!is_admin) {
-    //     return res.status(500).json({
-    //         message : "Do not have permission to access this resource"
-    //     })
-    // }
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
 
     try {
         let {username, password, active, group_id} = req.body;
@@ -101,6 +100,14 @@ exports.createNewUser = async (req, res, next) => {
 }
 
 exports.updateUserEmail = async (req, res, next) => {
+    let username = req.user;
+    let is_admin = await checkGroup(username, "admin");
+
+    if (!is_admin) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource"
+        })
+    }
     try {
         let {username, email} = req.body;
         const values = [email, username]
@@ -234,9 +241,9 @@ exports.updateUserGroup = async (req, res, next) => {
 async function checkGroup(username, groupname) {
 
     try {
-        let sql1 = "SELECT gl.group_name" + 
-                    "FROM user_group ug" + 
-                    "JOIN group_list gl ON ug.group_id = gl.group_id" + 
+        let sql1 = "SELECT gl.group_name " + 
+                    "FROM user_group ug " + 
+                    "JOIN group_list gl ON ug.group_id = gl.group_id " + 
                     "WHERE ug.user_name = ?";
         const [result] = await pool.execute(sql1, [username])
 
