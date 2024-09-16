@@ -5,20 +5,20 @@
 
     let showDropdown= false;
     let username = '';
+    let group_id = '';
+    let isAdmin = false;
     // Sample list of apps
     let apps = [
       { name: "App_Acronym", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "<r number>" },
       { name: "App name 2", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "123" }
     ];
-  
-    let userName = "user_name"; // Placeholder for user name, you can replace it dynamically.
 
     const logout = async () => {
         try {
             const response = await axios.get('http://localhost:3000/auth/logout', {
                 withCredentials: true
             });
-            console.log(response);
+            // console.log(response);
             goto('http://localhost:5173/login');
         } catch (error) {
             console.log(error);
@@ -28,13 +28,14 @@
     onMount(async () => {
 
         try {
-            const response = await axios.get('http://localhost:3000/users/getUserDetails',
-            {
-                withCredentials: true
-            });
-
-            username = response.data.val[0].user_name;
-            // console.log(current_email);
+            const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
+                {
+                    withCredentials: true
+                }
+            );
+            console.log(group_response);
+            username = group_response.data.result[1].username;
+            isAdmin = group_response.data.isAdmin;
         } catch (error) {
             console.log(error);
         }
@@ -138,7 +139,9 @@
                 {username}
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
                     <div><a href='/user_profile'>View/Edit Profile</a></div>
-                    <div><a href='/user_management'>User Management</a></div>
+                    {#if isAdmin}
+                        <div><a href='/user_management'>User Management</a></div>
+                    {/if}
                     <div><button on:click|preventDefault={logout} type="submit">Logout</button></div>
                 </div>
             </div>

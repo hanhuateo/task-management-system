@@ -43,23 +43,27 @@ exports.getAllUserGroup = async (req, res, next) => {
 }
 
 exports.getUserGroup = async (req, res, next) => {
-    let username = req.user;
-    let is_admin = await checkGroup(username, 'admin');
-
-    if (!is_admin) {
-        return res.status(500).json({
-            message : "Do not have permission to access this resource"
-        })
-    }
 
     try {
-        const {username} = req.body;
-        let sql = 'SELECT Group_name FROM user_group WHERE User_name = ?';
+        let isAdmin = false;
+        const username = req.user;
+        let sql = 'SELECT Group_id FROM user_group WHERE User_name = ?';
         const [result] = await pool.execute(sql, [username]);
-        res.send(result);
+        // console.log(result);
+        // console.log(result[0].Group_id);
+        if (result[0].Group_id === 1) {
+            isAdmin = true;
+        }
+        
+        result.push({'username': username});
+        res.status(200).json({message : "getUserGroup successful", 
+            success : true,
+            result,
+            isAdmin
+        })
     } catch (err) {
         return res.status(500).json({
-            message : "Server Error",
+            message : "getUserGroup Server Error",
         })    
     }
 }

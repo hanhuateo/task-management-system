@@ -46,6 +46,7 @@
                 console.error(email_message);
             }
         } catch (error) {
+            alert('Please input new email');
             console.log(error);
         }
 
@@ -71,6 +72,7 @@
                 console.log(password_message);
             }
         } catch (error) {
+            alert('Please input new password')
             console.log(error);
         }
 
