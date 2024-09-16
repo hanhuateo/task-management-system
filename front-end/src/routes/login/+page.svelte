@@ -6,6 +6,8 @@
     let username = '';
     let password = '';
     let is_successful;
+    let showPopup = false;
+    let errorMessage = "";
 
     const login = async () => {
         try {
@@ -15,13 +17,20 @@
             }, {withCredentials: true});
             console.log(response);
             is_successful = response.data.success;
-
+            console.log(is_successful);
             if (is_successful) {
+                showPopup = false;
                 goto('http://localhost:5173/');
             }
+            
         } catch (error) {
             console.log(error);
+            alert('Invalid credentials');
         }
+    }
+
+    const closePopup = () => {
+        showPopup = false;
     }
 </script>
 
@@ -57,9 +66,10 @@
 <h2>Login</h2>
 
 <form on:submit|preventDefault={login}>
-    <input type="text" placeholder="Username" bind:value={username} required />
+    <input type="text" placeholder="Username" bind:value={username}  />
 
-    <input type="password" placeholder="Password" bind:value={password} required />
+    <input type="password" placeholder="Password" bind:value={password}  />
 
     <button type="submit">Login</button>
+
 </form>
