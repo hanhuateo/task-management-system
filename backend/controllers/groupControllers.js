@@ -32,8 +32,8 @@ exports.getAllUserGroup = async (req, res, next) => {
     }
 
     try {
-        let sql = 'SELECT Group_name FROM group_list WHERE Group_name != ?';
-        let [val, fields] = await pool.execute(sql, ['admin'])
+        let sql = 'SELECT Group_name FROM group_list';
+        let [val, fields] = await pool.execute(sql);
         res.status(200).json({val});
     } catch (err) {
         return res.status(500).json({

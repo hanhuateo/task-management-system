@@ -54,6 +54,10 @@ exports.createNewUser = async (req, res, next) => {
 
     try {
         let {username, password, active, group_id} = req.body;
+        console.log(username);
+        console.log(password);
+        console.log(active);
+        console.log(group_id);
 
         // check if any required field missing
         let missingFields = [];
@@ -62,9 +66,6 @@ exports.createNewUser = async (req, res, next) => {
         }
         if (!password) {
             missingFields.push('Password');
-        }
-        if (!group_id) {
-            missingFields.push('Group');
         }
 
         if (missingFields.length > 0) {
@@ -84,19 +85,23 @@ exports.createNewUser = async (req, res, next) => {
         let hashed = bcrypt.hashSync(password, 10);
 
         const user_values = [username, hashed, active];
-        const user_group_values = [username, group_id];
-
+        
         let sql1 = "INSERT INTO user (User_name, Password, Email, Active) VALUES (?, ?, NULL, ?)";
         const [user_result] = await pool.execute(sql1, user_values);
         
-        let sql2 = "INSERT INTO user_group (User_name, Group_id) VALUES (?, ?)";
-        const [user_group_result] = await pool.execute(sql2, user_group_values);
+        // const user_group_values = [username, group_id];
+        for (i = 0; i < group_id.length; i++) {
+            let user_group_values = [username, group_id[i]]
+            let sql2 = "INSERT INTO user_group (User_name, Group_id) VALUES (?, ?)";
+            const [user_group_result] = await pool.execute(sql2, user_group_values);
+        }
+        // const [user_group_result] = await pool.execute(sql2, user_group_values);
 
-        res.status(200).json({message : 'New user has been created', user_result, user_group_result});
+        res.status(200).json({message : 'New user has been created', 
+            success : true
+        });
     } catch (err) {
-        return res.status(500).json({
-            message : 'Username exists'
-        })
+        console.log(err);
     }
 }
 

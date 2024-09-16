@@ -25,7 +25,9 @@
                     withCredentials: true
                 }
             );
-            console.log(getAllUserDetails_response);
+            // console.log(getAllUserDetails_response);
+
+            getAllUserGroups();
         } catch (error) {
             console.log(error);
         }
@@ -73,6 +75,51 @@
                 }
             )
             console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    let newUser = {username: '', password: '' , active: 'Yes', group: ''};
+
+    const createNewUser = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/users/createNewUser',
+                {
+                    username : newUser.username,
+                    password : newUser.password,
+                    active : newUser.active,
+                    group_id : newUser.group
+                },
+                {
+                    withCredentials: true
+                }
+            )
+
+            newUser.username = '';
+            newUser.password = '';
+            newUser.active = '';
+            newUser.group = '';
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    
+    let groups = [];
+    const getAllUserGroups = async () => {
+        try {
+            groups = [];
+            const response = await axios.get('http://localhost:3000/group/getAllUserGroup',
+                {
+                    withCredentials: true
+                }
+            )
+            // for (let i = 0; i < response.data.val.length; i++) {
+            //     groups.push(response.data.val[i].Group_name);
+            // }
+            groups = response.data.val.map(item => item.Group_name);
+            // console.log(groups);
         } catch (error) {
             console.log(error);
         }
@@ -160,6 +207,19 @@
         border-radius: 5px;
         border: 1px solid #ddd;
     }
+
+    .create-new-user-btn {
+        padding: 0.75rem 1.5rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .create-new-user-btn:hover {
+        background-color: #0056b3;
+    }
 </style>
 
 <div class="container">
@@ -176,7 +236,7 @@
                     {#if isAdmin}
                         <div><a href='/user_management'>User Management</a></div>
                     {/if}
-                    <div><button on:click|preventDefault={logout} type="submit">Logout</button></div>
+                    <div><button on:click={logout} type="submit">Logout</button></div>
                 </div>
             </div>
         </nav>
@@ -201,5 +261,30 @@
                 </div>
             </div>
         {/if}
+    </div>
+
+    <div class="create-new-user">
+        <h2>Create New User</h2>
+
+        <form class="create-new-user-form">
+            <label for="username">Username</label>
+            <input id="username" bind:value={newUser.username}>
+            <label for="password">Password</label>
+            <input id="password" type="password" bind:value={newUser.password}>
+            <label for="active">Active</label>
+            <select id="active" bind:value={newUser.active} >
+                <option value=1 selected>Yes</option>
+                <option value=0>No</option>
+            </select>
+            <label for="group_title">Group</label>
+            <select id="group_title" bind:value={newUser.group} multiple>
+                <option value=""></option>
+                {#each groups as group, index}
+                    <option value={index + 1}>{group}</option>>
+                {/each}
+            </select>
+            
+            <button class="create-new-user-btn" on:click={createNewUser}>Create New User</button>
+        </form>
     </div>
 </div>
