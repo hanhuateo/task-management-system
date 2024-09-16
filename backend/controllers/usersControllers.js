@@ -100,16 +100,9 @@ exports.createNewUser = async (req, res, next) => {
 }
 
 exports.updateUserEmail = async (req, res, next) => {
-    let username = req.user;
-    let is_admin = await checkGroup(username, "admin");
-
-    if (!is_admin) {
-        return res.status(500).json({
-            message : "Do not have permission to access this resource"
-        })
-    }
     try {
-        let {username, email} = req.body;
+        let username = req.user
+        let {email} = req.body;
         const values = [email, username]
         if (!email) {
             return res.status(400).json({
@@ -183,8 +176,8 @@ exports.updateUserPassword = async (req, res, next) => {
 }
 
 exports.updateUserStatus = async (req, res, next) => {
-
-    let is_admin = checkGroup(username, groupname);
+    let username = req.user;
+    let is_admin = checkGroup(username, "admin");
 
     if (!is_admin) {
         return res.status(500).json({
@@ -211,8 +204,8 @@ exports.updateUserStatus = async (req, res, next) => {
 }
 
 exports.updateUserGroup = async (req, res, next) => {
-
-    let is_admin = checkGroup(username, groupname);
+    let username = req.user;
+    let is_admin = checkGroup(username, "admin");
 
     if (!is_admin) {
         return res.status(500).json({

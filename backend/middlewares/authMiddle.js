@@ -23,9 +23,7 @@ exports.verifyToken = async (req, res, next) => {
                 message : "invalid token1"
             })
         }
-        // req.user = decoded_payload.username;
-        req.user = decoded_payload;
-        console.log(req.user);
+        req.user = decoded_payload.username;
         // console.log(req.user);
         next();
     } catch (err) {
