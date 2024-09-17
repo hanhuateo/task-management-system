@@ -54,7 +54,7 @@
             if (!isAdmin && adminUserManagementFlag) {
                 // console.log('about to relead');
                 // window.location.reload();
-                await goto('http://localhost:5173/');
+                goto('http://localhost:5173/');
                 alert('Do not have permission to access this resource');
             }
         } catch (error) {

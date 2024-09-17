@@ -8,11 +8,11 @@
     let current_email = '';
     let is_successful = false;
     let username = '';
-    let email_message = '';
-    let password_message = '';
     let showDropdown= false;
     let isAdmin = false;
-    let user_status = 0
+    let user_status = 0;
+    let adminUserManagementFlag = false;
+
 
     onMount(async () => {
         checkStatus();
@@ -55,6 +55,12 @@
             // if (!isAdmin) {
             //     goto('http://localhost:5173/');
             // }
+            if (!isAdmin && adminUserManagementFlag) {
+                // console.log('about to relead');
+                // window.location.reload();
+                goto('http://localhost:5173/');
+                alert('Do not have permission to access this resource');
+            }
         } catch (error) {
             console.log(error);
             // alert(error.response.data.message);
@@ -125,6 +131,26 @@
             goto('http://localhost:5173/login');
         } catch (error) {
             console.log(error);
+        }
+    }
+
+    const handleUserManagementClick = async () => {
+        checkStatus();
+        adminUserManagementFlag = true;
+        checkAdmin();
+    }
+
+    const handleUpdateEmailClick = async () => {
+        await checkStatus();
+        if (user_status === 1) {
+            updateEmail();
+        }
+    }
+
+    const handleUpdatePasswordClick = async () => {
+        await checkStatus();
+        if (user_status === 1) {
+            updatePassword();
         }
     }
 </script>
@@ -303,9 +329,9 @@
                 <span>{username}</span>
                 <img src="https://via.placeholder.com/40" alt="user icon" class="user-icon" />
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
-                    <div><a href='/user_profile'>View/Edit Profile</a></div>
+                    <div><a href='/user_profile' on:click={checkStatus}>View/Edit Profile</a></div>
                     {#if isAdmin}
-                        <div><a href='/user_management'>User Management</a></div>
+                        <div><a href='/user_management' on:click={handleUserManagementClick}>User Management</a></div>
                     {/if}
                     <div><button class="submit" on:click|preventDefault={logout} type="submit">Logout</button></div>
                 </div>
@@ -324,13 +350,13 @@
     <div class="form-section">
         <label for="email">Update Email</label>
         <input type="email" id="email" bind:value={email } placeholder="New email" />
-        <button on:click={updateEmail}>Update email</button>
+        <button on:click={handleUpdateEmailClick}>Update email</button>
     </div>
 
     <!-- Change Password Section -->
     <div class="form-section">
         <label for="password">Change password</label>
         <input type="password" id="password" bind:value={password} placeholder="New Password" />
-        <button on:click={updatePassword}>Change password</button>
+        <button on:click={handleUpdatePasswordClick}>Change password</button>
     </div>
 </div>  
