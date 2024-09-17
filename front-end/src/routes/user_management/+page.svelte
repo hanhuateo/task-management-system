@@ -68,10 +68,6 @@
     }
 
     const createGroup = async () => {
-        if (!group_name) {
-            alert('Please input new group name');
-        }
-        console.log(group_name);
         try {
             const response = await axios.post('http://localhost:3000/group/createNewGroup', 
                 {
@@ -84,6 +80,7 @@
             console.log(response);
         } catch (error) {
             console.log(error);
+            alert(error.response.data.message);
         }
     }
 
