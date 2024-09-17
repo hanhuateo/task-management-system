@@ -1,13 +1,11 @@
 <script>
     import axios from 'axios';
     import { goto } from '$app/navigation';
-    import { onMount } from 'svelte';
 
     let username = '';
     let password = '';
     let is_successful;
     let showPopup = false;
-    let errorMessage = "";
 
     const login = async () => {
         try {
@@ -27,10 +25,6 @@
             console.log(error);
             alert('Invalid credentials');
         }
-    }
-
-    const closePopup = () => {
-        showPopup = false;
     }
 </script>
 
