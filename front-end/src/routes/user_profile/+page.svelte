@@ -41,12 +41,8 @@
             });
             // console.log(response);
             is_successful = response.data.success;
-            if (!is_successful) {
-                email_message = response.data.message;
-                console.error(email_message);
-            }
         } catch (error) {
-            alert('Please input new email');
+            alert(error.response.data.message);
             console.log(error);
         }
 
@@ -67,12 +63,8 @@
                 }
             );
             is_successful = response.data.success;
-            if (!is_successful) {
-                password_message = response.data.message;
-                console.log(password_message);
-            }
         } catch (error) {
-            alert('Please input new password')
+            alert(error.response.data.message)
             console.log(error);
         }
 
@@ -170,6 +162,7 @@
         display: inline-block;
         position: relative;
         cursor: pointer;
+
     }
 </style>
   
@@ -180,7 +173,7 @@
         <div role="button" class="user-profile" tabindex=0
         on:mouseenter={handleMouseEnter}
         on:mouseleave={handleMouseLeave}>
-            {username}
+            {username} &#128522;
             <div class="dropdown" class:dropdown-visible={showDropdown}>
                 <div><a href='/user_profile'>View/Edit Profile</a></div>
                 <div><a href='/user_management'>User Management</a></div>
