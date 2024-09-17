@@ -19,7 +19,7 @@
                 }
             );
             // console.log(group_response);
-            username = group_response.data.result[1].username;
+            username = group_response.data.result[0].username;
             isAdmin = group_response.data.isAdmin;
             
             const getAllUserDetails_response = await axios.get('http://localhost:3000/users/getAllUsersDetails',
