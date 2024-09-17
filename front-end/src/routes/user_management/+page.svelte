@@ -2,13 +2,13 @@
     import { goto } from '$app/navigation';
     import axios from 'axios';
     import {onMount} from 'svelte';
+    import {writable} from 'svelte/store';
 
     let showDropdown = false
     let username = '';
     let isAdmin = false;
     let users = [];
-    let editUser = false;
-
+    let editUserFlag = false
     onMount(async () => {
         
         try {
@@ -30,9 +30,7 @@
 
             // console.log(...getAllUserDetails_response.data.val);
             users = [...getAllUserDetails_response.data.val];
-            
-
-            
+            // console.log(users);            
         } catch (error) {
             console.log(error);
         }
@@ -140,14 +138,84 @@
         createNewUser();
         window.location.reload();
     }
-    const handleEditUserClick = () => {
-        editUser = !editUser;
+    
+    let updatedUser = {username: '', password: '', email: '', active: 1, group_names: []};
+    let editingUserId = writable(null);
+    function startEditing(index) {
+        editingUserId.set(index);
+        updatedUser.username = users[index].user_name;
+    }
+    const saveUser = async(user) => {
+        //handle saving edited data
+        let successArray = [];
+        try {
+            console.log(user.username);
+            // console.log(user.password);
+            // console.log(user.email);
+            // console.log(user.active);
+            console.log(user.group_names);
+            if (user.password) {
+                const update_password_response = await axios.patch('http://localhost:3000/users/adminUpdateUserPassword', 
+                    {
+                        username : user.username,
+                        password : user.password
+                    }, 
+                    {
+                        withCredentials: true
+                    }
+                )
+            }
+
+            if (user.email) {
+                const update_email_response = await axios.patch('http://localhost:3000/users/adminUpdateUserEmail',
+                    {
+                        username : user.username,
+                        email : user.email
+                    },
+                    {
+                        withCredentials: true
+                    }
+                )
+            }
+
+            if (user.active) {
+                const update_active_response = await axios.patch('http://localhost:3000/users/adminUpdateUserStatus', 
+                    {
+                        username : user.username,
+                        active : user.active
+                    },
+                    {
+                        withCredentials: true
+                    }
+                )
+            }
+
+            if (user.group_names) {
+                const update_group_response = await axios.patch('http://localhost:3000/users/adminUpdateUserGroup',
+                    {
+                        username : user.username,
+                        group_name : user.group_names
+                    },
+                    {
+                        withCredentials: true
+                    }
+                )
+            }
+            // console.log(update_password_response.data.success);
+            
+        } catch (error) {
+            console.log(error);
+        }
+        editingUserId.set(null);
+        // window.location.reload();
     }
 
-
+    function cancelEditing() {
+        editingUserId.set(null);
+    }
 </script>
 
-<style>
+<!-- <style>
     .container {
       padding: 2rem;
       max-width: 800px;
@@ -246,6 +314,162 @@
     .create-new-user-btn:hover {
         background-color: #0056b3;
     }
+</style> -->
+<style>
+    .container {
+    padding: 2rem;
+    max-width: 1000px; /* Increased max-width to match the image */
+    margin: 0 auto;
+    background-color: white;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for a more card-like effect */
+    border-radius: 10px; /* Rounded corners */
+}
+
+/* Header styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #ddd; /* Add a subtle border to separate the header */
+    padding-bottom: 1rem;
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+}
+
+.dropdown-visible {
+    display: block;
+}
+
+.user-profile {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    font-size: 1.2rem; /* Increased font size for profile icon */
+}
+
+.create-new-group {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem; /* Spacing between buttons */
+}
+
+.create-new-group-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.create-new-group-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem; /* Added spacing below table */
+}
+
+table th, table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background-color: #f8f8f8;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+table td {
+    font-size: 0.95rem;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.edit-btn {
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.edit-btn:hover {
+    color: #0056b3;
+}
+
+/* Create new user form styling */
+.create-new-user-form {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem; /* Spacing between input fields */
+    margin-bottom: 2rem; /* Spacing below form */
+}
+
+.create-new-user-form input, 
+.create-new-user-form select {
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    width: 100%;
+    box-sizing: border-box; /* Ensure input fields take full width */
+    font-size: 0.9rem;
+}
+
+.create-new-user-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    align-self: flex-end; /* Align the button to the right */
+    font-size: 1rem;
+}
+
+.create-new-user-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .create-new-user-form {
+        flex-direction: column;
+    }
+
+    .create-new-user-btn {
+        width: 100%; /* Button takes full width on mobile */
+    }
+}
+
 </style>
 
 <div class="container">
@@ -331,17 +555,47 @@
                 {#each users as user, index}
                     <tr>
                         <td>{user.user_name}</td>
-                        <td>**********</td>
-                        <td>{user.email}</td>
-                        <td>{user.active}</td>
-                        <td>{user.group_names}</td>
                         <td>
-                            
-                            {#if editUser === true}
-                                <button>Save</button>
-                                <button on:click={handleEditUserClick}>Cancel</button>
+                            {#if $editingUserId === index}
+                                <input type="password" bind:value={updatedUser.password} />
                             {:else}
-                                <button on:click={handleEditUserClick}>Edit</button>
+                                **********
+                            {/if}
+                        </td>
+                        <td>
+                            {#if $editingUserId === index}
+                                <input type="text" bind:value={updatedUser.email} />
+                            {:else}
+                                {user.email}
+                            {/if}
+                        </td>
+                        <td>
+                            {#if $editingUserId === index}
+                                <select bind:value={updatedUser.active} >
+                                    <option value=1 selected>Yes</option>
+                                    <option value=0>No</option>
+                                </select>
+                            {:else}
+                                {user.active}
+                            {/if}
+                        </td>
+                        <td>
+                            {#if $editingUserId === index}
+                                <select bind:value={updatedUser.group_names} multiple>
+                                    {#each groups as group}
+                                        <option value={group}>{group}</option>
+                                    {/each}
+                                </select>
+                            {:else}
+                                {user.group_names}
+                            {/if}
+                        </td>
+                        <td>
+                            {#if $editingUserId === index}
+                                <button on:click={() => saveUser(updatedUser)}>Save</button>
+                                <button on:click={() => cancelEditing()}>Cancel</button>
+                            {:else}
+                                <button on:click={() => startEditing(index)}>Edit</button>
                             {/if}
                         </td>
                     </tr>

@@ -1,6 +1,5 @@
 require("dotenv").config({ path: "./config/config.env" });
 const express = require("express");
-// const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const cors = require("cors")
 
@@ -17,12 +16,6 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-// app.use(session({
-//     secret: '09f26e402586e2faa8da4c98a35f1b20d6b033c6097befa8be3486a829587fe2f90a832bd3ff9d42710a4da095a2ce285b009f0c3730cd9b8e1af3eb84df6611',
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { secure: false}
-// }))
 app.use(cookieParser());
 
 const corsOption = {

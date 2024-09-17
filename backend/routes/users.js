@@ -8,6 +8,9 @@ router.get('/getUserDetails', authMiddle.verifyToken, userController.getUserDeta
 router.post('/createNewUser', authMiddle.verifyToken, userController.createNewUser);
 router.patch('/updateUserEmail', authMiddle.verifyToken, userController.updateUserEmail);
 router.patch('/updateUserPassword', authMiddle.verifyToken, userController.updateUserPassword);
-router.patch('/updateUserStatus', authMiddle.verifyToken, userController.updateUserStatus);
-router.patch('/updateUserGroup', authMiddle.verifyToken, userController.updateUserGroup);
+router.patch('/adminUpdateUserStatus', authMiddle.verifyToken, userController.adminUpdateUserStatus);
+router.patch('/adminUpdateUserGroup', authMiddle.verifyToken, userController.adminUpdateUserGroup);
+router.patch('/adminUpdateUserEmail', authMiddle.verifyToken, userController.adminUpdateUserEmail);
+router.patch('/adminUpdateUserPassword', authMiddle.verifyToken, userController.adminUpdateUserPassword);
+
 module.exports = router;
