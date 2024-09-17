@@ -10,7 +10,7 @@ exports.createNewGroup = async (req, res, next) => {
 
     try {
         let {group_name} = req.body;
-        const regex = new RegExp("^[a-zA-Z0-9]+$");
+        const regex = new RegExp("^[a-zA-Z0-9_]+$");
         if (!regex.test(group_name)) {
             return res.status(400).json({
                 message : "group_name must be alphanumeric"
