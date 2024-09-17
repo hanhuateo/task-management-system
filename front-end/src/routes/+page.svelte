@@ -7,6 +7,22 @@
     let username = '';
     let isAdmin = false;
     // Sample list of apps
+    
+    onMount(async () => {
+
+        try {
+            const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
+                {
+                    withCredentials: true
+                }
+            );
+            console.log(group_response);
+            username = group_response.data.result[1].username;
+            isAdmin = group_response.data.isAdmin;
+        } catch (error) {
+            console.log(error);
+        }
+    })
 
     let apps = [
       { name: "App_Acronym", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "<r number>" },
@@ -24,22 +40,6 @@
             console.log(error);
         }
     }
-
-    onMount(async () => {
-
-        try {
-            const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
-                {
-                    withCredentials: true
-                }
-            );
-            console.log(group_response);
-            username = group_response.data.result[1].username;
-            isAdmin = group_response.data.isAdmin;
-        } catch (error) {
-            console.log(error);
-        }
-    })
 
     const handleMouseEnter = () => {
         showDropdown = true;
