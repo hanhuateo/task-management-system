@@ -6,28 +6,81 @@
     let showDropdown= false;
     let username = '';
     let isAdmin = false;
+    let user_status = 0;
     // Sample list of apps
     
     onMount(async () => {
 
-        try {
-            const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
-                {
-                    withCredentials: true
-                }
-            );
-            console.log(group_response);
-            username = group_response.data.result[0].username;
-            isAdmin = group_response.data.isAdmin;
-        } catch (error) {
-            console.log(error);
-        }
+        // try {
+        //     const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
+        //         {
+        //             withCredentials: true
+        //         }
+        //     );
+        //     // console.log(group_response);
+        //     username = group_response.data.result[0].username;
+        //     isAdmin = group_response.data.isAdmin;
+        // } catch (error) {
+        //     console.log(error);
+        //     // alert(error.response.data.message);
+        //     if (error.response.data.message === 'invalid token') {
+        //         goto('http://localhost:5173/login');
+        //     }
+        // }
+
+        checkStatus();
+        checkAdmin();
     })
 
     let apps = [
       { name: "App_Acronym", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "<r number>" },
       { name: "App name 2", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "123" }
     ];
+
+    const checkStatus = async () => {
+        try {
+            const user_response = await axios.get('http://localhost:3000/users/getUserDetails',
+                    {
+                        withCredentials: true
+                    }
+                )
+            // console.log(user_response);
+            user_status = user_response.data.val[0].active;
+            if (user_status === 0) {
+                goto('http://localhost:5173/login');
+            }
+        } catch (error) {
+            console.log(error);
+            if (error.response.data.message === 'login first thank you') {
+                goto('http://localhost:5173/login');
+            }
+        }
+    }
+
+    const checkAdmin = async () => {
+        try {
+            const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
+                {
+                    withCredentials: true
+                }
+            );
+            // console.log(group_response);
+            username = group_response.data.result[0].username;
+            isAdmin = group_response.data.isAdmin;
+            
+            if (!isAdmin) {
+                goto('http://localhost:5173/');
+            }
+        } catch (error) {
+            console.log(error);
+            // alert(error.response.data.message);
+            if (error.response.data.message === 'invalid token') {
+                goto('http://localhost:5173/login');
+            }
+
+            
+        }
+    }
 
     const logout = async () => {
         try {
@@ -47,6 +100,11 @@
 
     const handleMouseLeave = () => {
         showDropdown = false;
+    }
+
+    const handleUserManagementClick = async () => {
+        checkStatus();
+        checkAdmin();
     }
 </script>
   
@@ -195,9 +253,9 @@
                 <span>{username}</span>
                 <img src="https://via.placeholder.com/40" alt="user icon" class="user-icon" />
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
-                    <div><a href='/user_profile'>View/Edit Profile</a></div>
+                    <div><a href='/user_profile' on:click={checkStatus}>View/Edit Profile</a></div>
                     {#if isAdmin}
-                        <div><a href='/user_management'>User Management</a></div>
+                        <div><a href='/user_management' on:click={checkStatus}>User Management</a></div>
                     {/if}
                     <div><button class="submit" on:click|preventDefault={logout} type="submit">Logout</button></div>
                 </div>

@@ -12,7 +12,7 @@
     let password_message = '';
     let showDropdown= false;
     let isAdmin = false;
-    // let active = 0;
+    let user_status = 0
 
     onMount(async () => {
 
@@ -24,6 +24,11 @@
 
             current_email = response.data.val[0].email;
             username = response.data.val[0].user_name;
+            user_status = response.data.val[0].active;
+
+            if (user_status === 0) {
+                goto('http://localhost:5173/login');
+            }
 
             const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
                 {
@@ -35,6 +40,9 @@
             // console.log(current_email);
         } catch (error) {
             console.log(error);
+            if (error.response.data.message === 'invalid token') {
+                goto('http://localhost:5173/login');
+            }
         }
     })
 

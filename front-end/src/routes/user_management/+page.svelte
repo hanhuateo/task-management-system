@@ -11,7 +11,7 @@
     onMount(async () => {
         
         try {
-            getAllUserGroups();
+            
             const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
                 {
                     withCredentials: true
@@ -20,20 +20,31 @@
             // console.log(group_response);
             username = group_response.data.result[0].username;
             isAdmin = group_response.data.isAdmin;
-            
+        
+            getAllUserGroups();
+            getAllUserDetails();
+            // console.log(users);
+        } catch (error) {
+            console.log(error);
+            if (error.response.data.message === 'invalid token') {
+                goto('http://localhost:5173/login')
+            }
+        }
+    })
+
+    const getAllUserDetails = async () => {
+        try {
             const getAllUserDetails_response = await axios.get('http://localhost:3000/users/getAllUsersDetails',
                 {
                     withCredentials: true
                 }
             );
 
-            // console.log(...getAllUserDetails_response.data.val);
-            users = [...getAllUserDetails_response.data.val];
-            // console.log(users);            
+            users = [...getAllUserDetails_response.data.val]
         } catch (error) {
             console.log(error);
         }
-    })
+    }
 
     const handleMouseEnter = () => {
         showDropdown = true;
@@ -105,6 +116,10 @@
 
     const createNewUser = async () => {
         try {
+            // console.log(newUser.username);
+            // console.log(newUser.password);
+            // console.log(newUser.active);
+            // console.log(newUser.group);
             const response = await axios.post('http://localhost:3000/users/createNewUser',
                 {
                     username : newUser.username,
@@ -123,12 +138,14 @@
             newUser.group = '';
         } catch (error) {
             console.log(error);
+            alert(error.response.data.message);
         }
     }
 
     const handleCreateNewUser = () => {
         createNewUser();
-        window.location.reload();
+        getAllUserDetails();
+        getAllUserGroups();
     }
     
     let updatedUser = {username: '', password: '', email: '', active: 1, group_names: []};
@@ -607,12 +624,12 @@
             <input id="password" type="password" bind:value={newUser.password}>
             <label for="active">Active</label>
             <select id="active" bind:value={newUser.active} >
-                <option value=1 selected>Yes</option>
+                <option value=1>Yes</option>
                 <option value=0>No</option>
             </select>
             <label for="group_title">Group</label>
             <select id="group_title" bind:value={newUser.group} multiple>
-                <option value="" selected></option>
+                <!-- <option value="" selected></option> -->
                 {#each groups as group, index}
                     <option value={index + 1} >{group}</option>>
                 {/each}

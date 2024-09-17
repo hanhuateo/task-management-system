@@ -19,8 +19,7 @@
             if (is_successful) {
                 showPopup = false;
                 goto('http://localhost:5173/');
-            }
-            
+            }   
         } catch (error) {
             console.log(error);
             alert('Invalid credentials');
