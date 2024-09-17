@@ -7,11 +7,12 @@
     let username = '';
     let isAdmin = false;
     let user_status = 0;
+    let adminUserManagementFlag = false;
     // Sample list of apps
     
     onMount(async () => {
-        checkStatus();
-        checkAdmin();
+        await checkStatus();
+        await checkAdmin();
     })
 
     let apps = [
@@ -26,7 +27,7 @@
                         withCredentials: true
                     }
                 )
-            console.log(user_response);
+            // console.log(user_response);
             username = user_response.data.val[0].user_name;
             user_status = user_response.data.val[0].active;
             if (user_status === 0) {
@@ -50,10 +51,12 @@
             // console.log(group_response);
             
             isAdmin = group_response.data.isAdmin;
-            
-            // if (!isAdmin) {
-            //     goto('http://localhost:5173/');
-            // }
+            if (!isAdmin && adminUserManagementFlag) {
+                // console.log('about to relead');
+                // window.location.reload();
+                await goto('http://localhost:5173/');
+                alert('Do not have permission to access this resource');
+            }
         } catch (error) {
             console.log(error);
             // alert(error.response.data.message);
@@ -87,6 +90,7 @@
 
     const handleUserManagementClick = async () => {
         checkStatus();
+        adminUserManagementFlag = true;
         checkAdmin();
     }
 </script>
@@ -238,7 +242,7 @@
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
                     <div><a href='/user_profile' on:click={checkStatus}>View/Edit Profile</a></div>
                     {#if isAdmin}
-                        <div><a href='/user_management' on:click={checkStatus}>User Management</a></div>
+                        <div><a href='/user_management' on:click={handleUserManagementClick}>User Management</a></div>
                     {/if}
                     <div><button class="submit" on:click|preventDefault={logout} type="submit">Logout</button></div>
                 </div>
