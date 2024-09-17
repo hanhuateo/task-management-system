@@ -8,29 +8,76 @@
     let username = '';
     let isAdmin = false;
     let users = [];
+    let user_status = 0;
+    let adminUserManagementFlag = false;
+    let adminCreateNewUserFlag = false;
+    let adminCreateNewGroupFlag = false;
+    let adminToggleModalFlag = false;
+    let adminStartEditingFlag = false;
+    let adminCancelEditingFlag = false;
+    let adminSaveUserFlag = false;
+
     onMount(async () => {
-        
+        checkStatus();
+        checkAdmin();
+        getAllUserGroups();
+        getAllUserDetails();
+    })
+
+    const checkStatus = async () => {
         try {
-            
+            const user_response = await axios.get('http://localhost:3000/users/getUserDetails',
+                    {
+                        withCredentials: true
+                    }
+                )
+            console.log(user_response);
+            username = user_response.data.val[0].user_name;
+            user_status = user_response.data.val[0].active;
+            if (user_status === 0) {
+                goto('http://localhost:5173/login');
+            }
+        } catch (error) {
+            console.log(error);
+            if (error.response.data.message === 'login first thank you') {
+                goto('http://localhost:5173/login');
+            }
+        }
+    }
+
+    const checkAdmin = async () => {
+        try {
             const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
                 {
                     withCredentials: true
                 }
             );
             // console.log(group_response);
-            username = group_response.data.result[0].username;
+            
             isAdmin = group_response.data.isAdmin;
-        
-            getAllUserGroups();
-            getAllUserDetails();
-            // console.log(users);
+            
+            // if (!isAdmin) {
+            //     goto('http://localhost:5173/');
+            // }
+            if ((!isAdmin && adminUserManagementFlag) || 
+            (!isAdmin && adminCreateNewUserFlag) || 
+            (!isAdmin && adminCreateNewGroupFlag) ||
+            (!isAdmin && adminToggleModalFlag) ||
+            (!isAdmin && adminStartEditingFlag)) {
+                // console.log('about to relead');
+                // window.location.reload();
+                goto('http://localhost:5173/');
+                alert('Do not have permission to access this resource');
+            }
+
         } catch (error) {
             console.log(error);
+            // alert(error.response.data.message);
             if (error.response.data.message === 'invalid token') {
-                goto('http://localhost:5173/login')
-            }
+                goto('http://localhost:5173/login');
+            }            
         }
-    })
+    }
 
     const getAllUserDetails = async () => {
         try {
@@ -66,6 +113,12 @@
         }
     }
 
+    const handleUserManagementClick = async () => {
+        await checkStatus();
+        adminUserManagementFlag = true;
+        await checkAdmin();
+    }
+
     let showModal = false;
     let group_name = '';
 
@@ -73,9 +126,8 @@
         showModal = !showModal;
     }
 
-    const handleCreateGroupFormClose = () => {
+    const handleCreateGroupFormClose = async () => {
         toggleModal();
-        getAllUserGroups();
     }
 
     const createGroup = async () => {
@@ -111,6 +163,26 @@
             console.log(error);
         }
     }
+
+    const handleCreateGroupClick = async () => {
+        await checkStatus();
+        adminCreateNewGroupFlag = true;
+        await checkAdmin();
+        if (user_status === 1 && isAdmin === true) {
+            await createGroup();
+            await getAllUserGroups();
+            toggleModal();
+        }
+    }
+
+    const handleToggleModalClick = async () => {
+        await checkStatus();
+        adminToggleModalFlag = true;
+        await checkAdmin();
+        if (user_status === 1 && isAdmin === true) {
+            toggleModal();
+        }
+    }
     
     let newUser = {username: '', password: '' , active: 'Yes', group: ''};
 
@@ -142,10 +214,14 @@
         }
     }
 
-    const handleCreateNewUser = () => {
-        createNewUser();
-        getAllUserDetails();
-        getAllUserGroups();
+    const handleCreateNewUser = async () => {
+        await checkStatus();
+        adminCreateNewUserFlag = true;
+        await checkAdmin();
+        if (user_status === 1 && isAdmin === true) {
+            await createNewUser();
+            await getAllUserDetails();
+        }
     }
     
     let updatedUser = {username: '', password: '', email: '', active: 1, group_names: []};
@@ -221,6 +297,34 @@
 
     function cancelEditing() {
         editingUserId.set(null);
+    }
+
+    const handleStartEditingClick = async (index) => {
+        await checkStatus();
+        adminStartEditingFlag = true;
+        await checkAdmin();
+        if (user_status === 1 && isAdmin === true) {
+            startEditing(index);
+        }
+    }
+
+    const handleCancelEditingClick = async () => {
+        await checkStatus();
+        adminCancelEditingFlag = true;
+        await checkAdmin();
+        if (user_status === 1 && isAdmin === true) {
+            cancelEditing();
+        }
+    }
+
+    const handleSaveUserClick = async (user) => {
+        await checkStatus();
+        adminSaveUserFlag = true;
+        await checkAdmin();
+        if (user_status === 1 && isAdmin === true) {
+            await saveUser(user);
+            await getAllUserDetails();
+        }
     }
 </script>
 
@@ -517,9 +621,9 @@
                 <span>{username}</span>
                 <img src="https://via.placeholder.com/40" alt="user icon" class="user-icon" />
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
-                    <div><a href='/user_profile'>View/Edit Profile</a></div>
+                    <div><a href='/user_profile' on:click={checkStatus}>View/Edit Profile</a></div>
                     {#if isAdmin}
-                    <div><a href='/user_management'>User Management</a></div>
+                    <div><a href='/user_management' on:click={handleUserManagementClick}>User Management</a></div>
                     {/if}
                     <div><button class="submit" on:click={logout} type="submit">Logout</button></div>
                 </div>
@@ -528,7 +632,7 @@
     </div>
 
     <div>
-        <button class="create-new-group-btn" on:click={toggleModal}>Create New Group</button>
+        <button class="create-new-group-btn" on:click={handleToggleModalClick}>Create New Group</button>
     </div>
 
     <div class="create-new-group">
@@ -543,7 +647,7 @@
                 <div>
                     <button class="button button-close" on:click={handleCreateGroupFormClose}>Close</button>
                     <br/>
-                    <button class="button" on:click={createGroup}>Create Group</button>
+                    <button class="button" on:click={handleCreateGroupClick}>Create Group</button>
                 </div>
             </div>
         {/if}
@@ -602,10 +706,10 @@
                         </td>
                         <td>
                             {#if $editingUserId === index}
-                                <button class="save-btn" on:click={() => saveUser(updatedUser)}>Save</button>
-                                <button class="cancel-btn" on:click={() => cancelEditing()}>Cancel</button>
+                                <button class="save-btn" on:click={() => handleSaveUserClick(updatedUser)}>Save</button>
+                                <button class="cancel-btn" on:click={() => handleCancelEditingClick()}>Cancel</button>
                             {:else}
-                                <button class="edit-btn" on:click={() => startEditing(index)}>Edit</button>
+                                <button class="edit-btn" on:click={() => handleStartEditingClick(index)}>Edit</button>
                             {/if}
                         </td>
                     </tr>

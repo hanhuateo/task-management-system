@@ -333,7 +333,7 @@
                     {#if isAdmin}
                         <div><a href='/user_management' on:click={handleUserManagementClick}>User Management</a></div>
                     {/if}
-                    <div><button class="submit" on:click|preventDefault={logout} type="submit">Logout</button></div>
+                    <div><button class="submit" on:click={logout} type="submit">Logout</button></div>
                 </div>
             </div>
         </nav>
