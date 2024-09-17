@@ -17,7 +17,7 @@
                 }
             );
             console.log(group_response);
-            username = group_response.data.result[1].username;
+            username = group_response.data.result[0].username;
             isAdmin = group_response.data.isAdmin;
         } catch (error) {
             console.log(error);

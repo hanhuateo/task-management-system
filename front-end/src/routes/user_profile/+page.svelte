@@ -30,7 +30,7 @@
                     withCredentials: true
                 }
             );
-
+            
             isAdmin = group_response.data.isAdmin;
             // console.log(current_email);
         } catch (error) {

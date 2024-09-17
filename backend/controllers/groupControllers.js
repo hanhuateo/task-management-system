@@ -55,7 +55,7 @@ exports.getUserGroup = async (req, res, next) => {
             isAdmin = true;
         }
         
-        result.push({'username': username});
+        result.unshift({'username': username});
         res.status(200).json({message : "getUserGroup successful", 
             success : true,
             result,
