@@ -215,7 +215,7 @@
     }
 </script>
 
-<!-- <style>
+<style>
     .container {
       padding: 2rem;
       max-width: 800px;
@@ -238,264 +238,292 @@
     .navbar {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background-color: #e0e0e0; /* Light gray background */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .user-profile span {
+        margin-right: 10px;
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .user-icon {
+        width: 40px;
+        height: 40px;
+        margin-left: 10px;
+        border-radius: 50%;
+        background-color: #ccc;
     }
 
     .dropdown {
         display: none;
         position: absolute;
-        background-color: #f9f9f9;
-        min-width: 160px;
+        top: 100%; /* Align dropdown below user profile */
+        right: 0;
+        background-color: white;
+        min-width: 200px;
         box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-        padding: 12px 16px;
+        padding: 10px 0;
         z-index: 1;
+        border-radius: 6px;
+        text-align: left;
+    }
+
+    .dropdown a, .dropdown button {
+        display: block;
+        padding: 12px 16px;
+        color: #333;
+        text-decoration: none;
+        font-size: 1rem;
+        font-family: 'Arial', sans-serif;
+        text-align: left;
+        /* width: 100%; */
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+
+    .dropdown a:hover, .dropdown button:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown .submit {
+        width: 100%;
+    }
+    .dropdown a {
+        color: #333; /* Change link color to black */
+        text-decoration: none; /* Remove underline */
+    }
+
+    .dropdown button {
+        border: none; /* Remove the button border */
+        background: none; /* Remove default button styling */
     }
 
     .dropdown-visible {
         display: block;
     }
 
-    .user-profile {
-        display: inline-block;
-        position: relative;
-        cursor: pointer;
-    }
-
-    .create-new-group {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .create-new-group-btn {
-        padding: 0.75rem 1.5rem;
+    /* Buttons */
+    button {
         background-color: #007bff;
         color: white;
         border: none;
-        border-radius: 4px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 5px;
         cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .create-new-group-btn {
+        background-color: #007bff;
+        color: white;
+        margin-bottom: 1rem;
     }
 
     .create-new-group-btn:hover {
         background-color: #0056b3;
     }
 
+    .button-close {
+        background-color: #dc3545;
+        color: white;
+        margin-right: 10px;
+    }
+
+    .button-close:hover {
+        background-color: #c82333;
+    }
+
+    /* Overlay for modal */
     .overlay {
-        display: flex;
-        justify-content: center;
-        align-items: center;
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: white;
-        z-index: 5;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    .create-new-user-form {
+    .overlay h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .create-new-group-form {
         display: flex;
         flex-direction: column;
+        gap: 10px;
     }
 
     .create-new-group-form input {
-        padding: 0.5rem;
+        padding: 0.75rem;
+        font-size: 1rem;
         border-radius: 5px;
-        border: 1px solid #ddd;
+        border: 1px solid #ccc;
+        width: 300px;
     }
 
-    .create-new-user-btn {
-        padding: 0.75rem 1.5rem;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .create-new-user-btn:hover {
-        background-color: #0056b3;
-    }
-</style> -->
-<style>
-    .container {
-    padding: 2rem;
-    max-width: 1000px; /* Increased max-width to match the image */
-    margin: 0 auto;
-    background-color: white;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Add a subtle shadow for a more card-like effect */
-    border-radius: 10px; /* Rounded corners */
-}
-
-/* Header styles */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid #ddd; /* Add a subtle border to separate the header */
-    padding-bottom: 1rem;
-}
-
-h1 {
-    font-size: 1.5rem;
-}
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-}
-
-.dropdown {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-    padding: 12px 16px;
-    z-index: 1;
-}
-
-.dropdown-visible {
-    display: block;
-}
-
-.user-profile {
-    display: inline-block;
-    position: relative;
-    cursor: pointer;
-    font-size: 1.2rem; /* Increased font size for profile icon */
-}
-
-.create-new-group {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem; /* Spacing between buttons */
-}
-
-.create-new-group-btn {
-    padding: 0.75rem 1.5rem;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-.create-new-group-btn:hover {
-    background-color: #0056b3;
-}
-
-/* Table styling */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 2rem; /* Added spacing below table */
-}
-
-table th, table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-table th {
-    background-color: #f8f8f8;
-    font-weight: bold;
-    font-size: 1rem;
-}
-
-table td {
-    font-size: 0.95rem;
-}
-
-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-table tr:hover {
-    background-color: #f1f1f1;
-}
-
-.edit-btn {
-    color: #007bff;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-.edit-btn:hover {
-    color: #0056b3;
-}
-
-/* Create new user form styling */
-.create-new-user-form {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem; /* Spacing between input fields */
-    margin-bottom: 2rem; /* Spacing below form */
-}
-
-.create-new-user-form input, 
-.create-new-user-form select {
-    padding: 0.75rem;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-    width: 100%;
-    box-sizing: border-box; /* Ensure input fields take full width */
-    font-size: 0.9rem;
-}
-
-.create-new-user-btn {
-    padding: 0.75rem 1.5rem;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    align-self: flex-end; /* Align the button to the right */
-    font-size: 1rem;
-}
-
-.create-new-user-btn:hover {
-    background-color: #0056b3;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
+    /* Form grid layout */
     .create-new-user-form {
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        align-items: start;
+    }
+
+    .create-new-user-form label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .create-new-user-form input,
+    .create-new-user-form select {
+        padding: 0.75rem;
+        font-size: 1rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .create-new-user-btn {
-        width: 100%; /* Button takes full width on mobile */
+        grid-column: span 2;
+        justify-self: start;
+        padding: 0.75rem 2rem;
     }
-}
+
+    /* Table styling */
+    .edit-user-credentials-table {
+        margin-top: 2rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    table th,
+    table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table th {
+        background-color: #f8f8f8;
+        font-weight: bold;
+    }
+
+    table td {
+        font-size: 0.95rem;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .edit-btn,
+    .save-btn,
+    .cancel-btn {
+        background-color: transparent;
+        color: #007bff;
+        border: none;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .edit-btn:hover,
+    .save-btn:hover,
+    .cancel-btn:hover {
+        color: #0056b3;
+    }
+
+    .save-btn {
+        color: #28a745;
+    }
+
+    .save-btn:hover {
+        color: #218838;
+    }
+
+    .cancel-btn {
+        color: #dc3545;
+    }
+
+    .cancel-btn:hover {
+        color: #c82333;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .create-new-user-form {
+            grid-template-columns: 1fr;
+        }
+        
+        .create-new-user-btn {
+            width: 100%;
+        }
+    }
 
 </style>
 
 <div class="container">
-    <a href='/'><h1>App List</h1></a>
     <!-- Header Section -->
     <div class="header">
-        <h1>User Management</h1>
         <nav class="navbar">
+            <h1>User Management</h1>
             <div role="button" class="user-profile" tabindex=0
             on:mouseenter={handleMouseEnter}
             on:mouseleave={handleMouseLeave}>
-            {username}
-            <div class="dropdown" class:dropdown-visible={showDropdown}>
-                <div><a href='/user_profile'>View/Edit Profile</a></div>
-                {#if isAdmin}
-                <div><a href='/user_management'>User Management</a></div>
-                {/if}
-                <div><button on:click={logout} type="submit">Logout</button></div>
+                <span>{username}</span>
+                <img src="https://via.placeholder.com/40" alt="user icon" class="user-icon" />
+                <div class="dropdown" class:dropdown-visible={showDropdown}>
+                    <div><a href='/user_profile'>View/Edit Profile</a></div>
+                    {#if isAdmin}
+                    <div><a href='/user_management'>User Management</a></div>
+                    {/if}
+                    <div><button class="submit" on:click={logout} type="submit">Logout</button></div>
+                </div>
             </div>
-        </div>
-    </nav>
-</div>
+        </nav>
+    </div>
 
-<div class="create-new-group">
-    
+    <div>
         <button class="create-new-group-btn" on:click={toggleModal}>Create New Group</button>
+    </div>
+
+    <div class="create-new-group">
+    
 
         {#if showModal}
             <div class="overlay">
@@ -512,31 +540,6 @@ table tr:hover {
                 </div>
             </div>
         {/if}
-    </div>
-
-    <div class="create-new-user">
-        <h2>Create New User</h2>
-
-        <form class="create-new-user-form">
-            <label for="username">Username</label>
-            <input id="username" bind:value={newUser.username}>
-            <label for="password">Password</label>
-            <input id="password" type="password" bind:value={newUser.password}>
-            <label for="active">Active</label>
-            <select id="active" bind:value={newUser.active} >
-                <option value=1 selected>Yes</option>
-                <option value=0>No</option>
-            </select>
-            <label for="group_title">Group</label>
-            <select id="group_title" bind:value={newUser.group} multiple>
-                <option value=""></option>
-                {#each groups as group, index}
-                    <option value={index + 1}>{group}</option>>
-                {/each}
-            </select>
-            
-            <button class="create-new-user-btn" on:click={handleCreateNewUser}>Create New User</button>
-        </form>
     </div>
 
     <div class="edit-user-credentials-table">
@@ -592,15 +595,40 @@ table tr:hover {
                         </td>
                         <td>
                             {#if $editingUserId === index}
-                                <button on:click={() => saveUser(updatedUser)}>Save</button>
-                                <button on:click={() => cancelEditing()}>Cancel</button>
+                                <button class="save-btn" on:click={() => saveUser(updatedUser)}>Save</button>
+                                <button class="cancel-btn" on:click={() => cancelEditing()}>Cancel</button>
                             {:else}
-                                <button on:click={() => startEditing(index)}>Edit</button>
+                                <button class="edit-btn" on:click={() => startEditing(index)}>Edit</button>
                             {/if}
                         </td>
                     </tr>
                 {/each}
             </tbody>
         </table>
+    </div>
+
+    <div class="create-new-user">
+        <h2>Create New User</h2>
+
+        <form class="create-new-user-form">
+            <label for="username">Username</label>
+            <input id="username" bind:value={newUser.username}>
+            <label for="password">Password</label>
+            <input id="password" type="password" bind:value={newUser.password}>
+            <label for="active">Active</label>
+            <select id="active" bind:value={newUser.active} >
+                <option value=1 selected>Yes</option>
+                <option value=0>No</option>
+            </select>
+            <label for="group_title">Group</label>
+            <select id="group_title" bind:value={newUser.group} multiple>
+                <option value=""></option>
+                {#each groups as group, index}
+                    <option value={index + 1}>{group}</option>>
+                {/each}
+            </select>
+            
+            <button class="create-new-user-btn" on:click={handleCreateNewUser}>Create New User</button>
+        </form>
     </div>
 </div>
