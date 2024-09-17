@@ -10,24 +10,6 @@
     // Sample list of apps
     
     onMount(async () => {
-
-        // try {
-        //     const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
-        //         {
-        //             withCredentials: true
-        //         }
-        //     );
-        //     // console.log(group_response);
-        //     username = group_response.data.result[0].username;
-        //     isAdmin = group_response.data.isAdmin;
-        // } catch (error) {
-        //     console.log(error);
-        //     // alert(error.response.data.message);
-        //     if (error.response.data.message === 'invalid token') {
-        //         goto('http://localhost:5173/login');
-        //     }
-        // }
-
         checkStatus();
         checkAdmin();
     })
@@ -44,7 +26,8 @@
                         withCredentials: true
                     }
                 )
-            // console.log(user_response);
+            console.log(user_response);
+            username = user_response.data.val[0].user_name;
             user_status = user_response.data.val[0].active;
             if (user_status === 0) {
                 goto('http://localhost:5173/login');
@@ -65,7 +48,7 @@
                 }
             );
             // console.log(group_response);
-            username = group_response.data.result[0].username;
+            
             isAdmin = group_response.data.isAdmin;
             
             if (!isAdmin) {
