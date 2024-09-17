@@ -7,10 +7,12 @@
     let username = '';
     let isAdmin = false;
     let users = [];
+    let editUser = false;
 
     onMount(async () => {
-
+        
         try {
+            getAllUserGroups();
             const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
                 {
                     withCredentials: true
@@ -19,15 +21,18 @@
             // console.log(group_response);
             username = group_response.data.result[1].username;
             isAdmin = group_response.data.isAdmin;
-
+            
             const getAllUserDetails_response = await axios.get('http://localhost:3000/users/getAllUsersDetails',
                 {
                     withCredentials: true
                 }
             );
-            // console.log(getAllUserDetails_response);
 
-            getAllUserGroups();
+            // console.log(...getAllUserDetails_response.data.val);
+            users = [...getAllUserDetails_response.data.val];
+            
+
+            
         } catch (error) {
             console.log(error);
         }
@@ -60,6 +65,11 @@
         showModal = !showModal;
     }
 
+    const handleCreateGroupFormClose = () => {
+        toggleModal();
+        getAllUserGroups();
+    }
+
     const createGroup = async () => {
         if (!group_name) {
             alert('Please input new group name');
@@ -80,6 +90,27 @@
         }
     }
 
+    
+    
+    let groups = [];
+    const getAllUserGroups = async () => {
+        try {
+            groups = [];
+            const response = await axios.get('http://localhost:3000/group/getAllUserGroup',
+            {
+                withCredentials: true
+            }
+        )
+        // for (let i = 0; i < response.data.val.length; i++) {
+            //     groups.push(response.data.val[i].Group_name);
+            // }
+            groups = response.data.val.map(item => item.Group_name);
+            // console.log(groups);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    
     let newUser = {username: '', password: '' , active: 'Yes', group: ''};
 
     const createNewUser = async () => {
@@ -105,25 +136,15 @@
         }
     }
 
-    
-    let groups = [];
-    const getAllUserGroups = async () => {
-        try {
-            groups = [];
-            const response = await axios.get('http://localhost:3000/group/getAllUserGroup',
-                {
-                    withCredentials: true
-                }
-            )
-            // for (let i = 0; i < response.data.val.length; i++) {
-            //     groups.push(response.data.val[i].Group_name);
-            // }
-            groups = response.data.val.map(item => item.Group_name);
-            // console.log(groups);
-        } catch (error) {
-            console.log(error);
-        }
+    const handleCreateNewUser = () => {
+        createNewUser();
+        window.location.reload();
     }
+    const handleEditUserClick = () => {
+        editUser = !editUser;
+    }
+
+
 </script>
 
 <style>
@@ -202,6 +223,11 @@
         z-index: 5;
     }
 
+    .create-new-user-form {
+        display: flex;
+        flex-direction: column;
+    }
+
     .create-new-group-form input {
         padding: 0.5rem;
         border-radius: 5px;
@@ -223,27 +249,28 @@
 </style>
 
 <div class="container">
+    <a href='/'><h1>App List</h1></a>
     <!-- Header Section -->
     <div class="header">
-        <a href='/'><h1>App List</h1></a>
+        <h1>User Management</h1>
         <nav class="navbar">
             <div role="button" class="user-profile" tabindex=0
             on:mouseenter={handleMouseEnter}
             on:mouseleave={handleMouseLeave}>
-                {username}
-                <div class="dropdown" class:dropdown-visible={showDropdown}>
-                    <div><a href='/user_profile'>View/Edit Profile</a></div>
-                    {#if isAdmin}
-                        <div><a href='/user_management'>User Management</a></div>
-                    {/if}
-                    <div><button on:click={logout} type="submit">Logout</button></div>
-                </div>
+            {username}
+            <div class="dropdown" class:dropdown-visible={showDropdown}>
+                <div><a href='/user_profile'>View/Edit Profile</a></div>
+                {#if isAdmin}
+                <div><a href='/user_management'>User Management</a></div>
+                {/if}
+                <div><button on:click={logout} type="submit">Logout</button></div>
             </div>
-        </nav>
-    </div>
+        </div>
+    </nav>
+</div>
 
-    <div class="create-new-group">
-        <h2>User Management</h2>
+<div class="create-new-group">
+    
         <button class="create-new-group-btn" on:click={toggleModal}>Create New Group</button>
 
         {#if showModal}
@@ -255,7 +282,7 @@
                 </div>
                 <br/>
                 <div>
-                    <button class="button button-close" on:click={toggleModal}>Close</button>
+                    <button class="button button-close" on:click={handleCreateGroupFormClose}>Close</button>
                     <br/>
                     <button class="button" on:click={createGroup}>Create Group</button>
                 </div>
@@ -284,7 +311,42 @@
                 {/each}
             </select>
             
-            <button class="create-new-user-btn" on:click={createNewUser}>Create New User</button>
+            <button class="create-new-user-btn" on:click={handleCreateNewUser}>Create New User</button>
         </form>
+    </div>
+
+    <div class="edit-user-credentials-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Email</th>
+                    <th>Active</th>
+                    <th>Group</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each users as user, index}
+                    <tr>
+                        <td>{user.user_name}</td>
+                        <td>**********</td>
+                        <td>{user.email}</td>
+                        <td>{user.active}</td>
+                        <td>{user.group_names}</td>
+                        <td>
+                            
+                            {#if editUser === true}
+                                <button>Save</button>
+                                <button on:click={handleEditUserClick}>Cancel</button>
+                            {:else}
+                                <button on:click={handleEditUserClick}>Edit</button>
+                            {/if}
+                        </td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
     </div>
 </div>
