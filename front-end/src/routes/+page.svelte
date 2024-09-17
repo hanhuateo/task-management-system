@@ -105,44 +105,101 @@
     .navbar {
         display: flex;
         justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background-color: #e0e0e0; /* Light gray background */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .user-profile span {
+        margin-right: 10px;
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .user-icon {
+        width: 40px;
+        height: 40px;
+        margin-left: 10px;
+        border-radius: 50%;
+        background-color: #ccc;
     }
 
     .dropdown {
         display: none;
         position: absolute;
-        background-color: #f9f9f9;
-        min-width: 160px;
+        top: 100%; /* Align dropdown below user profile */
+        right: 0;
+        background-color: white;
+        min-width: 200px;
         box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-        padding: 12px 16px;
+        padding: 10px 0;
         z-index: 1;
+        border-radius: 6px;
+        text-align: left;
+    }
+
+    .dropdown a, .dropdown button {
+        display: block;
+        padding: 12px 16px;
+        color: #333;
+        text-decoration: none;
+        font-size: 1rem;
+        font-family: 'Arial', sans-serif;
+        text-align: left;
+        /* width: 100%; */
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+
+    .dropdown a:hover, .dropdown button:hover {
+        background-color: #f1f1f1;
+    }
+
+    .dropdown .submit {
+        width: 100%;
+    }
+    .dropdown a {
+        color: #333; /* Change link color to black */
+        text-decoration: none; /* Remove underline */
+    }
+
+    .dropdown button {
+        border: none; /* Remove the button border */
+        background: none; /* Remove default button styling */
     }
 
     .dropdown-visible {
         display: block;
     }
 
-    .user-profile {
-        display: inline-block;
-        position: relative;
-        cursor: pointer;
-    }
 </style>
   
 <div class="container">
     <!-- Header Section -->
     <div class="header">
-        <a href='/'><h1>App List</h1></a>
         <nav class="navbar">
+            <h1>App List</h1>
             <div role="button" class="user-profile" tabindex=0
             on:mouseenter={handleMouseEnter}
             on:mouseleave={handleMouseLeave}>
-                {username}
+                <span>{username}</span>
+                <img src="https://via.placeholder.com/40" alt="user icon" class="user-icon" />
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
                     <div><a href='/user_profile'>View/Edit Profile</a></div>
                     {#if isAdmin}
                         <div><a href='/user_management'>User Management</a></div>
                     {/if}
-                    <div><button on:click|preventDefault={logout} type="submit">Logout</button></div>
+                    <div><button class="submit" on:click|preventDefault={logout} type="submit">Logout</button></div>
                 </div>
             </div>
         </nav>
