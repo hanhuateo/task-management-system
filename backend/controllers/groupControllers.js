@@ -10,6 +10,12 @@ exports.createNewGroup = async (req, res, next) => {
 
     try {
         let {group_name} = req.body;
+        const regex = new RegExp("^[a-zA-Z0-9]+$");
+        if (!regex.test(group_name)) {
+            return res.status(400).json({
+                message : "group_name must be alphanumeric"
+            })
+        }
         let sql = 'INSERT INTO group_list (Group_name) VALUES (?)';
         const [result] = await pool.execute(sql, [group_name]);
 
@@ -32,7 +38,7 @@ exports.getAllUserGroup = async (req, res, next) => {
     }
 
     try {
-        let sql = 'SELECT Group_name FROM group_list';
+        let sql = 'SELECT Group_name FROM group_list WHERE Group_name != "user" ';
         let [val, fields] = await pool.execute(sql);
         res.status(200).json({val});
     } catch (err) {

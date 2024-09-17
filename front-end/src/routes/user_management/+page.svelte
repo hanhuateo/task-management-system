@@ -8,7 +8,6 @@
     let username = '';
     let isAdmin = false;
     let users = [];
-    let editUserFlag = false
     onMount(async () => {
         
         try {
@@ -88,20 +87,16 @@
         }
     }
 
-    
-    
     let groups = [];
     const getAllUserGroups = async () => {
         try {
             groups = [];
             const response = await axios.get('http://localhost:3000/group/getAllUserGroup',
-            {
-                withCredentials: true
-            }
-        )
-        // for (let i = 0; i < response.data.val.length; i++) {
-            //     groups.push(response.data.val[i].Group_name);
-            // }
+                {
+                    withCredentials: true
+                }
+            )
+        
             groups = response.data.val.map(item => item.Group_name);
             // console.log(groups);
         } catch (error) {
@@ -357,7 +352,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: white;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -523,8 +518,6 @@
     </div>
 
     <div class="create-new-group">
-    
-
         {#if showModal}
             <div class="overlay">
                 <h2>Create Group</h2>
@@ -622,9 +615,9 @@
             </select>
             <label for="group_title">Group</label>
             <select id="group_title" bind:value={newUser.group} multiple>
-                <option value=""></option>
+                <option value="" selected></option>
                 {#each groups as group, index}
-                    <option value={index + 1}>{group}</option>>
+                    <option value={index + 1} >{group}</option>>
                 {/each}
             </select>
             
