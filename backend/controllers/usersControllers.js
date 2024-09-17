@@ -13,7 +13,7 @@ exports.getAllUsersDetails = async (req, res, next) => {
   try {
     // let [val, fields] = await pool.query("SELECT * FROM user WHERE user_name != 'superadmin' ");
     let [val, fields] = await pool.query(
-      "SELECT u.user_name, u.password, u.email, u.active, GROUP_CONCAT(g.group_name) AS group_names FROM user u JOIN user_group ug ON u.user_name  = ug.user_name JOIN group_list g ON ug.group_id = g.group_id GROUP BY u.user_name, u.password, u.email, u.active"
+      "SELECT u.user_name, u.password, u.email, u.active, GROUP_CONCAT(g.group_name) AS group_names FROM user u LEFT JOIN user_group ug ON u.user_name  = ug.user_name LEFT JOIN group_list g ON ug.group_id = g.group_id GROUP BY u.user_name, u.password, u.email, u.active"
     );
     // console.log(val)
     res.status(200).json({ message: "Get all users details successful", val });

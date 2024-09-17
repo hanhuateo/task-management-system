@@ -15,36 +15,54 @@
     let user_status = 0
 
     onMount(async () => {
+        checkStatus();
+        checkAdmin();
+    })
 
+    const checkStatus = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/users/getUserDetails',
-            {
-                withCredentials: true
-            });
-
-            current_email = response.data.val[0].email;
-            username = response.data.val[0].user_name;
-            user_status = response.data.val[0].active;
-
+            const user_response = await axios.get('http://localhost:3000/users/getUserDetails',
+                    {
+                        withCredentials: true
+                    }
+                )
+            console.log(user_response);
+            username = user_response.data.val[0].user_name;
+            user_status = user_response.data.val[0].active;
+            current_email = user_response.data.val[0].email;
             if (user_status === 0) {
                 goto('http://localhost:5173/login');
             }
+        } catch (error) {
+            console.log(error);
+            if (error.response.data.message === 'login first thank you') {
+                goto('http://localhost:5173/login');
+            }
+        }
+    }
 
+    const checkAdmin = async () => {
+        try {
             const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
                 {
                     withCredentials: true
                 }
             );
+            // console.log(group_response);
             
             isAdmin = group_response.data.isAdmin;
-            // console.log(current_email);
+            
+            // if (!isAdmin) {
+            //     goto('http://localhost:5173/');
+            // }
         } catch (error) {
             console.log(error);
+            // alert(error.response.data.message);
             if (error.response.data.message === 'invalid token') {
                 goto('http://localhost:5173/login');
-            }
+            }            
         }
-    })
+    }
 
     const updateEmail = async () => {
         try {

@@ -51,9 +51,9 @@
             
             isAdmin = group_response.data.isAdmin;
             
-            if (!isAdmin) {
-                goto('http://localhost:5173/');
-            }
+            // if (!isAdmin) {
+            //     goto('http://localhost:5173/');
+            // }
         } catch (error) {
             console.log(error);
             // alert(error.response.data.message);
