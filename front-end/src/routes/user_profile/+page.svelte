@@ -57,7 +57,6 @@
             // }
             if (!isAdmin && adminUserManagementFlag) {
                 // console.log('about to relead');
-                // window.location.reload();
                 goto('http://localhost:5173/');
                 alert('Do not have permission to access this resource');
             }
@@ -86,10 +85,6 @@
             alert(error.response.data.message);
             console.log(error);
         }
-
-        if (is_successful) {
-            window.location.reload();
-        }
     }
 
     const updatePassword = async () => {
@@ -107,10 +102,6 @@
         } catch (error) {
             alert(error.response.data.message)
             console.log(error);
-        }
-
-        if (is_successful) {
-            window.location.reload();
         }
     }
 
@@ -143,7 +134,8 @@
     const handleUpdateEmailClick = async () => {
         await checkStatus();
         if (user_status === 1) {
-            updateEmail();
+            await updateEmail();
+            await checkStatus();
         }
     }
 
