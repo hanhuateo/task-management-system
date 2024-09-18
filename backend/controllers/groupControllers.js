@@ -17,12 +17,20 @@ exports.createNewGroup = async (req, res, next) => {
             })
         }
         const regex = new RegExp("^[a-zA-Z0-9_]+$");
-        console.log(group_name);
+        // console.log(group_name);
         if (!regex.test(group_name)) {
             return res.status(400).json({
                 message : "group_name format : alphanumeric + underscore"
             })
         }
+        let check_duplicate_sql = "SELECT * FROM group_list WHERE group_name = ?";
+        const [check_result] = await pool.execute(check_duplicate_sql, [group_name]);
+        if (check_result) {
+            return res.status(400).json({
+                message: "Group exists"
+            })
+        }
+
         let sql = 'INSERT INTO group_list (Group_name) VALUES (?)';
         const [result] = await pool.execute(sql, [group_name]);
 
