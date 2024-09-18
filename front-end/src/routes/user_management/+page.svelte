@@ -495,13 +495,13 @@
         width: 300px;
     }
 
-    /* Form grid layout */
+    /*Form grid layout*/
     .create-new-user-form {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-gap: 1.5rem;
-        margin-bottom: 1.5rem;
-        align-items: start;
+        display: flex;
+        height: 50%;
+        gap: 5px;
+        align-items: center;
+        
     }
 
     .create-new-user-form label {
@@ -525,8 +525,9 @@
         grid-column: span 2;
         justify-self: start;
         padding: 0.75rem 2rem;
-    }
+    } 
 
+    
     /* Table styling */
     .edit-user-credentials-table {
         margin-top: 2rem;
@@ -653,6 +654,31 @@
         {/if}
     </div>
 
+    <div class="create-new-user">
+        <h2>Create New User</h2>
+
+        <form class="create-new-user-form">
+            <label for="username">Username</label>
+            <input id="username" bind:value={newUser.username}>
+            <label for="password">Password</label>
+            <input id="password" type="password" bind:value={newUser.password}>
+            <label for="active">Active</label>
+            <select id="active" bind:value={newUser.active} >
+                <option value=1>Yes</option>
+                <option value=0>No</option>
+            </select>
+            <label for="group_title">Group</label>
+            <select id="group_title" bind:value={newUser.group} multiple>
+                <!-- <option value="" selected></option> -->
+                {#each groups as group, index}
+                    <option value={index + 1} >{group}</option>>
+                {/each}
+            </select>
+            
+        </form>
+        <button class="create-new-user-btn" on:click={handleCreateNewUser}>Create New User</button>
+    </div>
+
     <div class="edit-user-credentials-table">
         <table>
             <thead>
@@ -718,28 +744,5 @@
         </table>
     </div>
 
-    <div class="create-new-user">
-        <h2>Create New User</h2>
 
-        <form class="create-new-user-form">
-            <label for="username">Username</label>
-            <input id="username" bind:value={newUser.username}>
-            <label for="password">Password</label>
-            <input id="password" type="password" bind:value={newUser.password}>
-            <label for="active">Active</label>
-            <select id="active" bind:value={newUser.active} >
-                <option value=1>Yes</option>
-                <option value=0>No</option>
-            </select>
-            <label for="group_title">Group</label>
-            <select id="group_title" bind:value={newUser.group} multiple>
-                <!-- <option value="" selected></option> -->
-                {#each groups as group, index}
-                    <option value={index + 1} >{group}</option>>
-                {/each}
-            </select>
-            
-            <button class="create-new-user-btn" on:click={handleCreateNewUser}>Create New User</button>
-        </form>
-    </div>
 </div>
