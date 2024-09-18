@@ -25,7 +25,7 @@ exports.createNewGroup = async (req, res, next) => {
         }
         let check_duplicate_sql = "SELECT * FROM group_list WHERE group_name = ?";
         const [check_result] = await pool.execute(check_duplicate_sql, [group_name]);
-        if (check_result) {
+        if (check_result.length > 0) {
             return res.status(400).json({
                 message: "Group exists"
             })

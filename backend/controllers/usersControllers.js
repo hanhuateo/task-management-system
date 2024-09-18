@@ -85,22 +85,29 @@ exports.createNewUser = async (req, res, next) => {
 
     // check whether password follows requirements
     const regex = new RegExp(
-      "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\[\\]{};':\"\\\\|,.<>?/-]).{8,10}$"
-    );
-    if (!regex.test(password)) {
-      return res.status(400).json({
-        message:
-          "Password minimum 8 characters, max 10 characters, comprise of alphabets, numbers and special characters",
-      });
+        "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\[\\]{};':\"\\\\|,.<>?/-]).{8,10}$"
+      );
+      if (!regex.test(password)) {
+        return res.status(400).json({
+          message:
+            "Password minimum 8 characters, max 10 characters, comprise of alphabets, numbers and special characters",
+        });
+      }
+    
+    let check_user_exists_sql = "SELECT * FROM user WHERE User_name = ?";
+    const [check_user_exist_response] = await pool.execute(check_user_exists_sql, [username]);
+    if (check_user_exist_response.length > 0) {
+        return res.status(400).json({
+            message : "User exists"
+        })
     }
 
     // hash password
     let hashed = bcrypt.hashSync(password, 10);
 
-    const user_values = [username, hashed, active];
+    const user_values = [username, hashed, active || 1];
 
-    let sql1 =
-      "INSERT INTO user (User_name, Password, Email, Active) VALUES (?, ?, NULL, ?)";
+    let sql1 = "INSERT INTO user (User_name, Password, Email, Active) VALUES (?, ?, NULL, ?)";
     const [user_result] = await pool.execute(sql1, user_values);
 
     // const user_group_values = [username, group_id];

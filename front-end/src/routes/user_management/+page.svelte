@@ -184,13 +184,13 @@
         }
     }
     
-    let newUser = {username: '', password: '' , active: 'Yes', group: ''};
+    let newUser = {username: '', password: '' , active: 1, group: ''};
 
     const createNewUser = async () => {
         try {
             // console.log(newUser.username);
             // console.log(newUser.password);
-            // console.log(newUser.active);
+            console.log(newUser.active);
             // console.log(newUser.group);
             const response = await axios.post('http://localhost:3000/users/createNewUser',
                 {
@@ -225,6 +225,7 @@
     }
     
     let updatedUser = {username: '', password: '', email: '', active: 1, group_names: []};
+    
     let editingUserId = writable(null);
     function startEditing(index) {
         editingUserId.set(index);
@@ -658,16 +659,16 @@
         <h2>Create New User</h2>
 
         <form class="create-new-user-form">
-            <label for="username">Username</label>
+            <label for="username">Username:</label>
             <input id="username" bind:value={newUser.username}>
-            <label for="password">Password</label>
+            <label for="password">Password:</label>
             <input id="password" type="password" bind:value={newUser.password}>
-            <label for="active">Active</label>
+            <label for="active">Active:</label>
             <select id="active" bind:value={newUser.active} >
-                <option value=1>Yes</option>
+                <option value=1 selected>Yes</option>
                 <option value=0>No</option>
             </select>
-            <label for="group_title">Group</label>
+            <label for="group_title">Group:</label>
             <select id="group_title" bind:value={newUser.group} multiple>
                 <!-- <option value="" selected></option> -->
                 {#each groups as group, index}
@@ -706,7 +707,7 @@
                             {#if $editingUserId === index}
                                 <input type="text" bind:value={updatedUser.email} />
                             {:else}
-                                {user.email}
+                                {user.email ? user.email : "-"}
                             {/if}
                         </td>
                         <td>
@@ -727,7 +728,7 @@
                                     {/each}
                                 </select>
                             {:else}
-                                {user.group_names}
+                                {user.group_names ? user.group_names : "-"}
                             {/if}
                         </td>
                         <td>
