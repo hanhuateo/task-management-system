@@ -375,10 +375,15 @@ async function checkGroup(username, groupname) {
     // console.log("checkGroup result is : ");
     // console.log(result);
     // console.log(result[0].group_name);
-    if (groupname === result[0].group_name) {
-      return true;
-    } else {
-      return false;
+    // if (groupname === result[0].group_name) {
+    //   return true;
+    // } else {
+    //   return false;
+    // }
+    for (let i = 0; i < result.length; i++) {
+        if (groupname === result[i].group_name) {
+            return true;
+        }
     }
   } catch (err) {
     console.log(err);

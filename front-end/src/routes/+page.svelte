@@ -98,8 +98,8 @@
 <style>
     /* Container styles */
     .container {
-      padding: 2rem;
-      max-width: 800px;
+      /* padding: 2rem;
+      max-width: 800px; */
       margin: 0 auto;
       background-color: white;
     }

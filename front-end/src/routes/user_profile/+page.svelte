@@ -81,6 +81,9 @@
             });
             // console.log(response);
             is_successful = response.data.success;
+            if (is_successful) {
+                alert(response.data.message);
+            }
         } catch (error) {
             alert(error.response.data.message);
             console.log(error);
@@ -99,6 +102,9 @@
                 }
             );
             is_successful = response.data.success;
+            if (is_successful) {
+                alert(response.data.message);
+            }
         } catch (error) {
             alert(error.response.data.message)
             console.log(error);
@@ -150,9 +156,9 @@
 <style>
      /* Container styles */
      .container {
-      padding: 2rem;
-      max-width: 800px;
-      margin: 0 auto;
+      /* padding: 2rem; */
+      /* max-width: 800px; */
+      margin: auto;
       background-color: white;
     }
   
@@ -247,6 +253,10 @@
     /* User details section */
     .user-details {
         margin-bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 
     .user-details p {
@@ -262,6 +272,7 @@
     /* Section titles */
     .form-section {
         margin-bottom: 2rem;
+        text-align: center;
     }
 
     .form-section label {
@@ -334,8 +345,8 @@
 
     <!-- User Details Section -->
     <div class="user-details">
-        <p><strong>Username:</strong> {username}</p>
-        <p><strong>Email:</strong> {current_email}</p>
+        <h2><strong>Username:</strong> {username}</h2>
+        <h2><strong>Email:</strong> {current_email ? current_email : "-"}</h2>
     </div>
   
     <!-- Update Email Section -->
