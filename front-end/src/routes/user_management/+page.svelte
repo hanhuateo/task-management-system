@@ -230,6 +230,7 @@
     function startEditing(index) {
         editingUserId.set(index);
         updatedUser.username = users[index].user_name;
+        updatedUser.group_names = users[index].group_names;
     }
     const saveUser = async(user) => {
         //handle saving edited data
