@@ -2,7 +2,7 @@ const pool = require('../utils/db');
 
 exports.createNewApp = async (req, res, next) => {
     let username = req.user;
-    let is_project_lead = checkGroup(username, ["project_lead"]);
+    let is_project_lead = checkGroup(username, ["PL"]);
 
     if (!is_project_lead) {
         return res.status(500).json({
@@ -18,16 +18,55 @@ exports.createNewApp = async (req, res, next) => {
 
         if (!app_acronym || !app_rnumber || !app_startdate || !app_enddate) {
             return res.status(400).json({
-                message : "Please fill in the mandatory fields"
+                message : "Please fill in the mandatory fields",
+                success : false
+            })
+        };
+
+        let check_duplicate_sql = "SELECT App_acronym FROM Application WHERE App_acronym = ?";
+
+        const [check_result] = await pool.execute(check_duplicate_sql, [app_acronym]);
+
+        if (check_result.length > 0) {
+            return res.status(400).json({
+                message : "App acronym already taken",
+                success : false
             })
         }
 
+        let create_sql = "INSERT INTO Application (App_acronym, App_Description, " + 
+                         "App_Rnumber, App_startDate, App_endDate, App_permit_Create, " + 
+                         "App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
+        const [result] = await pool.execute(create_sql, [
+            app_acronym,
+            app_description || null,
+            app_rnumber,
+            app_startdate,
+            app_enddate,
+            app_permit_create || null, 
+            app_permit_open || null,
+            app_permit_todolist || null, 
+            app_permit_doing || null, 
+            app_permit_done || null            
+        ]);
+
+        return res.status(200).json({
+            message : "App created successfully",
+            success : true,
+            result
+        });
+
     } catch (error) {
-        console.log(error);
+        console.log("error : " + error);
+        return res.status(500).json({
+            message : "Failed to create app",
+            success : false
+        })
     }
 
-}
+};
 
 exports.getAllApps = async (req, res, next) => {
     let username = req.user;
