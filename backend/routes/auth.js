@@ -28,7 +28,8 @@ router.get("/getUserGroup", authMiddle.verifyToken, groupController.getUserGroup
 
 // app routes
 router.post("/createNewApp", authMiddle.verifyToken, appController.createNewApp);
-router.get("/getAllApps", authMiddle.verifyToken, appController.getAllApps);
+router.get("/getAllPartialAppDetails", authMiddle.verifyToken, appController.getAllPartialAppDetails);
+router.get("/getFullAppDetails", authMiddle.verifyToken, appController.getFullAppDetails);
 router.patch("/updateApp", authMiddle.verifyToken, appController.updateApp);
 
 module.exports = router;

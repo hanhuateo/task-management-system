@@ -2,13 +2,24 @@ const pool = require('../utils/db');
 
 exports.createNewApp = async (req, res, next) => {
     let username = req.user;
+
+    let isActive = await checkActive(username); 
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    }
+    
     let is_project_lead = checkGroup(username, ["PL"]);
 
     if (!is_project_lead) {
         return res.status(500).json({
-            message : "Do not have permission to access this resource"
+            message : "Do not have permission to access this resource",
+            success : false
         })
-    }
+    };
 
     try {
         let {app_acronym, app_description, app_rnumber, app_startdate, app_enddate,
@@ -23,6 +34,13 @@ exports.createNewApp = async (req, res, next) => {
             })
         };
 
+        if (app_rnumber < 0) {
+            return res.status(400).json({
+                message : "App RNumber has to be positive",
+                success : false
+            })
+        };
+
         let check_duplicate_sql = "SELECT App_acronym FROM Application WHERE App_acronym = ?";
 
         const [check_result] = await pool.execute(check_duplicate_sql, [app_acronym]);
@@ -32,7 +50,7 @@ exports.createNewApp = async (req, res, next) => {
                 message : "App acronym already taken",
                 success : false
             })
-        }
+        };
 
         let create_sql = "INSERT INTO Application (App_acronym, App_Description, " + 
                          "App_Rnumber, App_startDate, App_endDate, App_permit_Create, " + 
@@ -63,19 +81,111 @@ exports.createNewApp = async (req, res, next) => {
         return res.status(500).json({
             message : "Failed to create app",
             success : false
-        })
+        });
     }
 
 };
 
-exports.getAllApps = async (req, res, next) => {
+exports.getAllPartialAppDetails = async (req, res, next) => {
+    let username = req.user;
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    }
+    // do not need to check for any groups
+    try { 
+        let get_partial_app_details_sql = "SELECT App_Acronym, App_Description, App_rnumber " +
+                                          "FROM application";
+
+        const [result, fields] = await pool.query(get_partial_app_details_sql);
+
+        res.status(200).json({
+            message : "Get partial app details successful",
+            success : true,
+            result,
+            fields
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to retrieve data from database",
+            success : false,
+        });
+    }
+};
+
+exports.getFullAppDetails = async (req, res, next) => {
     let username = req.user;
 
-}
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    }
+
+    try {
+        let get_full_app_details_sql = "SELECT * FROM application";
+
+        const [result] = await pool.query(get_full_app_details_sql);
+
+        res.status(200).json({
+            message : "Get full app details successful",
+            success : true,
+            result
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to retrieve data from database",
+            success : false
+        });
+    }
+};
 
 exports.updateApp = async (req, res, next) => {
     let username = req.user;
-}
+
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    }
+
+    let is_project_lead = checkGroup(username, ["PL"]);
+
+    if (!is_project_lead) {
+        return res.status(500).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    };
+
+    try {
+        let {app_description, app_permit_create, app_permit_open, 
+            app_permit_todolist, app_permit_doing, app_permit_done} = req.body;
+
+        let update_app_sql = ""
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to update app",
+            success : false
+        })
+    }
+};
 
 async function checkGroup(username, groupname) {
 
@@ -96,3 +206,16 @@ async function checkGroup(username, groupname) {
     }
 };
 
+async function checkActive(username) {
+    try {
+        let sql = "SELECT Active FROM User WHERE User_name = ?";
+        const [val, fields] = await pool.execute(sql, [username]);
+        console.log("val : " + JSON.stringify(val));
+        if (JSON.stringify(val).includes('"Active":1')) {
+            return true;
+        };
+        return false;
+    } catch (error) {
+        console.log(error);
+    }
+}
