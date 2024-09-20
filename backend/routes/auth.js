@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authControllers');
 const usersController = require('../controllers/usersControllers');
 const groupController = require('../controllers/groupControllers');
+const appController = require('../controllers/appControllers');
 const authMiddle = require('../middlewares/authMiddle');
 
 // login/logout routes
@@ -26,5 +27,8 @@ router.get("/getAllUserGroup", authMiddle.verifyToken, groupController.getAllUse
 router.get("/getUserGroup", authMiddle.verifyToken, groupController.getUserGroup);
 
 // app routes
+router.post("/createNewApp", authMiddle.verifyToken, appController.createNewApp);
+router.get("/getAllApps", authMiddle.verifyToken, appController.getAllApps);
+router.patch("/updateApp", authMiddle.verifyToken, appController.updateApp);
 
 module.exports = router;
