@@ -5,8 +5,6 @@ const cors = require("cors")
 
 
 // importing routes
-const users = require("./routes/users");
-const group = require("./routes/group");
 const auth = require("./routes/auth");
 
 const errorMiddleware = require("./middlewares/errors");
@@ -25,8 +23,6 @@ const corsOption = {
 }
 app.use(cors(corsOption));
 
-app.use("/users", users);
-app.use("/group", group);
 app.use("/auth", auth);
 
 // handle unhandled routes

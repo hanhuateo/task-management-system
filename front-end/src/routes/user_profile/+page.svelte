@@ -21,7 +21,7 @@
 
     const checkStatus = async () => {
         try {
-            const user_response = await axios.get('http://localhost:3000/users/getUserDetails',
+            const user_response = await axios.get('http://localhost:3000/auth/getUserDetails',
                     {
                         withCredentials: true
                     }
@@ -43,7 +43,7 @@
 
     const checkAdmin = async () => {
         try {
-            const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
+            const group_response = await axios.get('http://localhost:3000/auth/getUserGroup', 
                 {
                     withCredentials: true
                 }
@@ -71,7 +71,7 @@
 
     const updateEmail = async () => {
         try {
-            const response = await axios.patch('http://localhost:3000/users/updateUserEmail', 
+            const response = await axios.patch('http://localhost:3000/auth/updateUserEmail', 
             {
                 username, 
                 email
@@ -92,7 +92,7 @@
 
     const updatePassword = async () => {
         try {
-            const response = await axios.patch('http://localhost:3000/users/updateUserPassword', 
+            const response = await axios.patch('http://localhost:3000/auth/updateUserPassword', 
                 {
                     username,
                     password

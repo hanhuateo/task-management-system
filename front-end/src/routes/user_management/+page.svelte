@@ -26,7 +26,7 @@
 
     const checkStatus = async () => {
         try {
-            const user_response = await axios.get('http://localhost:3000/users/getUserDetails',
+            const user_response = await axios.get('http://localhost:3000/auth/getUserDetails',
                     {
                         withCredentials: true
                     }
@@ -47,7 +47,7 @@
 
     const checkAdmin = async () => {
         try {
-            const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
+            const group_response = await axios.get('http://localhost:3000/auth/getUserGroup', 
                 {
                     withCredentials: true
                 }
@@ -81,7 +81,7 @@
 
     const getAllUserDetails = async () => {
         try {
-            const getAllUserDetails_response = await axios.get('http://localhost:3000/users/getAllUsersDetails',
+            const getAllUserDetails_response = await axios.get('http://localhost:3000/auth/getAllUsersDetails',
                 {
                     withCredentials: true
                 }
@@ -132,7 +132,7 @@
 
     const createGroup = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/group/createNewGroup', 
+            const response = await axios.post('http://localhost:3000/auth/createNewGroup', 
                 {
                     group_name
                 },
@@ -151,7 +151,7 @@
     const getAllUserGroups = async () => {
         try {
             groups = [];
-            const response = await axios.get('http://localhost:3000/group/getAllUserGroup',
+            const response = await axios.get('http://localhost:3000/auth/getAllUserGroup',
                 {
                     withCredentials: true
                 }
@@ -192,7 +192,7 @@
             // console.log(newUser.password);
             console.log(newUser.active);
             // console.log(newUser.group);
-            const response = await axios.post('http://localhost:3000/users/createNewUser',
+            const response = await axios.post('http://localhost:3000/auth/createNewUser',
                 {
                     username : newUser.username,
                     password : newUser.password,
@@ -242,7 +242,7 @@
             // console.log(user.active);
             console.log(user.group_names);
             if (user.password) {
-                const update_password_response = await axios.patch('http://localhost:3000/users/adminUpdateUserPassword', 
+                const update_password_response = await axios.patch('http://localhost:3000/auth/adminUpdateUserPassword', 
                     {
                         username : user.username,
                         password : user.password
@@ -254,7 +254,7 @@
             }
 
             if (user.email) {
-                const update_email_response = await axios.patch('http://localhost:3000/users/adminUpdateUserEmail',
+                const update_email_response = await axios.patch('http://localhost:3000/auth/adminUpdateUserEmail',
                     {
                         username : user.username,
                         email : user.email
@@ -266,7 +266,7 @@
             }
 
             if (user.active) {
-                const update_active_response = await axios.patch('http://localhost:3000/users/adminUpdateUserStatus', 
+                const update_active_response = await axios.patch('http://localhost:3000/auth/adminUpdateUserStatus', 
                     {
                         username : user.username,
                         active : user.active
@@ -278,7 +278,7 @@
             }
 
             if (user.group_names) {
-                const update_group_response = await axios.patch('http://localhost:3000/users/adminUpdateUserGroup',
+                const update_group_response = await axios.patch('http://localhost:3000/auth/adminUpdateUserGroup',
                     {
                         username : user.username,
                         group_name : user.group_names

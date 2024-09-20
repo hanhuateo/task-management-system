@@ -22,7 +22,7 @@
 
     const checkStatus = async () => {
         try {
-            const user_response = await axios.get('http://localhost:3000/users/getUserDetails',
+            const user_response = await axios.get('http://localhost:3000/auth/getUserDetails',
                     {
                         withCredentials: true
                     }
@@ -43,7 +43,7 @@
 
     const checkAdmin = async () => {
         try {
-            const group_response = await axios.get('http://localhost:3000/group/getUserGroup', 
+            const group_response = await axios.get('http://localhost:3000/auth/getUserGroup', 
                 {
                     withCredentials: true
                 }
