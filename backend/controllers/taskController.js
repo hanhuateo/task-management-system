@@ -76,9 +76,9 @@ exports.createTask = async (req, res, next) => {
     };
 
     try {
-        let {task_id, task_name, task_description, task_notes,
-            task_plan, task_app_acronym, task_state, task_creator, 
-            task_owner, task_createDate} = req.body;
+        let {task_id, task_name, task_description, task_notes, task_plan, task_app_acronym,
+            task_state, task_creator, task_owner, task_createdate
+        } = req.body;
 
         let check_group_sql = "SELECT app_permit_create FROM application WHERE app_acronym = ?";
 
@@ -95,8 +95,27 @@ exports.createTask = async (req, res, next) => {
                 checkGroup_result
             })
         }
+
+        let current_date = getFormattedDateString();
+
+        // will implement this later when front-end is up and running so that can pass the app_rnumber from front-end
+        // let appRNumber_sql = "SELECT app_rnumber FROM application WHERE app_acronym = ?";
+
+        // const [appRNumber_result, appRNumber_fields] = await pool.execute(appRNumber_sql, [
+        //     task_app_acronym
+        // ]);
+
+        task_id = task_app_acronym + "_" + appRNumber_result;
+
+        task_state = 'open'
+
+        task_creator = username;
+
+        task_owner = username;
+
+        task_createdate = current_date;
         
-        let createTask_sql = "INSERT INTO task VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        let createTask_sql = "INSERT INTO task VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)";
 
         const [createTask_result, createTask_fields] = await pool.execute(createTask_sql, [
             task_id,
@@ -108,7 +127,7 @@ exports.createTask = async (req, res, next) => {
             task_state,
             task_creator,
             task_owner,
-            task_createDate
+            task_createdate
         ]);
 
         return res.status(200).json({
@@ -161,6 +180,57 @@ exports.getTaskByState = async (req, res, next) => {
     }
 };
 
+exports.promoteTaskOpen2Todo = async (req, res, next) => {
+    let username = req.user; 
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    };
+
+    try {
+        let {task_id, task_app_acronym} = req.body;
+
+        let check_group_sql = "SELECT app_permit_open FROM application WHERE app_acronym = ?";
+
+        let [checkGroup_result, checkGroup_fields] = await pool.query(check_group_sql, [
+            task_app_acronym
+        ]);
+
+        let isAuthorizedGroups = await checkGroup(username, checkGroup_result);
+
+        if (!isAuthorizedGroups) {
+            return res.status(400).json({
+                message : "Do not have permission to access this resource",
+                success : false,
+                checkGroup_result
+            })
+        };
+
+        let promoteTaskOpen2Todo_sql = "UPDATE task SET task_state = 'todo' WHERE task_id = ? AND task_app_acronym = ?";
+
+        let [promoteTaskOpen2Todo_result, promoteTaskOpen2Todo_fields] = await pool.query(promoteTaskOpen2Todo_sql,[
+            task_id,
+            task_app_acronym
+        ]);
+
+        return res.status(200).json({
+            message : "Task successfully promoted from open to todo",
+            success : true
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to update task",
+            success : false
+        })
+    }
+};
+
 async function checkGroup(username, groupname) {
 
     try {
@@ -192,4 +262,18 @@ async function checkActive(username) {
     } catch (error) {
         console.log(error);
     }
+};
+
+function getFormattedDateString() {
+    const date = new Date();
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+    const year = date.getFullYear();
+  
+    // Format as DD-MM-YYYY
+    const formattedDate = `${day}/${month}/${year}`;
+  
+    // Convert to string explicitly (though it's already a string)
+    return String(formattedDate);
 };

@@ -39,7 +39,6 @@ exports.createPlan = async (req, res, next) => {
         return res.status(200).json({
             message : "Plan created successfully",
             success : true,
-            result
         })
     } catch (error) {
         console.log(error);

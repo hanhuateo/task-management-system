@@ -52,6 +52,10 @@ exports.createNewApp = async (req, res, next) => {
             })
         };
 
+        // by right should check to make sure that start date is earlier than end date
+        // but i think i can do this in the front-end where i just show a calender
+        // then whichever date the user chooses, i just disable all the dates earlier than the date chosen
+
         let create_sql = "INSERT INTO Application (App_acronym, App_Description, " + 
                          "App_Rnumber, App_startDate, App_endDate, App_permit_Create, " + 
                          "App_permit_Open, App_permit_toDoList, App_permit_Doing, App_permit_Done) " +
@@ -108,7 +112,6 @@ exports.getAllPartialAppDetails = async (req, res, next) => {
             message : "Get partial app details successful",
             success : true,
             result,
-            fields
         });
     } catch (error) {
         console.log(error);
@@ -130,12 +133,12 @@ exports.getFullAppDetails = async (req, res, next) => {
             message : "Do not have permission to access this resource",
             success : false
         })
-    }
+    };
 
     try {
         let get_full_app_details_sql = "SELECT * FROM application";
 
-        const [result] = await pool.query(get_full_app_details_sql);
+        const [result, fields] = await pool.query(get_full_app_details_sql);
 
         res.status(200).json({
             message : "Get full app details successful",
@@ -184,7 +187,7 @@ exports.updateApp = async (req, res, next) => {
         };
 
         if (app_permit_create) {
-            let update_app_permit_create_sql = "UPDATE applicaion SET app_permit_create = ? WHERE app_acronym = ?";
+            let update_app_permit_create_sql = "UPDATE application SET app_permit_create = ? WHERE app_acronym = ?";
             const values = [app_permit_create, app_acronym];
             const result = await pool.query(update_app_permit_create_sql, values);
         };
@@ -257,4 +260,4 @@ async function checkActive(username) {
     } catch (error) {
         console.log(error);
     }
-}
+};
