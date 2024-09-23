@@ -63,7 +63,7 @@ exports.getFullTaskDetails = async (req, res, next) => {
     }
 };
 
-exports.createNewTask = async (req, res, next) => {
+exports.createTask = async (req, res, next) => {
     let username = req.user;
     let isActive = await checkActive(username);
     // console.log("isActive : " + isActive);
@@ -124,7 +124,43 @@ exports.createNewTask = async (req, res, next) => {
             success : false
         })
     };
-}
+};
+
+exports.getTaskByState = async (req, res, next) => {
+    let username = req.user; 
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    };
+
+    // not sure if this one need checkgroup or what so fk it first
+
+    try {
+        let {task_state} = req.body;
+
+        let getTaskbyState_sql = "SELECT * from task WHERE task_state = ?";
+
+        const result = await pool.execute(getTaskbyState_sql, [task_state]);
+
+        return res.status(200).json({
+            message : `Successfully retrieved all tasks of state ${task_state}`,
+            success : true,
+            result
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to retrieve from database",
+            success : false
+        })
+    }
+};
+
 async function checkGroup(username, groupname) {
 
     try {
@@ -156,4 +192,4 @@ async function checkActive(username) {
     } catch (error) {
         console.log(error);
     }
-}
+};
