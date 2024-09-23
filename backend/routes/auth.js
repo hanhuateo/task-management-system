@@ -43,6 +43,6 @@ router.patch("/updatePlanDetails", authMiddle.verifyToken, planController.update
 // task routes
 router.get("/getAllPartialTaskDetails", authMiddle.verifyToken, taskController.getAllPartialTaskDetails);
 router.get("/getFullTaskDetails", authMiddle.verifyToken, taskController.getFullTaskDetails);
-router.get("/createNewTask", authMiddle.verifyToken, taskController.createNewTask);
+router.post("/createNewTask", authMiddle.verifyToken, taskController.createNewTask);
 
 module.exports = router;
