@@ -167,17 +167,56 @@ exports.updateApp = async (req, res, next) => {
     let is_project_lead = checkGroup(username, ["PL"]);
 
     if (!is_project_lead) {
-        return res.status(500).json({
+        return res.status(400).json({
             message : "Do not have permission to access this resource",
             success : false
         })
     };
 
     try {
-        let {app_description, app_permit_create, app_permit_open, 
+        let {app_acronym, app_description, app_permit_create, app_permit_open, 
             app_permit_todolist, app_permit_doing, app_permit_done} = req.body;
 
-        let update_app_sql = ""
+        if (app_description) {
+            let update_app_description_sql = "UPDATE application SET app_description = ? WHERE app_acronym = ?";
+            const values = [app_description, app_acronym];
+            const result = await pool.query(update_app_description_sql, values);
+        };
+
+        if (app_permit_create) {
+            let update_app_permit_create_sql = "UPDATE applicaion SET app_permit_create = ? WHERE app_acronym = ?";
+            const values = [app_permit_create, app_acronym];
+            const result = await pool.query(update_app_permit_create_sql, values);
+        };
+
+        if (app_permit_open) {
+            let update_app_permit_open_sql = "UPDATE application SET app_permit_open = ? WHERE app_acronym = ?";
+            const values = [app_permit_open, app_acronym];
+            const result = await pool.query(update_app_permit_open_sql, values);
+        };
+
+        if (app_permit_todolist){
+            let update_app_permit_todolist_sql = "UPDATE application SET app_permit_todolist = ? WHERE app_acronym = ?";
+            const values = [app_permit_todolist, app_acronym];
+            const result = await pool.query(update_app_permit_todolist_sql, values);
+        };
+
+        if (app_permit_doing) {
+            let update_app_permit_doing_sql = "UPDATE application SET app_permit_doing = ? WHERE app_acronym = ?";
+            const values = [app_permit_doing, app_acronym];
+            const result = await pool.query(update_app_permit_doing_sql, values);
+        }
+
+        if (app_permit_done) {
+            let update_app_permit_done_sql = "UPDATE application SET app_permit_done = ? WHERE app_acronym = ?";
+            const values = [app_permit_done, app_acronym];
+            const result = await pool.query(update_app_permit_done_sql, values);
+        }
+
+        res.status(200).json({
+            message : "update successful",
+            success : true
+        });
     } catch (error) {
         console.log(error);
         return res.status(500).json({
