@@ -36,6 +36,9 @@ router.patch("/updateApp", authMiddle.verifyToken, appController.updateApp);
 
 // plan routes
 router.post("/createPlan", authMiddle.verifyToken, planController.createPlan);
+router.get("/getAllPlanMVPName", authMiddle.verifyToken, planController.getAllPlanMVPName);
+router.get("/getPlanDetails", authMiddle.verifyToken, planController.getPlanDetails);
+router.patch("/updatePlanDetails", authMiddle.verifyToken, planController.updatePlanDetails);
 
 // task routes
 router.get("/getAllPartialTaskDetails", authMiddle.verifyToken, taskController.getAllPartialTaskDetails);
