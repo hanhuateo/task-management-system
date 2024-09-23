@@ -225,10 +225,273 @@ exports.promoteTaskOpen2Todo = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({
-            message : "Failed to update task",
+            message : "Failed to promote task",
             success : false
         })
     }
+};
+
+exports.promoteTaskTodo2Doing = async (req, res, next) => {
+    let username = req.user; 
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    };
+
+    try {
+        let {task_id, task_app_acronym} = req.body;
+
+        let check_group_sql = "SELECT app_permit_todo FROM application WHERE app_acronym = ?";
+
+        let [checkGroup_result, checkGroup_fields] = await pool.query(check_group_sql, [
+            task_app_acronym
+        ]);
+
+        let isAuthorizedGroups = await checkGroup(username, checkGroup_result);
+
+        if (!isAuthorizedGroups) {
+            return res.status(400).json({
+                message : "Do not have permission to access this resource",
+                success : false,
+                checkGroup_result
+            })
+        };
+
+        let promoteTaskTodo2Doing_sql = "UPDATE task SET task_state = 'doing' WHERE task_id = ? AND task_app_acronym = ?";
+
+        const [promoteTaskTodo2Doing_result, promoteTaskTodo2Doing_fields] = await pool.query(promoteTaskTodo2Doing_sql, [
+            task_id,
+            task_app_acronym
+        ]);
+
+        return res.status(200).json({
+            message : "Task successfully promoted from todo to doing",
+            success : true
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to promote task",
+            success : false
+        })
+    }
+};
+
+exports.promoteTaskDoing2Done = async (req, res, next) => {
+    let username = req.user; 
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    };
+
+    try {
+        let {task_id, task_app_acronym} = req.body;
+
+        let check_group_sql = "SELECT app_permit_doing FROM application WHERE app_acronym = ?";
+
+        let [checkGroup_result, checkGroup_fields] = await pool.query(check_group_sql, [
+            task_app_acronym
+        ]);
+
+        let isAuthorizedGroups = await checkGroup(username, checkGroup_result);
+
+        if (!isAuthorizedGroups) {
+            return res.status(400).json({
+                message : "Do not have permission to access this resource",
+                success : false,
+                checkGroup_result
+            })
+        };
+
+        let promoteTaskDoing2Done_sql = "UPDATE task SET task_state = 'done' WHERE task_id = ? AND task_app_acronym = ?";
+
+        const [promoteTaskDoing2Done_result, promoteTaskDoing2Done_fields] = await pool.query(promoteTaskDoing2Done_sql, [
+            task_id,
+            task_app_acronym
+        ]);
+
+        return res.status(200).json({
+            message : "Task successfully promoted from doing to done",
+            success : true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to promote task",
+            success : false
+        })
+    }
+};
+
+exports.promoteTaskDone2Close = async (req, res, next) => {
+    let username = req.user; 
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    };
+
+    try {
+        let {task_id, task_app_acronym} = req.body;
+
+        let check_group_sql = "SELECT app_permit_done FROM application WHERE app_acronym = ?";
+
+        let [checkGroup_result, checkGroup_fields] = await pool.query(check_group_sql, [
+            task_app_acronym
+        ]);
+
+        let isAuthorizedGroups = await checkGroup(username, checkGroup_result);
+
+        if (!isAuthorizedGroups) {
+            return res.status(400).json({
+                message : "Do not have permission to access this resource",
+                success : false,
+                checkGroup_result
+            })
+        };
+
+        let promoteTaskDone2Close_sql = "UPDATE task SET task_state = 'close' WHERE task_id = ? AND task_app_acronym = ?";
+
+        const [promoteTaskDoing2Done_result, promoteTaskDoing2Done_fields] = await pool.query(promoteTaskDone2Close_sql, [
+            task_id,
+            task_app_acronym
+        ]);
+
+        return res.status(200).json({
+            message : "Task successfully promoted from done to close",
+            success : true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to promote task",
+            success : false
+        })
+    }
+};
+
+exports.demoteTaskDoing2Todo = async (req, res, next) => {
+    let username = req.user; 
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    };
+
+    try {
+        let {task_id, task_app_acronym} = req.body;
+
+        let check_group_sql = "SELECT app_permit_doing FROM application WHERE app_acronym = ?";
+
+        let [checkGroup_result, checkGroup_fields] = await pool.query(check_group_sql, [
+            task_app_acronym
+        ]);
+
+        let isAuthorizedGroups = await checkGroup(username, checkGroup_result);
+
+        if (!isAuthorizedGroups) {
+            return res.status(400).json({
+                message : "Do not have permission to access this resource",
+                success : false,
+                checkGroup_result
+            })
+        };
+
+        let demoteTaskDoing2Todo_sql = "UPDATE task SET task_state = 'todo' WHERE task_id = ? AND task_app_acronym = ?";
+
+        const [demoteTaskDoing2Todo_result, demoteTaskDoing2Todo_fields] = await pool.query(demoteTaskDoing2Todo_sql, [
+            task_id,
+            task_app_acronym
+        ]);
+
+        return res.status(200).json({
+            message : "Task successfully demoted from doing to todo",
+            success : true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to demote task",
+            success : false
+        })
+    }
+};
+
+exports.demoteTaskDone2Doing = async (req, res, next) => {
+    let username = req.user; 
+    let isActive = await checkActive(username);
+    // console.log("isActive : " + isActive);
+
+    if (!isActive) {
+        return res.status(400).json({
+            message : "Do not have permission to access this resource",
+            success : false
+        })
+    };
+
+    try {
+        let {task_id, task_app_acronym} = req.body;
+
+        let check_group_sql = "SELECT app_permit_done FROM application WHERE app_acronym = ?";
+
+        let [checkGroup_result, checkGroup_fields] = await pool.query(check_group_sql, [
+            task_app_acronym
+        ]);
+
+        let isAuthorizedGroups = await checkGroup(username, checkGroup_result);
+
+        if (!isAuthorizedGroups) {
+            return res.status(400).json({
+                message : "Do not have permission to access this resource",
+                success : false,
+                checkGroup_result
+            })
+        };
+
+        let demoteTaskDone2Doing_sql = "UPDATE task SET task_state = 'doing' WHERE task_id = ? AND task_app_acronym = ?";
+
+        const [demoteTaskDone2Doing_result, demoteTaskDone2Doing_fields] = await pool.query(demoteTaskDone2Doing_sql, [
+            task_id,
+            task_app_acronym
+        ]);
+
+        return res.status(200).json({
+            message : "Task successfully demoted from done to doing",
+            success : true
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message : "Failed to demote task",
+            success : false
+        })
+    }
+};
+
+exports.updateTaskNotes = async (req, res, next) => {
+
+};
+
+exports.updateTaskPlan = async (req, res, next) => {
+
 };
 
 async function checkGroup(username, groupname) {
