@@ -4,6 +4,8 @@ const authController = require('../controllers/authControllers');
 const usersController = require('../controllers/usersControllers');
 const groupController = require('../controllers/groupControllers');
 const appController = require('../controllers/appControllers');
+const taskController = require('../controllers/taskController');
+const planController = require('../controllers/planController');
 const authMiddle = require('../middlewares/authMiddle');
 
 // login/logout routes
@@ -31,5 +33,13 @@ router.post("/createNewApp", authMiddle.verifyToken, appController.createNewApp)
 router.get("/getAllPartialAppDetails", authMiddle.verifyToken, appController.getAllPartialAppDetails);
 router.get("/getFullAppDetails", authMiddle.verifyToken, appController.getFullAppDetails);
 router.patch("/updateApp", authMiddle.verifyToken, appController.updateApp);
+
+// plan routes
+router.post("/createPlan", authMiddle.verifyToken, planController.createPlan);
+
+// task routes
+router.get("/getAllPartialTaskDetails", authMiddle.verifyToken, taskController.getAllPartialTaskDetails);
+router.get("/getFullTaskDetails", authMiddle.verifyToken, taskController.getFullTaskDetails);
+router.get("/createNewTask", authMiddle.verifyToken, taskController.createNewTask);
 
 module.exports = router;
