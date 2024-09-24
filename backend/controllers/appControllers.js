@@ -252,7 +252,7 @@ async function checkActive(username) {
     try {
         let sql = "SELECT Active FROM User WHERE User_name = ?";
         const [val, fields] = await pool.execute(sql, [username]);
-        console.log("val : " + JSON.stringify(val));
+        // console.log("val : " + JSON.stringify(val));
         if (JSON.stringify(val).includes('"Active":1')) {
             return true;
         };

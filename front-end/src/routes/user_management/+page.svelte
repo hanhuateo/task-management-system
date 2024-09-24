@@ -31,7 +31,7 @@
                         withCredentials: true
                     }
                 )
-            console.log(user_response);
+            // console.log(user_response);
             username = user_response.data.val[0].user_name;
             user_status = user_response.data.val[0].active;
             if (user_status === 0) {
@@ -206,7 +206,7 @@
 
             newUser.username = '';
             newUser.password = '';
-            newUser.active = '';
+            newUser.active = 1;
             newUser.group = '';
         } catch (error) {
             console.log(error);
@@ -230,7 +230,7 @@
     function startEditing(index) {
         editingUserId.set(index);
         updatedUser.username = users[index].user_name;
-        updatedUser.group_names = users[index].group_names;
+        updatedUser.group_names = users[index].group_names ? users[index].group_names : "-";
     }
     const saveUser = async(user) => {
         //handle saving edited data

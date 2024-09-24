@@ -5,7 +5,7 @@ const dotenv = require('dotenv').config({path : './config/config.env'});
 
 exports.login = async (req, res, next) => {
     const {username, password} = req.body;
-    console.log(req.body);
+    // console.log(req.body);
     // console.log(username);
     // console.log(password);
     if (!username && !password) {

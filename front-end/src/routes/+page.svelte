@@ -2,21 +2,25 @@
     import { goto } from '$app/navigation';
     import axios from 'axios';
     import {onMount} from 'svelte';
-
+    
     let showDropdown= false;
     let username = '';
     let isAdmin = false;
+    let isProjectLead = false;
     let user_status = 0;
     let adminUserManagementFlag = false;
+    let showCreateAppModal = false;
+    let apps = [];
+    let projectLeadCreateAppFlag = false;
     // Sample list of apps
     
     onMount(async () => {
         await checkStatus();
         await checkAdmin();
+        await checkProjectLead();
         await getAllPartialAppDetails();
     })
 
-    let apps = [];
 
     const checkStatus = async () => {
         try {
@@ -66,6 +70,25 @@
         }
     }
 
+    const checkProjectLead = async () => {
+        try {
+            const role_response = await axios.get('http://localhost:3000/auth/getUserGroup', {
+                withCredentials:true
+            });
+
+            isProjectLead = role_response.data.isProjectLead;
+            if (!isProjectLead && projectLeadCreateAppFlag) {
+                goto('http://localhost:5173/');
+                alert('Do not have permission to access this resource');
+            }
+        } catch (error) {
+            console.log(error);
+            if (error.response.data.message === 'invalid token') {
+                goto('http://localhost:5173/login');
+            }
+        }
+    }
+
     const logout = async () => {
         try {
             const response = await axios.get('http://localhost:3000/auth/logout', {
@@ -87,22 +110,11 @@
     }
 
     const handleUserManagementClick = async () => {
-        checkStatus();
+        await checkStatus();
         adminUserManagementFlag = true;
-        checkAdmin();
+        await checkAdmin();
     }
 
-    const checkProjectLead = async () => {
-        try {
-            const group_response = await axios.get('http://localhost:3000/auth/getUserGroup',
-                {
-                    withCredentials: true
-                }
-            )
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     const getAllPartialAppDetails = async () => {
         try {
@@ -118,14 +130,96 @@
         }
     }
 
-    let showCreateAppModal = false;
 
     const toggleCreateAppModal = () => {
         showCreateAppModal = !showCreateAppModal;
     }
 
     const handleCreateAppModalClick = async () => {
+        await checkStatus();
+        projectLeadCreateAppFlag = true;
+        await checkProjectLead();
+        if (isProjectLead === true && projectLeadCreateAppFlag === true) {
+            toggleCreateAppModal();
+            await getAllUserGroups();
+        }
+        projectLeadCreateAppFlag = false;
+    }
+
+    let newApp = {app_acronym : '', app_description : '', app_rnumber : '', app_startDate: '', 
+                  app_endDate: '', app_permit_create : '', app_permit_open:'', 
+                  app_permit_todolist:'', app_permit_doing:'', app_permit_done:''};
+
+    const createNewApp = async () => {
+        try {
+
+            // console.log('app acronym : ' + newApp.app_acronym + typeof(newApp.app_acronym));
+            // console.log('app description : ' + newApp.app_description + typeof(newApp.app_description));
+            // console.log('app rnumber : ' + newApp.app_rnumber + typeof(newApp.app_rnumber));
+            // console.log('app start date : ' + newApp.app_startDate + typeof(newApp.app_startDate));
+            // console.log('app end date : ' + newApp.app_endDate + typeof(newApp.app_endDate));
+            // console.log('app permit create : ' + newApp.app_permit_create + typeof(newApp.app_permit_create));
+            // console.log('app permit open : ' + newApp.app_permit_open + typeof(newApp.app_permit_open));
+            // console.log('app permit todo : ' + newApp.app_permit_todo + typeof(newApp.app_permit_todo));
+            // console.log('app permit doing : ' + newApp.app_permit_doing + typeof(newApp.app_permit_doing));
+            // console.log('app permit done : ' + newApp.app_permit_done + typeof(newApp.app_permit_done));
+            // console.log(newApp.app_startDate.split('-').reverse().join('-'));
+
+            const response = await axios.post('http://localhost:3000/auth/createNewApp', {
+                app_acronym : newApp.app_acronym,
+                app_description : newApp.app_description,
+                app_rnumber : parseInt(newApp.app_rnumber),
+                app_startdate : newApp.app_startDate.split('-').reverse().join('-'),
+                app_enddate : newApp.app_endDate.split('-').reverse().join('-'),
+                app_permit_create : newApp.app_permit_create, 
+                app_permit_open : newApp.app_permit_open,
+                app_permit_todolist : newApp.app_permit_todolist,
+                app_permit_doing : newApp.app_permit_doing,
+                app_permit_done : newApp.app_permit_done
+            }, {
+                withCredentials: true
+            });
+
+            newApp.app_acronym = '';
+            newApp.app_description ='';
+            newApp.app_rnumber = '';
+            newApp.app_startDate = '';
+            newApp.app_endDate = '';
+            newApp.app_permit_create = '';
+            newApp.app_permit_open = '';
+            newApp.app_permit_todolist = '';
+            newApp.app_permit_doing = '';
+            newApp.app_permit_done = '';
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    };
+
+    const handleCreateAppSubmitClick = async () => {
+        await checkStatus();
+        projectLeadCreateAppFlag = true;
+        await checkProjectLead();
+        if (isProjectLead === true && projectLeadCreateAppFlag === true) {
+            await createNewApp();
+        }
+        projectLeadCreateAppFlag = false;
+        await getAllPartialAppDetails();
         toggleCreateAppModal();
+    }
+
+    let groups = [];
+    const getAllUserGroups = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/auth/getAllUserGroup', {
+                withCredentials:true
+            });
+
+            // console.log(response);
+            groups = response.data.val.map(item => item.Group_name);
+        } catch (error) {
+            console.log(error);
+        }
     }
 </script>
   
@@ -467,9 +561,11 @@
         </nav>
     </div>
 
-    <div class="create-app-container">
-        <button class="create-app-btn" on:click={handleCreateAppModalClick}>Create app</button>
-    </div>
+    {#if isProjectLead}
+        <div class="create-app-container">
+            <button class="create-app-btn" on:click={handleCreateAppModalClick}>Create app</button>
+        </div>
+    {/if}
 
     {#if showCreateAppModal}
         <div id="createAppModal" class="modal">
@@ -480,53 +576,68 @@
                 <div class="modal-body">
                     <form>
                         <label for="app-acronym">Acronym: </label>
-                        <input type="text" id="app-acronym" name="app-acronym"/>
+                        <input type="text" id="app-acronym" name="app-acronym" bind:value={newApp.app_acronym}/>
 
                         <label for="app-description">Description: </label>
-                        <textarea id="app-description" name="app-description"></textarea>
+                        <textarea id="app-description" name="app-description" bind:value={newApp.app_description}></textarea>
 
                         <label for="app-rnumber">R Number: </label>
-                        <input type="text" id="app-rnumber" name="app-rnumber"/>
+                        <input type="text" id="app-rnumber" name="app-rnumber" bind:value={newApp.app_rnumber}/>
 
                         <div class="date-fields">
                             <label for="app-start-date">Start date: </label>
-                            <input type="date" id="app-start-date" name="app-start-date"/>
+                            <input type="date" id="app-start-date" name="app-start-date" bind:value={newApp.app_startDate}/>
 
                             <label for="app-end-date">End date: </label>
-                            <input type="date" id="app-end-date" name="app-end-date"/>
+                            <input type="date" id="app-end-date" name="app-end-date" bind:value={newApp.app_endDate}/>
                         </div>
 
                         <div class="app-permit-header"><h2>Permit Groups:</h2></div>
                         <div class="app-permit">
                             <label for="create">Create:</label>
-                            <select id="create" name="create">
-
+                            <select id="create" name="create" bind:value={newApp.app_permit_create}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
                             </select>
 
                             <label for="open">Open:</label>
-                            <select id="open" name="open">
-
+                            <select id="open" name="open" bind:value={newApp.app_permit_open}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
                             </select>
 
                             <label for="todo">Todo:</label>
-                            <select id="todo" name="todo">
-
+                            <select id="todo" name="todo" bind:value={newApp.app_permit_todo}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
                             </select>
 
                             <label for="doing">Doing:</label>
-                            <select id="doing" name="doing">
-
+                            <select id="doing" name="doing" bind:value={newApp.app_permit_doing}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
                             </select>
 
                             <label for="done">Done:</label>
-                            <select id="done" name="done">
-
+                            <select id="done" name="done" bind:value={newApp.app_permit_done}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
                             </select>
                         </div>
 
                         <div class="modal-footer">
                             <button type="button" class="close-btn" on:click={handleCreateAppModalClick}>Close</button>
-                            <button type="submit" class="submit-create-app-btn">Create App</button>
+                            <button type="submit" class="submit-create-app-btn" on:click={handleCreateAppSubmitClick}>Create App</button>
                         </div>
                     </form>
                 </div>
