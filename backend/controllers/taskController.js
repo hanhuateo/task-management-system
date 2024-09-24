@@ -76,9 +76,7 @@ exports.createTask = async (req, res, next) => {
     };
 
     try {
-        let {task_id, task_name, task_description, task_notes, task_plan, task_app_acronym,
-            task_state, task_creator, task_owner, task_createdate
-        } = req.body;
+        let {task_id, task_name, task_description, task_notes, task_plan, task_app_acronym} = req.body;
 
         let check_group_sql = "SELECT app_permit_create FROM application WHERE app_acronym = ?";
 
@@ -86,7 +84,7 @@ exports.createTask = async (req, res, next) => {
             task_app_acronym
         ]);
 
-        let isAuthorizedGroups = await checkGroup(username, checkGroup_result);
+        let isAuthorizedGroups = await checkGroup(username, checkGroup_result[0].app_permit_create);
 
         if (!isAuthorizedGroups) {
             return res.status(400).json({
@@ -105,7 +103,7 @@ exports.createTask = async (req, res, next) => {
         //     task_app_acronym
         // ]);
 
-        task_id = task_app_acronym + "_" + appRNumber_result;
+        // task_id = task_app_acronym + "_" + appRNumber_result;
 
         task_state = 'open'
 
@@ -115,7 +113,7 @@ exports.createTask = async (req, res, next) => {
 
         task_createdate = current_date;
         
-        let createTask_sql = "INSERT INTO task VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?)";
+        let createTask_sql = "INSERT INTO task VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         const [createTask_result, createTask_fields] = await pool.execute(createTask_sql, [
             task_id,
