@@ -13,12 +13,10 @@
     onMount(async () => {
         await checkStatus();
         await checkAdmin();
+        await getAllPartialAppDetails();
     })
 
-    let apps = [
-      { name: "App_Acronym", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "<r number>" },
-      { name: "App name 2", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, some random description......", number: "123" }
-    ];
+    let apps = [];
 
     const checkStatus = async () => {
         try {
@@ -92,6 +90,20 @@
         checkStatus();
         adminUserManagementFlag = true;
         checkAdmin();
+    }
+
+    const getAllPartialAppDetails = async () => {
+        try {
+            const partialAppDetails_response = await axios.get('http://localhost:3000/auth/getAllPartialAppDetails',
+                {
+                    withCredentials : true
+                }
+            )
+            // console.log(partialAppDetails_response);
+            apps = [...partialAppDetails_response.data.result]
+        } catch (error) {
+            console.log(error);
+        }
     }
 </script>
   
@@ -254,9 +266,9 @@
     <div class="app-list">
         {#each apps as app}
             <div class="app-card">
-                <h2>{app.name}</h2>
-                <p>{app.description}</p>
-                <div class="number">{app.number}</div>
+                <h2>{app.App_Acronym}</h2>
+                <p>{app.App_Description}</p>
+                <div class="number">{app.App_rnumber}</div>
             </div>
         {/each}
     </div>
