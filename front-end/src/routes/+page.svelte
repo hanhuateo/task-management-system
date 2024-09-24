@@ -131,6 +131,7 @@
     .app-list {
       display: flex;
       gap: 1rem;
+      flex-wrap: wrap;
     }
   
     /* Individual app card styles */
@@ -141,22 +142,54 @@
       width: 300px;
       background-color: #f9f9f9;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 3s ease;
+    }
+
+    .app-card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
   
     .app-card h2 {
       font-size: 1.2rem;
       margin-bottom: 0.5rem;
+      font-weight: 600;
     }
   
     .app-card p {
       font-size: 0.9rem;
       color: #666;
       margin-bottom: 0.5rem;
+      line-height: 1.4;
     }
-  
-    .app-card .number {
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
+
+    .app-card .details {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .app-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .app-view {
+        color: #000;
+        text-decoration: underline;
+    }
+
+    .app-edit {
+        color: red;
+        text-decoration: none;
+    }
+
+    .app-view:hover {
+        color: #333
+    }
+
+    .app-edit:hover {
+        color: darkred;
+        text-decoration: underline;
     }
 
     .navbar {
@@ -268,7 +301,13 @@
             <div class="app-card">
                 <h2>{app.App_Acronym}</h2>
                 <p>{app.App_Description}</p>
-                <div class="number">{app.App_rnumber}</div>
+                <div class="details">
+                    <div class="number">{app.App_rnumber}</div>
+                    <div class="app-actions">
+                        <a href="#" class="app-view">View</a>
+                        <a href="#" class="app-edit">Edit</a>
+                    </div>
+                </div>
             </div>
         {/each}
     </div>
