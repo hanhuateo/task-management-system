@@ -92,6 +92,18 @@
         checkAdmin();
     }
 
+    const checkProjectLead = async () => {
+        try {
+            const group_response = await axios.get('http://localhost:3000/auth/getUserGroup',
+                {
+                    withCredentials: true
+                }
+            )
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     const getAllPartialAppDetails = async () => {
         try {
             const partialAppDetails_response = await axios.get('http://localhost:3000/auth/getAllPartialAppDetails',
@@ -104,6 +116,16 @@
         } catch (error) {
             console.log(error);
         }
+    }
+
+    let showCreateAppModal = false;
+
+    const toggleCreateAppModal = () => {
+        showCreateAppModal = !showCreateAppModal;
+    }
+
+    const handleCreateAppModalClick = async () => {
+        toggleCreateAppModal();
     }
 </script>
   
@@ -139,7 +161,7 @@
       border: 1px solid #ccc;
       border-radius: 5px;
       padding: 1rem;
-      width: 300px;
+      width: 270px;
       background-color: #f9f9f9;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: box-shadow 3s ease;
@@ -175,16 +197,17 @@
 
     .app-view {
         color: #000;
-        text-decoration: underline;
+        text-decoration: none;
     }
-
+    
     .app-edit {
         color: red;
         text-decoration: none;
     }
-
+    
     .app-view:hover {
-        color: #333
+        color: #333;
+        text-decoration: underline;
     }
 
     .app-edit:hover {
@@ -272,6 +295,155 @@
         display: block;
     }
 
+    .create-app-container {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .create-app-btn {
+        background-color: #007bff; /* Bootstrap's primary blue */
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .create-app-btn:hover {
+        background-color: #0056b3; /* Darker shade for hover */
+    }
+
+    .modal {
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Overlay effect */
+    }
+
+    .modal-content {
+        background-color: white;
+        margin: 5% auto;
+        padding: 2rem;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        width: 40%;
+        max-width: 800px;
+        height: 70%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+    }
+
+    .close-btn {
+        background-color: red;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .close-btn:hover {
+        background-color:darkred;
+    }
+
+    .modal-body {
+        margin-top: 1rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    input[type="text"],
+    textarea,
+    input[type="date"],
+    select {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .date-fields {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .date-fields label {
+        flex: 1;
+    }
+
+    .date-fields input {
+        width: calc(50% - 0.5rem);
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+    }
+
+    .submit-create-app-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .submit-create-app-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .app-permit {
+        display : grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .app-permit label { 
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: right;
+        margin-right: 0.5rem;
+    }
+
+    .app-permit select {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+
 </style>
   
 <div class="container">
@@ -289,12 +461,78 @@
                     {#if isAdmin}
                         <div><a href='/user_management' on:click={handleUserManagementClick}>User Management</a></div>
                     {/if}
-                    <div><button class="submit" on:click|preventDefault={logout} type="submit">Logout</button></div>
+                        <div><button class="submit" on:click|preventDefault={logout} type="submit">Logout</button></div>
                 </div>
             </div>
         </nav>
     </div>
-  
+
+    <div class="create-app-container">
+        <button class="create-app-btn" on:click={handleCreateAppModalClick}>Create app</button>
+    </div>
+
+    {#if showCreateAppModal}
+        <div id="createAppModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Create App</h2>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <label for="app-acronym">Acronym: </label>
+                        <input type="text" id="app-acronym" name="app-acronym"/>
+
+                        <label for="app-description">Description: </label>
+                        <textarea id="app-description" name="app-description"></textarea>
+
+                        <label for="app-rnumber">R Number: </label>
+                        <input type="text" id="app-rnumber" name="app-rnumber"/>
+
+                        <div class="date-fields">
+                            <label for="app-start-date">Start date: </label>
+                            <input type="date" id="app-start-date" name="app-start-date"/>
+
+                            <label for="app-end-date">End date: </label>
+                            <input type="date" id="app-end-date" name="app-end-date"/>
+                        </div>
+
+                        <div class="app-permit-header"><h2>Permit Groups:</h2></div>
+                        <div class="app-permit">
+                            <label for="create">Create:</label>
+                            <select id="create" name="create">
+
+                            </select>
+
+                            <label for="open">Open:</label>
+                            <select id="open" name="open">
+
+                            </select>
+
+                            <label for="todo">Todo:</label>
+                            <select id="todo" name="todo">
+
+                            </select>
+
+                            <label for="doing">Doing:</label>
+                            <select id="doing" name="doing">
+
+                            </select>
+
+                            <label for="done">Done:</label>
+                            <select id="done" name="done">
+
+                            </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="close-btn" on:click={handleCreateAppModalClick}>Close</button>
+                            <button type="submit" class="submit-create-app-btn">Create App</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {/if}
     <!-- App List Section -->
     <div class="app-list">
         {#each apps as app}
