@@ -218,6 +218,16 @@ exports.promoteTaskOpen2Todo = async (req, res, next) => {
             task_app_acronym
         ]);
 
+        // change last touch
+
+        let lastTouch_sql = "UPDATE task SET task_owner = ? WHERE task_id = ? and task_app_acronym = ?";
+
+        let [lastTouch_result, lastTouch_fields] = await pool.query(lastTouch_sql, [
+            task_owner = username,
+            task_id,
+            task_app_acronym
+        ]);
+
         return res.status(200).json({
             message : "Task successfully promoted from open to todo",
             success : true
@@ -265,6 +275,14 @@ exports.promoteTaskTodo2Doing = async (req, res, next) => {
         let promoteTaskTodo2Doing_sql = "UPDATE task SET task_state = 'doing' WHERE task_id = ? AND task_app_acronym = ?";
 
         const [promoteTaskTodo2Doing_result, promoteTaskTodo2Doing_fields] = await pool.query(promoteTaskTodo2Doing_sql, [
+            task_id,
+            task_app_acronym
+        ]);
+
+        let lastTouch_sql = "UPDATE task SET task_owner = ? WHERE task_id = ? and task_app_acronym = ?";
+
+        let [lastTouch_result, lastTouch_fields] = await pool.query(lastTouch_sql, [
+            task_owner = username,
             task_id,
             task_app_acronym
         ]);
@@ -320,6 +338,14 @@ exports.promoteTaskDoing2Done = async (req, res, next) => {
             task_app_acronym
         ]);
 
+        let lastTouch_sql = "UPDATE task SET task_owner = ? WHERE task_id = ? and task_app_acronym = ?";
+
+        let [lastTouch_result, lastTouch_fields] = await pool.query(lastTouch_sql, [
+            task_owner = username,
+            task_id,
+            task_app_acronym
+        ]);
+
         return res.status(200).json({
             message : "Task successfully promoted from doing to done",
             success : true
@@ -367,6 +393,14 @@ exports.promoteTaskDone2Close = async (req, res, next) => {
         let promoteTaskDone2Close_sql = "UPDATE task SET task_state = 'close' WHERE task_id = ? AND task_app_acronym = ?";
 
         const [promoteTaskDoing2Done_result, promoteTaskDoing2Done_fields] = await pool.query(promoteTaskDone2Close_sql, [
+            task_id,
+            task_app_acronym
+        ]);
+
+        let lastTouch_sql = "UPDATE task SET task_owner = ? WHERE task_id = ? and task_app_acronym = ?";
+
+        let [lastTouch_result, lastTouch_fields] = await pool.query(lastTouch_sql, [
+            task_owner = username,
             task_id,
             task_app_acronym
         ]);
@@ -422,6 +456,14 @@ exports.demoteTaskDoing2Todo = async (req, res, next) => {
             task_app_acronym
         ]);
 
+        let lastTouch_sql = "UPDATE task SET task_owner = ? WHERE task_id = ? and task_app_acronym = ?";
+
+        let [lastTouch_result, lastTouch_fields] = await pool.query(lastTouch_sql, [
+            task_owner = username,
+            task_id,
+            task_app_acronym
+        ]);
+
         return res.status(200).json({
             message : "Task successfully demoted from doing to todo",
             success : true
@@ -469,6 +511,14 @@ exports.demoteTaskDone2Doing = async (req, res, next) => {
         let demoteTaskDone2Doing_sql = "UPDATE task SET task_state = 'doing' WHERE task_id = ? AND task_app_acronym = ?";
 
         const [demoteTaskDone2Doing_result, demoteTaskDone2Doing_fields] = await pool.query(demoteTaskDone2Doing_sql, [
+            task_id,
+            task_app_acronym
+        ]);
+
+        let lastTouch_sql = "UPDATE task SET task_owner = ? WHERE task_id = ? and task_app_acronym = ?";
+
+        let [lastTouch_result, lastTouch_fields] = await pool.query(lastTouch_sql, [
+            task_owner = username,
             task_id,
             task_app_acronym
         ]);
