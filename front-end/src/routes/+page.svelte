@@ -209,7 +209,7 @@
             await createNewApp();
         }
         projectLeadCreateAppFlag = false;
-        await getAllPartialAppDetails();
+        await getFullAppDetails();
         toggleCreateAppModal();
     }
 
