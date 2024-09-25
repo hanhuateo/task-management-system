@@ -2,6 +2,8 @@
     import { goto } from '$app/navigation';
     import axios from 'axios';
     import {onMount} from 'svelte';
+    import {writable} from 'svelte/store';
+
     
     let showDropdown= false;
     let username = '';
@@ -12,13 +14,16 @@
     let showCreateAppModal = false;
     let apps = [];
     let projectLeadCreateAppFlag = false;
+    let showEditAppModal = false;
+    let projectLeadEditAppFlag = false;
+    let projectLeadStartEditingFlag = false;
     // Sample list of apps
     
     onMount(async () => {
         await checkStatus();
         await checkAdmin();
         await checkProjectLead();
-        await getAllPartialAppDetails();
+        await getFullAppDetails();
     })
 
 
@@ -116,20 +121,20 @@
     }
 
 
-    const getAllPartialAppDetails = async () => {
+    const getFullAppDetails = async () => {
         try {
-            const partialAppDetails_response = await axios.get('http://localhost:3000/auth/getAllPartialAppDetails',
+            const appDetails_response = await axios.get('http://localhost:3000/auth/getFullAppDetails',
                 {
                     withCredentials : true
                 }
             )
             // console.log(partialAppDetails_response);
-            apps = [...partialAppDetails_response.data.result]
+            apps = [...appDetails_response.data.result]
+            // console.log(apps);
         } catch (error) {
             console.log(error);
         }
     }
-
 
     const toggleCreateAppModal = () => {
         showCreateAppModal = !showCreateAppModal;
@@ -220,6 +225,92 @@
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const toggleEditAppModal = () => {
+        showEditAppModal = !showEditAppModal;
+    }
+
+    const handleToggleEditAppModalClick = async (index) => {
+        await checkStatus();
+        projectLeadEditAppFlag = true;
+        await checkProjectLead();
+        if (isProjectLead === true && projectLeadEditAppFlag === true) {
+            startEditing(index);
+            toggleEditAppModal();
+        }
+
+    }
+
+    let updatedApp = {app_acronym : '', app_rnumber : '', app_startdate : '', app_enddate : '', app_description : '',
+                      app_permit_create : '', app_permit_open : '', app_permit_todolist : '', app_permit_doing : '', 
+                      app_permit_done : ''};
+
+    let editingAppId = writable(null);
+
+    function startEditing(index) {
+        editingAppId.set(index);
+        // console.log(apps);
+        updatedApp.app_acronym = apps[index].App_Acronym;
+        updatedApp.app_rnumber = apps[index].App_Rnumber;
+        updatedApp.app_startdate = apps[index].App_startDate;
+        updatedApp.app_enddate = apps[index].App_endDate;
+    }
+
+    const saveApp = async () => {
+        try {
+            // console.log(updatedApp.app_acronym);
+            // console.log(updatedApp.app_rnumber);
+            // console.log(updatedApp.app_startdate);
+            // console.log(updatedApp.app_enddate);
+            // console.log(updatedApp.app_description);
+            // console.log(updatedApp.app_permit_create);
+            // console.log(updatedApp.app_permit_open);
+            // console.log(updatedApp.app_permit_todolist);
+            // console.log(updatedApp.app_permit_doing);
+            // console.log(updatedApp.app_permit_done);
+
+            const update_app_description_response = await axios.patch('http://localhost:3000/auth/updateApp',
+                {
+                    app_acronym : updatedApp.app_acronym,
+                    app_description : updatedApp.app_description,
+                    app_permit_create : updatedApp.app_permit_create,
+                    app_permit_open : updatedApp.app_permit_open,
+                    app_permit_todolist : updatedApp.app_permit_todolist,
+                    app_permit_doing : updatedApp.app_permit_doing,
+                    app_permit_done : updatedApp.app_permit_done
+                },
+                {
+                    withCredentials:true
+                }
+            )
+
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    };
+
+    function cancelEditApp() {
+        editingAppId.set(null);
+    }
+
+    const handleSubmitEditAppClick = async () =>{
+        await checkStatus();
+        projectLeadStartEditingFlag = true;
+        await checkProjectLead();
+        if (user_status === 1 && isProjectLead === true) {
+            await saveApp();
+            toggleEditAppModal();
+            await getFullAppDetails();
+        }
+    }
+
+    const handleCancelEditingAppClick = async () => {
+        await checkStatus();
+        await checkProjectLead();
+        cancelEditApp();
+        toggleEditAppModal();
     }
 </script>
   
@@ -646,20 +737,100 @@
     {/if}
     <!-- App List Section -->
     <div class="app-list">
-        {#each apps as app}
+        {#each apps as app, index}
             <div class="app-card">
                 <h2>{app.App_Acronym}</h2>
                 <p>{app.App_Description}</p>
                 <div class="details">
-                    <div class="number">{app.App_rnumber}</div>
+                    <div class="number">{app.App_Rnumber}</div>
                     <div class="app-actions">
-                        <a href="#" class="app-view">View</a>
-                        <a href="#" class="app-edit">Edit</a>
+                        <!-- <a href="#" class="app-view">View</a> -->
+                         <button class="app-view">View</button>
+                        {#if isProjectLead}
+                            <button class="app-edit" on:click={() => handleToggleEditAppModalClick(index)}>Edit</button>
+                        {/if}
                     </div>
                 </div>
             </div>
         {/each}
     </div>
+
+    {#if showEditAppModal}
+        <div id="editAppModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Edit App</h2>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <label for="app-acronym">Acronym: </label>
+                        <input type="text" id="app-acronym" name="app-acronym" bind:value={updatedApp.app_acronym} disabled/>
+
+                        <label for="app-description">Description: </label>
+                        <textarea id="app-description" name="app-description" bind:value={updatedApp.app_description}></textarea>
+
+                        <label for="app-rnumber">R Number: </label>
+                        <input type="text" id="app-rnumber" name="app-rnumber" bind:value={updatedApp.app_rnumber} disabled/>
+
+                        <div class="date-fields">
+                            <label for="app-start-date">Start date: </label>
+                            <input type="text" id="app-start-date" name="app-start-date" bind:value={updatedApp.app_startdate} disabled/>
+
+                            <label for="app-end-date">End date: </label>
+                            <input type="text" id="app-end-date" name="app-end-date" bind:value={updatedApp.app_enddate} disabled/>
+                        </div>
+
+                        <div class="app-permit-header"><h2>Permit Groups:</h2></div>
+                        <div class="app-permit">
+                            <label for="create">Create:</label>
+                            <select id="create" name="create" bind:value={updatedApp.app_permit_create}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
+                            </select>
+
+                            <label for="open">Open:</label>
+                            <select id="open" name="open" bind:value={updatedApp.app_permit_open}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
+                            </select>
+
+                            <label for="todo">Todo:</label>
+                            <select id="todo" name="todo" bind:value={updatedApp.app_permit_todolist}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
+                            </select>
+
+                            <label for="doing">Doing:</label>
+                            <select id="doing" name="doing" bind:value={updatedApp.app_permit_doing}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
+                            </select>
+
+                            <label for="done">Done:</label>
+                            <select id="done" name="done" bind:value={updatedApp.app_permit_done}>
+                                <option value=""></option>
+                                {#each groups as group, index }
+                                    <option value={group}>{group}</option>
+                                {/each}
+                            </select>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="close-btn" on:click={handleCancelEditingAppClick}>Close</button>
+                            <button type="submit" class="submit-create-app-btn" on:click={handleSubmitEditAppClick}>Edit App</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {/if}
     <br/>
-    
 </div>  
