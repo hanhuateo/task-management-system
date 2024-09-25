@@ -513,13 +513,13 @@
 
     .modal-content {
         background-color: white;
-        margin: 5% auto;
+        /* margin: ; */
         padding: 2rem;
         border: 1px solid #ccc;
         border-radius: 10px;
-        width: 40%;
-        max-width: 800px;
-        height: 70%;
+        width: 100%;
+        max-width: 1215px;
+        height: 100%;
         max-height: 80vh;
         overflow-y: auto;
     }
@@ -530,7 +530,7 @@
         align-items: center;
     }
 
-    .modal-header h2 {
+    .modal-header h3 {
         margin: 0;
     }
 
@@ -607,8 +607,12 @@
         background-color: #0056b3;
     }
 
+    .app-permit-header {
+        margin : 0;
+    }
+
     .app-permit {
-        display : grid;
+        display : flex;
         grid-template-columns: auto 1fr;
         gap: 1rem;
         align-items: center;
@@ -622,11 +626,24 @@
     }
 
     .app-permit select {
-        width: 100%;
+        width: 25%;
         padding: 0.5rem;
         border: 1px solid #ccc;
         border-radius: 5px;
     }
+
+    .acronym-description-container {
+        display: flex;
+        flex-direction: row;
+        height: calc(100vh - 400px);
+    }
+
+    .acronym-description-container #app-acronym {
+        width : 20%;
+        height: 5px;
+    }
+
+
 
 
 </style>
@@ -662,16 +679,17 @@
         <div id="createAppModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Create App</h2>
+                    <h3>Create App</h3>
                 </div>
                 <div class="modal-body">
                     <form>
-                        <label for="app-acronym">Acronym: </label>
-                        <input type="text" id="app-acronym" name="app-acronym" bind:value={newApp.app_acronym}/>
+                        <div class="acronym-description-container">
+                            <label for="app-acronym">Acronym: </label>
+                            <input type="text" id="app-acronym" name="app-acronym" bind:value={newApp.app_acronym}/>
 
-                        <label for="app-description">Description: </label>
-                        <textarea id="app-description" name="app-description" bind:value={newApp.app_description}></textarea>
-
+                            <label for="app-description">Description: </label>
+                            <textarea id="app-description" name="app-description" bind:value={newApp.app_description}></textarea>
+                        </div>
                         <label for="app-rnumber">R Number: </label>
                         <input type="text" id="app-rnumber" name="app-rnumber" bind:value={newApp.app_rnumber}/>
 
@@ -683,7 +701,8 @@
                             <input type="date" id="app-end-date" name="app-end-date" bind:value={newApp.app_endDate}/>
                         </div>
 
-                        <div class="app-permit-header"><h2>Permit Groups:</h2></div>
+                        <!-- <div class="app-permit-header"><h3>Permit Groups:</h3></div> -->
+                        <h3 class="app-permit-header">Permit Groups:</h3>
                         <div class="app-permit">
                             <label for="create">Create:</label>
                             <select id="create" name="create" bind:value={newApp.app_permit_create}>
@@ -702,7 +721,7 @@
                             </select>
 
                             <label for="todo">Todo:</label>
-                            <select id="todo" name="todo" bind:value={newApp.app_permit_todo}>
+                            <select id="todo" name="todo" bind:value={newApp.app_permit_todolist}>
                                 <option value=""></option>
                                 {#each groups as group, index }
                                     <option value={group}>{group}</option>
@@ -727,8 +746,8 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="close-btn" on:click={handleCreateAppModalClick}>Close</button>
-                            <button type="submit" class="submit-create-app-btn" on:click={handleCreateAppSubmitClick}>Create App</button>
+                            <button type="button" class="close-btn" on:click|preventDefault={handleCreateAppModalClick}>Close</button>
+                            <button type="submit" class="submit-create-app-btn" on:click|preventDefault={handleCreateAppSubmitClick}>Create App</button>
                         </div>
                     </form>
                 </div>
@@ -744,8 +763,8 @@
                 <div class="details">
                     <div class="number">{app.App_Rnumber}</div>
                     <div class="app-actions">
-                        <!-- <a href="#" class="app-view">View</a> -->
-                         <button class="app-view">View</button>
+                        <a href="/kanban" class="app-view">View</a>
+                         <!-- <button class="app-view">View</button> -->
                         {#if isProjectLead}
                             <button class="app-edit" on:click={() => handleToggleEditAppModalClick(index)}>Edit</button>
                         {/if}
@@ -759,16 +778,17 @@
         <div id="editAppModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2>Edit App</h2>
+                    <h3>Edit App</h3>
                 </div>
                 <div class="modal-body">
                     <form>
-                        <label for="app-acronym">Acronym: </label>
-                        <input type="text" id="app-acronym" name="app-acronym" bind:value={updatedApp.app_acronym} disabled/>
+                        <div class="acronym-description-container">
+                            <label for="app-acronym">Acronym: </label>
+                            <input type="text" id="app-acronym" name="app-acronym" bind:value={updatedApp.app_acronym} disabled/>
 
-                        <label for="app-description">Description: </label>
-                        <textarea id="app-description" name="app-description" bind:value={updatedApp.app_description}></textarea>
-
+                            <label for="app-description">Description: </label>
+                            <textarea id="app-description" name="app-description" bind:value={updatedApp.app_description}></textarea>
+                        </div>
                         <label for="app-rnumber">R Number: </label>
                         <input type="text" id="app-rnumber" name="app-rnumber" bind:value={updatedApp.app_rnumber} disabled/>
 
@@ -780,7 +800,8 @@
                             <input type="text" id="app-end-date" name="app-end-date" bind:value={updatedApp.app_enddate} disabled/>
                         </div>
 
-                        <div class="app-permit-header"><h2>Permit Groups:</h2></div>
+                        <!-- <div class="app-permit-header"><h2>Permit Groups:</h2></div> -->
+                         <h3 class="app-permit-header">Permit Groups:</h3>
                         <div class="app-permit">
                             <label for="create">Create:</label>
                             <select id="create" name="create" bind:value={updatedApp.app_permit_create}>
@@ -824,8 +845,8 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="close-btn" on:click={handleCancelEditingAppClick}>Close</button>
-                            <button type="submit" class="submit-create-app-btn" on:click={handleSubmitEditAppClick}>Edit App</button>
+                            <button type="button" class="close-btn" on:click|preventDefault={handleCancelEditingAppClick}>Close</button>
+                            <button type="submit" class="submit-create-app-btn" on:click|preventDefault={handleSubmitEditAppClick}>Edit App</button>
                         </div>
                     </form>
                 </div>
