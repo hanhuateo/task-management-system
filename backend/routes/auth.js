@@ -46,5 +46,12 @@ router.get("/getFullTaskDetails", authMiddle.verifyToken, taskController.getFull
 router.post("/createTask", authMiddle.verifyToken, taskController.createTask);
 router.get("/getTaskByState", authMiddle.verifyToken, taskController.getTaskByState);
 router.patch("/promoteTaskOpen2Todo", authMiddle.verifyToken, taskController.promoteTaskOpen2Todo);
+router.patch("/promoteTaskTodo2Doing", authMiddle.verifyToken, taskController.promoteTaskTodo2Doing);
+router.patch("/promoteTaskDoing2Done", authMiddle.verifyToken, taskController.promoteTaskDoing2Done);
+router.patch("/promoteTaskDone2Close", authMiddle.verifyToken, taskController.promoteTaskDone2Close);
+router.patch("/demoteTaskDoing2Todo", authMiddle.verifyToken, taskController.demoteTaskDoing2Todo);
+router.patch("/demoteTaskDone2Doing", authMiddle.verifyToken, taskController.demoteTaskDone2Doing);
+router.patch("/updateTaskNotes", authMiddle.verifyToken, taskController.updateTaskNotes);
+router.patch("/updateTaskPlan", authMiddle.verifyToken, taskController.updateTaskPlan);
 
 module.exports = router;

@@ -3,7 +3,7 @@
     import axios from 'axios';
     import {onMount} from 'svelte';
     import {writable} from 'svelte/store';
-
+    import {appData} from '../store.js';
     
     let showDropdown= false;
     let username = '';
@@ -16,7 +16,8 @@
     let projectLeadCreateAppFlag = false;
     let showEditAppModal = false;
     let projectLeadEditAppFlag = false;
-    let projectLeadStartEditingFlag = false;
+    let projectLeadSaveEditingFlag = false;
+    let projectLeadCancelEditingFlag = false;
     // Sample list of apps
     
     onMount(async () => {
@@ -82,7 +83,11 @@
             });
 
             isProjectLead = role_response.data.isProjectLead;
-            if (!isProjectLead && projectLeadCreateAppFlag) {
+            if (!isProjectLead && projectLeadCreateAppFlag ||
+                !isProjectLead && projectLeadEditAppFlag ||
+                !isProjectLead && projectLeadSaveEditingFlag || 
+                !isProjectLead && projectLeadCancelEditingFlag
+            ) {
                 goto('http://localhost:5173/');
                 alert('Do not have permission to access this resource');
             }
@@ -297,7 +302,7 @@
 
     const handleSubmitEditAppClick = async () =>{
         await checkStatus();
-        projectLeadStartEditingFlag = true;
+        projectLeadSaveEditingFlag = true;
         await checkProjectLead();
         if (user_status === 1 && isProjectLead === true) {
             await saveApp();
@@ -309,16 +314,20 @@
     const handleCancelEditingAppClick = async () => {
         await checkStatus();
         await checkProjectLead();
+        projectLeadCancelEditingFlag = true;
         cancelEditApp();
         toggleEditAppModal();
+    }
+
+    const handleViewAppClick = async (index) => {
+        await checkStatus();
+        appData.set(apps[index]);
     }
 </script>
   
 <style>
     /* Container styles */
     .container {
-      /* padding: 2rem;
-      max-width: 800px; */
       margin: 0 auto;
       background-color: white;
     }
@@ -763,7 +772,7 @@
                 <div class="details">
                     <div class="number">{app.App_Rnumber}</div>
                     <div class="app-actions">
-                        <a href="/kanban" class="app-view">View</a>
+                        <a href="/kanban" class="app-view" on:click={() => handleViewAppClick(index)}>View</a>
                          <!-- <button class="app-view">View</button> -->
                         {#if isProjectLead}
                             <button class="app-edit" on:click={() => handleToggleEditAppModalClick(index)}>Edit</button>
