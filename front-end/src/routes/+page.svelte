@@ -321,7 +321,7 @@
 
     const handleViewAppClick = async (index) => {
         await checkStatus();
-        appData.set(apps[index]);
+        appData.set(apps[index].App_Acronym);
     }
 </script>
   

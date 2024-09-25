@@ -1,5 +1,5 @@
 <script>
-    import { goto } from '$app/navigation';
+    import { goto, replaceState } from '$app/navigation';
     import axios from 'axios';
     import {onMount} from 'svelte';
     import {writable} from 'svelte/store';
@@ -15,15 +15,17 @@
 
     let currentApp;
 
-    appData.subscribe(value => {
-        currentApp = value;
-    });
     
     onMount(async () => {
         await checkStatus();
         await checkAdmin();
         await checkProjectLead();
+        await checkProjectManager();
+        appData.subscribe(value => {
+            currentApp = value;
+        });
         console.log(currentApp);
+        checkCurrentApp();
     })
 
     const checkStatus = async () => {
@@ -100,9 +102,6 @@
             // }
         } catch (error) {
             console.log(error);
-            if (error.response.data.message === 'invalid token') {
-                goto('http://localhost:5173/login');
-            }
         }
     }
 
@@ -120,7 +119,23 @@
         await checkAdmin();
     }
 
-    
+    const checkProjectManager = async () => {
+        try {
+            const role_response = await axios.get('http://localhost:3000/auth/getUserGroup', {
+                withCredentials : true
+            })
+
+            isProjectManager = role_response.data.isProjectManager;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const checkCurrentApp = () => {
+        if (!currentApp) {
+            goto('/', {replaceState: true});
+        }
+    }
 </script>
 
 <style>
@@ -222,7 +237,7 @@
      <!-- Header Section -->
      <div class="header">
         <nav class="navbar">
-            <h1>Kanban ({currentApp.App_Acronym})</h1>
+            <h1>Kanban ({currentApp})</h1>
             <div role="button" class="user-profile" tabindex=0
             on:mouseenter={handleMouseEnter}
             on:mouseleave={handleMouseLeave}>
@@ -248,5 +263,5 @@
         </div> -->
     </div>
 
-    
+
 </div>

@@ -69,6 +69,7 @@ exports.getUserGroup = async (req, res, next) => {
     try {
         let isAdmin = false;
         let isProjectLead = false;
+        let isProjectManager = false;
         const username = req.user;
         let sql = 'SELECT Group_id FROM user_group WHERE User_name = ?';
         const [result] = await pool.execute(sql, [username]);
@@ -91,12 +92,20 @@ exports.getUserGroup = async (req, res, next) => {
             }
         }
         
+        for (let i = 0; i < result.length; i++) {
+            if (result[i].Group_id === 6) {
+                isProjectManager = true;
+                break;
+            }
+        }
+
         result.unshift({'username': username});
         res.status(200).json({message : "getUserGroup successful", 
             success : true,
             result,
             isAdmin,
-            isProjectLead
+            isProjectLead,
+            isProjectManager
         })
     } catch (err) {
         return res.status(500).json({

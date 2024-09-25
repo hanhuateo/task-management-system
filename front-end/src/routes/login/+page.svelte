@@ -13,9 +13,9 @@
                 username,
                 password
             }, {withCredentials: true});
-            console.log(response);
+            // console.log(response);
             is_successful = response.data.success;
-            console.log(is_successful);
+            // console.log(is_successful);
             if (is_successful) {
                 showPopup = false;
                 goto('http://localhost:5173/');
