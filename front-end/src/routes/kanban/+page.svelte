@@ -30,6 +30,7 @@
         await checkAdmin();
         await checkProjectLead();
         await checkProjectManager();
+        await getAllPlanMVPName();
     })
 
     const checkStatus = async () => {
@@ -210,6 +211,14 @@
             alert(error.response.data.message);
         }
     }
+
+    let showPlanDropdown = false;
+    const handleMouseEnterPlan = () => {
+        showPlanDropdown = true;
+    }
+    const handleMouseLeavePlan = () => {
+        showPlanDropdown = false;
+    }
 </script>
 
 <style>
@@ -309,6 +318,7 @@
     .task-plan-container {
         display: flex;
         justify-content: flex-end;
+        gap:5px;
     }
 
     .task-plan-container button {
@@ -325,6 +335,22 @@
 
     .task-plan-container button:hover {
         background-color: #0056b3; /* Darker shade for hover */
+    }
+
+    .task-plan-container .view-plan {
+        background-color: #007bff; /* Bootstrap's primary blue */
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .task-plan-container .view-plan:hover {
+        background-color: #0056b3;
     }
 
     .modal {
@@ -443,6 +469,42 @@
         height: 40px;
         margin: 0;
     }
+
+    .plan-dropdown {
+        display: none;
+        position: absolute;
+        top: 31%;
+        right: 0;
+        background-color: white;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+        padding: 10px 0;
+        z-index: 1;
+        border-radius: 6px;
+        text-align: left;
+    }
+
+    .plan-dropdown-visible {
+        display:block;
+    }
+
+    .plan-dropdown div{
+        display: block;
+        padding: 12px 16px;
+        color: #333;
+        text-decoration: none;
+        font-size: 1rem;
+        font-family: 'Arial', sans-serif;
+        text-align: left;
+        /* width: 100%; */
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+
+    .plan-dropdown div:hover {
+        background-color : #f1f1f1;
+    }
 </style>
 
 <div class="container">
@@ -468,11 +530,18 @@
 
     <div class="task-plan-container">
         <button on:click={handleCreateTaskClick}>Create Task</button>
-        <!-- <div role="button" class="view-plan" tabindex=0
-        on:mouseenter={}
-        on:mouseleave={}>
-
-        </div> -->
+        <div role="button" class="view-plan" tabindex=0
+        on:mouseenter={handleMouseEnterPlan}
+        on:mouseleave={handleMouseLeavePlan}>
+        <span>Plan</span>
+            <div class="plan-dropdown" class:plan-dropdown-visible={showPlanDropdown}>
+                <!-- This should be where i put the create new plan button-->
+                <!-- <div><a href='/'>App list</a></div> -->
+                {#each plans as plan}
+                    <div>{plan}</div>
+                {/each}
+            </div>
+        </div>
     </div>
 
     {#if showCreateTaskModal}
