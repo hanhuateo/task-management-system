@@ -522,14 +522,13 @@
 
     .modal-content {
         background-color: white;
-        /* margin: ; */
         padding: 2rem;
         border: 1px solid #ccc;
         border-radius: 10px;
         width: 100%;
         max-width: 1215px;
         height: 100%;
-        max-height: 80vh;
+        max-height: 100vh;
         overflow-y: auto;
     }
 
@@ -595,9 +594,10 @@
     
     .modal-footer {
         display: flex;
-        justify-content: space-between;
+        justify-content: right;
         align-items: center;
         margin-top: 1rem;
+        gap:5px;
     }
 
     .submit-create-app-btn {
@@ -644,17 +644,13 @@
     .acronym-description-container {
         display: flex;
         flex-direction: row;
-        height: calc(100vh - 400px);
+        height: calc(100vh - 350px);
     }
 
     .acronym-description-container #app-acronym {
         width : 20%;
         height: 5px;
     }
-
-
-
-
 </style>
   
 <div class="container">

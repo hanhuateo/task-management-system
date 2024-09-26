@@ -12,20 +12,22 @@
     let adminUserManagementFlag = false;
     let isProjectLead = false;
     let isProjectManager = false;
+    let showCreateTaskModal = false;
+    let projectLeadCreateTaskFlag = false;
 
     let currentApp;
 
     
     onMount(async () => {
-        await checkStatus();
-        await checkAdmin();
-        await checkProjectLead();
-        await checkProjectManager();
         appData.subscribe(value => {
             currentApp = value;
         });
         console.log(currentApp);
         checkCurrentApp();
+        await checkStatus();
+        await checkAdmin();
+        await checkProjectLead();
+        await checkProjectManager();
     })
 
     const checkStatus = async () => {
@@ -136,6 +138,27 @@
             goto('/', {replaceState: true});
         }
     }
+
+    const toggleCreateTaskModal = () => {
+        showCreateTaskModal = !showCreateTaskModal;
+    }
+
+    const handleCreateTaskClick = async () => {
+        await checkStatus();
+        projectLeadCreateTaskFlag = true;
+        await checkProjectLead();
+        if (isProjectLead === true && projectLeadCreateTaskFlag === true) {
+            toggleCreateTaskModal();
+        }
+    }
+
+    const handleCreateTaskCloseClick = async () => {
+        await checkStatus();
+        await checkProjectLead();
+        toggleCreateTaskModal();
+    }
+
+
 </script>
 
 <style>
@@ -231,6 +254,143 @@
     .dropdown-visible {
         display: block;
     }
+
+    .task-plan-container {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .task-plan-container button {
+        background-color: #007bff; /* Bootstrap's primary blue */
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .task-plan-container button:hover {
+        background-color: #0056b3; /* Darker shade for hover */
+    }
+
+    .modal {
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Overlay effect */
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 2rem;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        width: 100%;
+        max-width: 1215px;
+        height: 100%;
+        max-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+    }
+
+    .close-btn {
+        background-color: red;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .close-btn:hover {
+        background-color:darkred;
+    }
+
+    .modal-body {
+        margin-top: 1rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: right;
+        align-items: center;
+        margin-top: 1rem;
+        gap:5px;
+    }
+
+    .submit-create-task-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .submit-create-task-btn:hover {
+        background-color: #0056b3;
+    }
+
+    .name-description-container {
+        display: flex;
+        flex-direction: row;
+        height: calc(100vh - 350px);
+        gap: 5px;
+    }
+
+    .name-description-container #task-name{
+        width : 40%;
+        height: 5px;
+    }
+
+    .plan-notes-container {
+        display: flex;
+        flex-direction: row;
+        height: calc(100vh - 350px);
+        gap: 5px;
+    }
+
+    .plan-notes-container #task-plan {
+        width : 40%;
+        height: 10px;
+    }
 </style>
 
 <div class="container">
@@ -255,7 +415,7 @@
     </div>
 
     <div class="task-plan-container">
-        <button>Create Task</button>
+        <button on:click={handleCreateTaskClick}>Create Task</button>
         <!-- <div role="button" class="view-plan" tabindex=0
         on:mouseenter={}
         on:mouseleave={}>
@@ -263,5 +423,39 @@
         </div> -->
     </div>
 
+    {#if showCreateTaskModal}
+        <div id="createTaskModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Create Task</h3>
+                </div>
 
+                <div class="modal-body">
+                    <form>
+                        <div class="name-description-container">
+                            <label for="task-name">Name:</label>
+                            <input type="text" id="task-name" name="task-name" />
+
+                            <label for="task-description">Description:</label>
+                            <textarea id="task-description" name="task-description"></textarea>
+                        </div>
+                        <div class="plan-notes-container">
+                            <label for="task-plan">Plan:</label>
+                            <select id="task-plan" name="task-plan">
+                                <option value=""></option>
+                            </select>
+
+                            <label for="task-notes">Notes:</label>
+                            <textarea id="task-notes" name="task-notes"></textarea>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="close-btn" on:click|preventDefault={handleCreateTaskCloseClick}>Close</button>
+                    <button type="submit" class="submit-create-task-btn" >Create Task</button>
+                </div>
+            </div>
+        </div>
+    {/if}
 </div>
