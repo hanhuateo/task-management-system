@@ -1,7 +1,7 @@
 <script>
     import { goto, replaceState } from '$app/navigation';
     import axios from 'axios';
-    import {onMount} from 'svelte';
+    import {onDestroy, onMount} from 'svelte';
     import {writable} from 'svelte/store';
     import {appData} from '../../store.js';
 
@@ -15,14 +15,16 @@
     let showCreateTaskModal = false;
     let projectLeadCreateTaskFlag = false;
 
+    // $:currentApp = $appData;
+    // $:{console.log(currentApp)};
     let currentApp;
 
-    
+    appData.subscribe(value => {
+        currentApp = value;
+    });
+
     onMount(async () => {
-        appData.subscribe(value => {
-            currentApp = value;
-        });
-        console.log(currentApp);
+        // console.log(currentApp);
         checkCurrentApp();
         await checkStatus();
         await checkAdmin();
@@ -148,6 +150,7 @@
         projectLeadCreateTaskFlag = true;
         await checkProjectLead();
         if (isProjectLead === true && projectLeadCreateTaskFlag === true) {
+            await getAllPlanMVPName();
             toggleCreateTaskModal();
         }
     }
@@ -155,10 +158,58 @@
     const handleCreateTaskCloseClick = async () => {
         await checkStatus();
         await checkProjectLead();
+        projectLeadCreateTaskFlag = false;
         toggleCreateTaskModal();
     }
 
+    let plans = [];
+    const getAllPlanMVPName = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/auth/getAllPlanMVPName', 
+                {
+                    withCredentials:true
+                }
+            );
+            // console.log(response);
+            // console.log(response.data);
+            // console.log(response.data.result);
+            plans = response.data.result.map(item => item.plan_mvp_name);
+            console.log(plans);
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
 
+    const handleCreateTaskSubmitClick = async () => {
+        await checkStatus();
+        await checkProjectLead();
+        if (isProjectLead === true && projectLeadCreateTaskFlag === true) {
+            await createTask();
+            toggleCreateTaskModal();
+        }
+    }
+
+    let newTask = {task_id : '', task_name : '', task_description : '', task_notes : '', 
+                   task_plan : '', task_app_acronym : currentApp};
+
+    const createTask = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/auth/createTask',{
+                task_id : newTask.task_id,
+                task_name : newTask.task_name,
+                task_description : newTask.task_description,
+                task_notes : newTask.task_notes,
+                task_plan : newTask.task_plan, 
+                task_app_acronym : newTask.task_app_acronym 
+            }, {
+                withCredentials:true
+            })
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
 </script>
 
 <style>
@@ -389,7 +440,8 @@
 
     .plan-notes-container #task-plan {
         width : 40%;
-        height: 10px;
+        height: 40px;
+        margin: 0;
     }
 </style>
 
@@ -434,26 +486,29 @@
                     <form>
                         <div class="name-description-container">
                             <label for="task-name">Name:</label>
-                            <input type="text" id="task-name" name="task-name" />
+                            <input type="text" id="task-name" name="task-name" bind:value={newTask.task_name}/>
 
                             <label for="task-description">Description:</label>
-                            <textarea id="task-description" name="task-description"></textarea>
+                            <textarea id="task-description" name="task-description" bind:value={newTask.task_description}></textarea>
                         </div>
                         <div class="plan-notes-container">
                             <label for="task-plan">Plan:</label>
-                            <select id="task-plan" name="task-plan">
+                            <select id="task-plan" name="task-plan" bind:value={newTask.task_plan}>
                                 <option value=""></option>
+                                {#each plans as plan}
+                                    <option value={plan} >{plan}</option>
+                                {/each}
                             </select>
 
                             <label for="task-notes">Notes:</label>
-                            <textarea id="task-notes" name="task-notes"></textarea>
+                            <textarea id="task-notes" name="task-notes" bind:value={newTask.task_notes}></textarea>
                         </div>
                     </form>
                 </div>
 
                 <div class="modal-footer">
                     <button type="button" class="close-btn" on:click|preventDefault={handleCreateTaskCloseClick}>Close</button>
-                    <button type="submit" class="submit-create-task-btn" >Create Task</button>
+                    <button type="submit" class="submit-create-task-btn" on:click|preventDefault={handleCreateTaskSubmitClick}>Create Task</button>
                 </div>
             </div>
         </div>

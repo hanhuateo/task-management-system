@@ -126,17 +126,17 @@ exports.createTask = async (req, res, next) => {
 			appRNumber_sql,
 			[task_app_acronym]
 		);
-
+        console.log(appRNumber_result);
 		let increment_appRNumber_sql =
 			"UPDATE application SET App_Rnumber = ? WHERE app_acronym = ?";
 
 		const [increment_appRNumber_result, increment_appRNumber_fields] =
 			await pool.query(increment_appRNumber_sql, [
-				appRNumber_result,
+				appRNumber_result[0].app_rnumber + 1,
 				task_app_acronym,
 			]);
 
-		task_id = task_app_acronym + "_" + appRNumber_result;
+		task_id = task_app_acronym + "_" + appRNumber_result[0].app_rnumber.toString();
 
 		task_state = "open";
 
