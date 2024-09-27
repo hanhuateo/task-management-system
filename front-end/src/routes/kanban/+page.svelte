@@ -213,7 +213,8 @@
     }
 
     let showPlanDropdown = false;
-    const handleMouseEnterPlan = () => {
+    const handleMouseEnterPlan = async () => {
+        await getAllPlanMVPName();
         showPlanDropdown = true;
     }
     const handleMouseLeavePlan = () => {
@@ -284,6 +285,53 @@
             await updatePlanDetails();
         }
         toggleShowOnePlanModal();
+    }
+
+    let newPlan = {Plan_MVP_name : '', Plan_startDate : '', Plan_endDate : '', Plan_app_Acronym : currentApp, Plan_colour : '#000000'};
+    let showNewPlanModal = false;
+    const toggleShowNewPlanModal = () => {
+        showNewPlanModal = !showNewPlanModal;
+    }
+
+    const handleShowNewPlanModalClick = async () => {
+        await checkStatus();
+        await checkProjectManager();
+        if (user_status === 1 && isProjectManager === true) {
+            toggleShowNewPlanModal();
+        }
+    }
+
+    const createNewPlan = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/auth/createPlan',
+                {
+                    plan_mvp_name : newPlan.Plan_MVP_name,
+                    plan_startdate : newPlan.Plan_startDate, 
+                    plan_enddate : newPlan.Plan_endDate,
+                    plan_app_acronym : newPlan.Plan_app_Acronym,
+                    plan_colour : newPlan.Plan_colour.slice(1)
+                },
+                {
+                    withCredentials : true
+                }
+            )
+            newPlan.Plan_MVP_name = '';
+            newPlan.Plan_startDate = '';
+            newPlan.Plan_endDate = '';
+            newPlan.Plan_colour = '';
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
+
+    const handleNewPlanSubmitClick = async () => {
+        await checkStatus();
+        await checkProjectManager();
+        if (user_status === 1 && isProjectManager === true) {
+            await createNewPlan();
+        }
+        toggleShowNewPlanModal();
     }
 </script>
 
@@ -583,6 +631,7 @@
         cursor: pointer;
         transition: background-color 0.3s ease;
     }
+
 </style>
 
 <div class="container">
@@ -615,8 +664,7 @@
         on:mouseleave={handleMouseLeavePlan}>
         <span>Plan</span>
             <div class="plan-dropdown" class:plan-dropdown-visible={showPlanDropdown}>
-                <!-- This should be where i put the create new plan button-->
-                <!-- <div><a href='/'>App list</a></div> -->
+                <div><button on:click={handleShowNewPlanModalClick}>Create New Plan</button></div>
                 {#each plans as plan}
                     <div><button on:click={() => handlePlanClick({plan})}>{plan}</button></div>
                 {/each}
@@ -689,6 +737,38 @@
                 <div class="modal-footer">
                     <button type="button" class="close-btn" on:click={toggleShowOnePlanModal}>Close</button>
                     <button type="submit" class="submit-edit-plan-btn" on:click={handleUpdatePlanDetailsSubmitClick}>Update plan</button>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    {#if showNewPlanModal}
+        <div id="newPlanDetail" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Plan Details</h3>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <label for="new-plan-name">Name:</label>
+                        <input type="text" id="new-plan-name" name="new-plan-name" bind:value={newPlan.Plan_MVP_name} />
+
+                        <label for="new-plan-start-date">Plan Start Date:</label>
+                        <input type="text" id="new-plan-start-date" name="new-plan-start-date" bind:value={newPlan.Plan_startDate} />
+
+                        <label for="new-plan-end-date">Plan End Date:</label>
+                        <input type="text" id="new-plan-end-date" name="new-plan-end-date" bind:value={newPlan.Plan_endDate} />
+
+                        <!-- Fix why the colour of this popup modal is not changing-->
+                        <label for="new-plan-colour" >Plan Colour:</label>
+                        <input type="color" id="new-plan-colour" bind:value={newPlan.Plan_colour}/>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="close-btn" on:click={toggleShowNewPlanModal}>Close</button>
+                    <button type="submit" class="submit-edit-plan-btn" on:click={handleNewPlanSubmitClick}>Create plan</button>
                 </div>
             </div>
         </div>
