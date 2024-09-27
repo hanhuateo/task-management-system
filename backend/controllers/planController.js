@@ -154,7 +154,11 @@ exports.updatePlanDetails = async (req, res, next) => {
     try {
         let {plan_mvp_name, plan_startdate, plan_enddate, 
             plan_app_acronym, plan_colour} = req.body;
-
+            console.log(plan_mvp_name);
+            console.log(plan_startdate);
+            console.log(plan_enddate);
+            console.log(plan_app_acronym);
+            console.log(plan_colour);
         if (plan_startdate) {
             let update_plan_start_date_sql = "UPDATE plan SET plan_startdate = ? " + 
                                              "WHERE plan_mvp_name = ? AND plan_app_acronym = ?";

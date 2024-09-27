@@ -175,7 +175,7 @@
             // console.log(response.data);
             // console.log(response.data.result);
             plans = response.data.result.map(item => item.plan_mvp_name);
-            console.log(plans);
+            // console.log(plans);
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
@@ -218,6 +218,72 @@
     }
     const handleMouseLeavePlan = () => {
         showPlanDropdown = false;
+    }
+
+    let editPlan;
+    const handlePlanClick = async (plan) => {
+        await checkStatus();
+        await checkProjectManager();
+        editPlan = plan.plan;
+        // console.log(editPlan);
+        // console.log(currentAppAcronym);
+        await getPlanDetails();
+        toggleShowOnePlanModal();
+        // toggleShowOnePlanModal();
+    }
+
+    let editPlanDetails;
+    let currentAppAcronym = currentApp;
+    const getPlanDetails = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/auth/getPlanDetails', 
+                {
+                    plan_mvp_name : editPlan,
+                    plan_app_acronym : currentAppAcronym
+                }, 
+                {
+                    withCredentials : true
+                }
+            )
+            console.log(response);
+            editPlanDetails = response.data.result[0];
+            editPlanDetails.Plan_colour = "#" + editPlanDetails.Plan_colour;
+            console.log(editPlanDetails);
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
+
+    let showOnePlanModal = false;
+    const toggleShowOnePlanModal = () => {
+        showOnePlanModal = !showOnePlanModal;
+    }
+
+    const updatePlanDetails = async () => {
+        try {
+            const response = await axios.patch('http://localhost:3000/auth/updatePlanDetails', {
+                plan_mvp_name : editPlanDetails.Plan_MVP_name,
+                plan_startdate : editPlanDetails.Plan_startDate,
+                plan_enddate : editPlanDetails.Plan_endDate,
+                plan_app_acronym : editPlanDetails.Plan_app_Acronym,
+                plan_colour : editPlanDetails.Plan_colour.slice(1)
+            }, {
+                withCredentials:true
+            })
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
+
+    const handleUpdatePlanDetailsSubmitClick = async () => {
+        await checkStatus();
+        await checkProjectManager();
+        if (user_status === 1 && isProjectManager === true) {
+            await updatePlanDetails();
+        }
+        toggleShowOnePlanModal();
     }
 </script>
 
@@ -505,6 +571,18 @@
     .plan-dropdown div:hover {
         background-color : #f1f1f1;
     }
+
+    .submit-edit-plan-btn {
+        background-color: #007bff;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
 </style>
 
 <div class="container">
@@ -529,7 +607,9 @@
     </div>
 
     <div class="task-plan-container">
-        <button on:click={handleCreateTaskClick}>Create Task</button>
+        {#if isProjectLead}
+            <button on:click={handleCreateTaskClick}>Create Task</button>
+        {/if}
         <div role="button" class="view-plan" tabindex=0
         on:mouseenter={handleMouseEnterPlan}
         on:mouseleave={handleMouseLeavePlan}>
@@ -538,7 +618,7 @@
                 <!-- This should be where i put the create new plan button-->
                 <!-- <div><a href='/'>App list</a></div> -->
                 {#each plans as plan}
-                    <div>{plan}</div>
+                    <div><button on:click={() => handlePlanClick({plan})}>{plan}</button></div>
                 {/each}
             </div>
         </div>
@@ -578,6 +658,37 @@
                 <div class="modal-footer">
                     <button type="button" class="close-btn" on:click|preventDefault={handleCreateTaskCloseClick}>Close</button>
                     <button type="submit" class="submit-create-task-btn" on:click|preventDefault={handleCreateTaskSubmitClick}>Create Task</button>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+    {#if showOnePlanModal}
+        <div id="onePlanDetail" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Plan Details</h3>
+                </div>
+
+                <div class="modal-body">
+                    <form>
+                        <label for="plan-name">Name:</label>
+                        <input type="text" id="plan-name" name="plan-name" bind:value={editPlanDetails.Plan_MVP_name} disabled />
+
+                        <label for="plan-start-date">Plan Start Date:</label>
+                        <input type="text" id="plan-start-date" name="plan-start-date" bind:value={editPlanDetails.Plan_startDate} />
+
+                        <label for="plan-end-date">Plan End Date:</label>
+                        <input type="text" id="plan-end-date" name="plan-end-date" bind:value={editPlanDetails.Plan_endDate} />
+
+                        <label for="plan-colour">Plan Colour:</label>
+                        <input type="color" id="plan-colour" bind:value={editPlanDetails.Plan_colour} />
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="close-btn" on:click={toggleShowOnePlanModal}>Close</button>
+                    <button type="submit" class="submit-edit-plan-btn" on:click={handleUpdatePlanDetailsSubmitClick}>Update plan</button>
                 </div>
             </div>
         </div>
