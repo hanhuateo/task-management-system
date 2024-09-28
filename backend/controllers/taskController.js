@@ -14,10 +14,12 @@ exports.getAllPartialTaskDetails = async (req, res, next) => {
 
 	try {
 		let get_all_partial_task_details_sql =
-			"SELECT task_id, task_name, task_description, task_owner FROM task";
+			"SELECT t.task_id, t.task_name, t.task_description, t.task_owner, t.task_state, t.task_plan, p.plan_colour " +
+            "FROM task t JOIN plan p ON t.task_plan = p.plan_mvp_name;"
 
 		const [value, field] = await pool.query(get_all_partial_task_details_sql);
 
+        let get_plan_colour_sql = "SELECT "
 		res.status(200).json({
 			message: "get all partial task details successful",
 			success: true,

@@ -1,8 +1,7 @@
 <script>
-    import { goto, replaceState } from '$app/navigation';
+    import { goto } from '$app/navigation';
     import axios from 'axios';
-    import {onDestroy, onMount} from 'svelte';
-    import {writable} from 'svelte/store';
+    import {onMount} from 'svelte';
     import {appData} from '../../store.js';
 
     let showDropdown = false;
@@ -31,6 +30,7 @@
         await checkProjectLead();
         await checkProjectManager();
         await getAllPlanMVPName();
+        await getAllPartialTaskDetails();
     })
 
     const checkStatus = async () => {
@@ -333,6 +333,33 @@
         }
         toggleShowNewPlanModal();
     }
+
+    // let tasks = [
+    //     { status: 'Open', task_name: 'Task 1', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', owner: 'Task Owner' },
+    //     { status: 'Open', task_name: 'Task 2', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', owner: 'Task Owner' },
+    //     { status: 'Todo', task_name: 'Task 3', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', owner: 'Task Owner' },
+    //     { status: 'Doing', task_name: 'Task 4', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', owner: 'Task Owner' },
+    //     { status: 'Done', task_name: 'Task 5', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', owner: 'Task Owner' },
+    //     { status: 'Close', task_name: 'Task 6', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', owner: 'Task Owner' }
+    // ];
+
+    let tasks = [];
+
+    const getAllPartialTaskDetails = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/auth/getAllPartialTaskDetails',
+                {
+                    withCredentials : true
+                }
+            );
+            console.log(response);
+            tasks = response.data.value;
+            console.log(tasks);
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
 </script>
 
 <style>
@@ -346,7 +373,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      /* margin-bottom: 2rem; */
     }
 
     .navbar {
@@ -632,11 +659,64 @@
         transition: background-color 0.3s ease;
     }
 
+    .kanban-board {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .kanban-column {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+        border-radius: 4px;
+    }
+
+    h3 {
+        text-align: center;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+    }
+
+    .task-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: white;
+        border-left-width: 5px;
+        border-radius: 4px;
+    }
+
+    .task-card h4 {
+        margin: 0;
+        font-size: 1.1em;
+    }
+
+    .task-card p {
+        margin: 10px 0;
+        font-size: 0.9em;
+        color: #333;
+    }
+
+    .task-owner {
+        font-style: italic;
+        color: gray;
+    }
+
+    .task-card a {
+        text-align: right;
+        display: block;
+        text-decoration: none;
+        color: #007bff;
+    }
+
 </style>
 
 <div class="container">
      <!-- Header Section -->
-     <div class="header">
+    <div class="header">
         <nav class="navbar">
             <h1>Kanban ({currentApp})</h1>
             <div role="button" class="user-profile" tabindex=0
@@ -773,4 +853,20 @@
             </div>
         </div>
     {/if}
+
+    <div class="kanban-board">
+        {#each ['open', 'todo', 'doing', 'done', 'close'] as status}
+          <div class="kanban-column">
+            <h3>{status}</h3>
+            {#each tasks.filter(task => task.task_state === status) as task}
+              <div class="task-card {task.task_state.toLowerCase()}" style="border-left-color: #{task.plan_colour}">
+                <h4>{task.task_name}</h4>
+                <p>{task.task_description}</p>
+                <p class="task-owner">{task.task_owner}</p>
+                <a href="/">View</a>
+              </div>
+            {/each}
+          </div>
+        {/each}
+      </div>
 </div>
