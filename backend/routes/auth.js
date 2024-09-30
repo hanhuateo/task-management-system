@@ -42,7 +42,7 @@ router.patch("/updatePlanDetails", authMiddle.verifyToken, planController.update
 
 // task routes
 router.get("/getAllPartialTaskDetails", authMiddle.verifyToken, taskController.getAllPartialTaskDetails);
-router.get("/getFullTaskDetails", authMiddle.verifyToken, taskController.getFullTaskDetails);
+router.post("/getFullTaskDetails", authMiddle.verifyToken, taskController.getFullTaskDetails);
 router.post("/createTask", authMiddle.verifyToken, taskController.createTask);
 router.get("/getTaskByState", authMiddle.verifyToken, taskController.getTaskByState);
 router.patch("/promoteTaskOpen2Todo", authMiddle.verifyToken, taskController.promoteTaskOpen2Todo);

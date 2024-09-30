@@ -189,6 +189,7 @@
             await createTask();
             toggleCreateTaskModal();
         }
+        await getAllPartialTaskDetails();
     }
 
     let newTask = {task_id : '', task_name : '', task_description : '', task_notes : '', 
@@ -360,6 +361,71 @@
             alert(error.response.data.message);
         }
     }
+
+    let oneTask = {};
+
+    const getFullTaskDetails = async (index) => {
+        try {
+            const response = await axios.post('http://localhost:3000/auth/getFullTaskDetails',
+                {
+                    task_id : tasks[index].task_id
+                },
+                {
+                    withCredentials : true
+                }
+            )
+            console.log(response);
+            oneTask = response.data.value[0];
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
+
+    let showTaskModal = false;
+
+    const toggleShowTaskModal = () => {
+        showTaskModal = !showTaskModal;
+    }
+
+    const handleViewTaskClick = async (index) => {
+        await checkStatus();
+        await getFullTaskDetails(index);
+        toggleShowTaskModal();
+    }
+
+    let notes = [
+        'Note 1: This is the first note.',
+        'Note 2: This is the second note.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        'Note 3: Another note goes here.',
+        // Add more notes to test scrolling
+    ];
 </script>
 
 <style>
@@ -705,11 +771,111 @@
         color: gray;
     }
 
-    .task-card a {
+    .task-card div {
         text-align: right;
         display: block;
         text-decoration: none;
         color: #007bff;
+    }
+
+    /* Task modal styles */
+    .task-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .task-modal h3 {
+        flex: 0 0 auto;
+        margin: 0;
+        padding: 20px;
+        background-color: #fff;
+    }
+
+    .task-content {
+        flex: 1 1 auto;
+        display: flex;
+        background-color: #fff;
+        overflow: hidden; /* Prevent content overflow */
+    }
+
+    /* Task details container taking up 1/4 width */
+    .task-details-container {
+        flex: 0 0 20%;
+        padding: 20px;
+        overflow-y: auto;
+        border-right: 1px solid #ccc;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .task-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    /* Task details styling */
+    .task-details p {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+    }
+
+    .task-details p strong {
+        margin-right: 8px;
+    }
+
+    /* Task notes container taking up 3/4 width */
+    .task-notes-container {
+        flex: 1 1 80%;
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        overflow: hidden;
+    }
+
+    /* Notes field styling */
+    .notes-field {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        margin-bottom: 20px;
+    }
+
+    .notes-content p {
+        margin: 0 0 10px 0;
+        line-height: 1.5;
+    }
+
+    /* Update notes field */
+    .update-notes-field textarea {
+        width: 100%;
+        height: 150px;
+        resize: none;
+        padding: 10px;
+        margin-top: 10px;
+    }
+
+    /* Task actions styling */
+    .task-actions {
+        margin-top: auto;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .task-actions button {
+        padding: 10px 20px;
+        cursor: pointer;
     }
 
 </style>
@@ -739,17 +905,19 @@
         {#if isProjectLead}
             <button on:click={handleCreateTaskClick}>Create Task</button>
         {/if}
-        <div role="button" class="view-plan" tabindex=0
-        on:mouseenter={handleMouseEnterPlan}
-        on:mouseleave={handleMouseLeavePlan}>
-        <span>Plan</span>
-            <div class="plan-dropdown" class:plan-dropdown-visible={showPlanDropdown}>
-                <div><button on:click={handleShowNewPlanModalClick}>Create New Plan</button></div>
-                {#each plans as plan}
-                    <div><button on:click={() => handlePlanClick({plan})}>{plan}</button></div>
-                {/each}
+        {#if isProjectManager}
+            <div role="button" class="view-plan" tabindex=0
+            on:mouseenter={handleMouseEnterPlan}
+            on:mouseleave={handleMouseLeavePlan}>
+            <span>Plan</span>
+                <div class="plan-dropdown" class:plan-dropdown-visible={showPlanDropdown}>
+                    <div><button on:click={handleShowNewPlanModalClick}>Create New Plan</button></div>
+                    {#each plans as plan}
+                        <div><button on:click={() => handlePlanClick({plan})}>{plan}</button></div>
+                    {/each}
+                </div>
             </div>
-        </div>
+        {/if}
     </div>
 
     {#if showCreateTaskModal}
@@ -856,17 +1024,58 @@
 
     <div class="kanban-board">
         {#each ['open', 'todo', 'doing', 'done', 'close'] as status}
-          <div class="kanban-column">
-            <h3>{status}</h3>
-            {#each tasks.filter(task => task.task_state === status) as task}
-              <div class="task-card {task.task_state.toLowerCase()}" style="border-left-color: #{task.plan_colour}">
-                <h4>{task.task_name}</h4>
-                <p>{task.task_description}</p>
-                <p class="task-owner">{task.task_owner}</p>
-                <a href="/">View</a>
-              </div>
-            {/each}
-          </div>
+            <div class="kanban-column">
+                <h3>{status}</h3>
+                {#each tasks.filter(task => task.task_state === status) as task, index}
+                <div class="task-card {task.task_state.toLowerCase()}" style="border-left-color: #{task.plan_colour}">
+                    <h4>{task.task_name}</h4>
+                    <p>{task.task_description}</p>
+                    <p class="task-owner">{task.task_owner}</p>
+                    <div class="view-task"><button class="view-task-btn" on:click={() => handleViewTaskClick(index)}>View</button></div>
+                </div>
+                {/each}
+            </div>
         {/each}
-      </div>
+    </div>
+
+    {#if showTaskModal}
+        <div class="task-modal">
+            <h3>Task Details</h3>
+            <div class="task-content">
+                <div class="task-details-container">
+                    <div class="task-details">
+                        <p><strong>ID: </strong> {oneTask.Task_id}</p>
+                        <p><strong>Name: </strong> {oneTask.Task_name}</p>
+                        <p><strong>Description: </strong> {oneTask.Task_description}</p>
+                        <p><strong>State: </strong> {oneTask.Task_state}</p>
+                        <p><strong>Plan: </strong>
+                            <select>
+                                <option>Plan 1</option>
+                                <option>Plan 2</option>
+                            </select>
+                        </p>
+                        <p><strong>Creator: </strong> {oneTask.Task_creator}</p>
+                        <p><strong>Owner: </strong> {oneTask.Task_owner} </p>
+                        <p><strong>Created: </strong> {oneTask.Task_createDate}</p>
+                    </div>
+                </div>
+                <div class="task-notes-container">
+                    <div class="notes-field">
+                        {#each notes as note}
+                            <p>{note}</p>
+                        {/each}
+                    </div>
+                    <div class="update-notes-field">
+                        <textarea placeholder="Enter notes here.."></textarea>
+                    </div>
+                    <div class="task-actions">
+                        <button class="close" on:click={toggleShowTaskModal}>Close</button>
+                        <button class="save-changes">Save Changes</button>
+                        <button class="demote">Demote</button>
+                        <button class="promote">Promote</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {/if}
 </div>
