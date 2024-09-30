@@ -13,7 +13,7 @@
     let isProjectManager = false;
     let showCreateTaskModal = false;
     let projectLeadCreateTaskFlag = false;
-
+    let usergroup = []
     // $:currentApp = $appData;
     // $:{console.log(currentApp)};
     let currentApp;
@@ -31,6 +31,7 @@
         await checkProjectManager();
         await getAllPlanMVPName();
         await getAllPartialTaskDetails();
+        await getUserGroup();
     })
 
     const checkStatus = async () => {
@@ -166,7 +167,10 @@
     let plans = [];
     const getAllPlanMVPName = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/auth/getAllPlanMVPName', 
+            const response = await axios.post('http://localhost:3000/auth/getAllPlanMVPName', 
+                {
+                    plan_app_acronym : currentApp
+                },
                 {
                     withCredentials:true
                 }
@@ -207,6 +211,11 @@
             }, {
                 withCredentials:true
             })
+            newTask.task_id = '';
+            newTask.task_name = '';
+            newTask.task_description = '';
+            newTask.task_notes = '';
+            newTask.task_plan = '';
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
@@ -348,14 +357,17 @@
 
     const getAllPartialTaskDetails = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/auth/getAllPartialTaskDetails',
+            const response = await axios.post('http://localhost:3000/auth/getAllPartialTaskDetails',
+                {
+                    task_app_acronym : currentApp
+                },
                 {
                     withCredentials : true
                 }
             );
-            console.log(response);
+            // console.log(response);
             tasks = response.data.value;
-            console.log(tasks);
+            // console.log(tasks);
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
@@ -363,19 +375,22 @@
     }
 
     let oneTask = {};
+    let notes;
 
-    const getFullTaskDetails = async (index) => {
+    const getFullTaskDetails = async (task_id) => {
         try {
             const response = await axios.post('http://localhost:3000/auth/getFullTaskDetails',
                 {
-                    task_id : tasks[index].task_id
+                    task_id : task_id
                 },
                 {
                     withCredentials : true
                 }
             )
-            console.log(response);
+            // console.log(response);
             oneTask = response.data.value[0];
+            notes = oneTask.Task_notes.split('␟').filter(note => note.trim() !== '');
+            // console.log(notes);
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
@@ -387,45 +402,108 @@
     const toggleShowTaskModal = () => {
         showTaskModal = !showTaskModal;
     }
-
-    const handleViewTaskClick = async (index) => {
+    
+    const handleViewTaskClick = async (task_id) => {
         await checkStatus();
-        await getFullTaskDetails(index);
+        await getFullTaskDetails(task_id);
+        await checkAppPermitState();
         toggleShowTaskModal();
     }
 
-    let notes = [
-        'Note 1: This is the first note.',
-        'Note 2: This is the second note.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        'Note 3: Another note goes here.',
-        // Add more notes to test scrolling
-    ];
+    
+    let additionalNotes = "";
+
+    const updateNotes = async () => {
+        try {
+            console.log(oneTask.Task_id);
+            console.log(oneTask.Task_app_Acronym);
+            console.log(additionalNotes);
+            const response = await axios.patch('http://localhost:3000/auth/updateTaskNotes',
+                {
+                    task_id : oneTask.Task_id,
+                    task_app_acronym : oneTask.Task_app_Acronym,
+                    task_notes : additionalNotes,
+                    task_state : oneTask.Task_state
+                },
+                {
+                    withCredentials : true
+                }
+            )
+
+            additionalNotes = '';
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
+
+    const updatePlan = async () => {
+        try {
+            const response = await axios.patch('http://localhost:3000/auth/updateTaskPlan',
+                {
+                    task_id : oneTask.Task_id,
+                    task_app_acronym : oneTask.Task_app_Acronym,
+                    task_plan : oneTask.Task_plan
+                },
+                {
+                    withCredentials : true
+                }
+            )
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
+
+    const handleSaveChangesClick = async (task_id) => {
+        await checkStatus();
+        await updatePlan();
+        if (additionalNotes) {
+            await updateNotes();
+            await getFullTaskDetails(task_id);
+        }
+        await getAllPartialTaskDetails();
+        
+    }
+    let permittedGroup;
+    const checkAppPermitState = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/auth/checkAppPermitState',
+                {
+                    app_acronym : oneTask.Task_app_Acronym,
+                    task_state : oneTask.Task_state
+                },
+                {
+                    withCredentials : true
+                }
+            )
+
+            // console.log(response);
+            permittedGroup = response.data.result;
+            console.log(permittedGroup);
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
+
+    const getUserGroup = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/auth/getUserGroup', 
+                {
+                    withCredentials: true
+                }
+            );
+
+            for (let i = 0; i < response.data.result.length; i++) {
+                usergroup.push(response.data.result[i].Group_name);
+            }
+            console.log(usergroup);
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
 </script>
 
 <style>
@@ -680,7 +758,7 @@
     .plan-dropdown {
         display: none;
         position: absolute;
-        top: 31%;
+        top: 25%;
         right: 0;
         background-color: white;
         min-width: 200px;
@@ -877,7 +955,6 @@
         padding: 10px 20px;
         cursor: pointer;
     }
-
 </style>
 
 <div class="container">
@@ -1027,12 +1104,12 @@
             <div class="kanban-column">
                 <h3>{status}</h3>
                 {#each tasks.filter(task => task.task_state === status) as task, index}
-                <div class="task-card {task.task_state.toLowerCase()}" style="border-left-color: #{task.plan_colour}">
-                    <h4>{task.task_name}</h4>
-                    <p>{task.task_description}</p>
-                    <p class="task-owner">{task.task_owner}</p>
-                    <div class="view-task"><button class="view-task-btn" on:click={() => handleViewTaskClick(index)}>View</button></div>
-                </div>
+                    <div class="task-card {task.task_state.toLowerCase()}" style="border-left-color: #{task.plan_colour}">
+                        <h4>{task.task_name}</h4>
+                        <p>{task.task_description}</p>
+                        <p class="task-owner">{task.task_owner}</p>
+                        <div class="view-task"><button class="view-task-btn" on:click={() => handleViewTaskClick(task.task_id)}>View</button></div>
+                    </div>
                 {/each}
             </div>
         {/each}
@@ -1049,9 +1126,15 @@
                         <p><strong>Description: </strong> {oneTask.Task_description}</p>
                         <p><strong>State: </strong> {oneTask.Task_state}</p>
                         <p><strong>Plan: </strong>
-                            <select>
-                                <option>Plan 1</option>
-                                <option>Plan 2</option>
+                            <select bind:value={oneTask.Task_plan} disabled={usergroup.includes(permittedGroup) ? false : true}>
+                                <option value=null></option>
+                                {#each plans as plan}
+                                    {#if plan === oneTask.Task_plan}
+                                        <option selected>{plan}</option>
+                                    {:else}
+                                        <option>{plan}</option>
+                                    {/if}
+                                {/each}
                             </select>
                         </p>
                         <p><strong>Creator: </strong> {oneTask.Task_creator}</p>
@@ -1062,17 +1145,30 @@
                 <div class="task-notes-container">
                     <div class="notes-field">
                         {#each notes as note}
-                            <p>{note}</p>
+                            <pre>{note}</pre>
                         {/each}
                     </div>
                     <div class="update-notes-field">
-                        <textarea placeholder="Enter notes here.."></textarea>
+                        <textarea placeholder="Enter notes here.." bind:value={additionalNotes} disabled={usergroup.includes(permittedGroup) ? false : true}></textarea>
                     </div>
                     <div class="task-actions">
                         <button class="close" on:click={toggleShowTaskModal}>Close</button>
-                        <button class="save-changes">Save Changes</button>
-                        <button class="demote">Demote</button>
-                        <button class="promote">Promote</button>
+                        <button class="save-changes" on:click={() => handleSaveChangesClick(oneTask.Task_id)} disabled={usergroup.includes(permittedGroup) ? false : true}>Save Changes</button>
+                        {#if oneTask.Task_state === 'open'}
+                            <button class="release" disabled={usergroup.includes(permittedGroup) ? false : true}>Release</button>
+                        {/if}
+                        {#if oneTask.Task_state === 'todo'}
+                            <button class="take-on" disabled={usergroup.includes(permittedGroup) ? false : true}>Take On</button>
+                        {/if}
+                        {#if oneTask.Task_state === 'doing'}
+                            <button class="review" disabled={usergroup.includes(permittedGroup) ? false : true}>Review</button>
+                            <button class="give-up" disabled={usergroup.includes(permittedGroup) ? false : true}>Give Up</button>
+                        {/if}
+                        {#if oneTask.Task_state === 'done'}
+                            <button class="approve" disabled={usergroup.includes(permittedGroup) ? false : true}>Approve</button>
+                            <button class="revert" disabled={usergroup.includes(permittedGroup) ? false : true}>Revert</button>
+                        {/if}
+                        
                     </div>
                 </div>
             </div>

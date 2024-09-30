@@ -241,6 +241,7 @@
         projectLeadEditAppFlag = true;
         await checkProjectLead();
         if (isProjectLead === true && projectLeadEditAppFlag === true) {
+            await getAllUserGroups();
             startEditing(index);
             toggleEditAppModal();
         }

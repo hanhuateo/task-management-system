@@ -13,13 +13,13 @@ exports.getAllPartialTaskDetails = async (req, res, next) => {
 	}
 
 	try {
+        let {task_app_acronym} = req.body;
 		let get_all_partial_task_details_sql =
 			"SELECT t.task_id, t.task_name, t.task_description, t.task_owner, t.task_state, t.task_plan, p.plan_colour " +
-            "FROM task t JOIN plan p ON t.task_plan = p.plan_mvp_name;"
+            "FROM task t LEFT JOIN plan p ON t.task_plan = p.plan_mvp_name WHERE task_app_acronym = ?;"
 
-		const [value, field] = await pool.query(get_all_partial_task_details_sql);
+		const [value, field] = await pool.query(get_all_partial_task_details_sql, [task_app_acronym]);
 
-        let get_plan_colour_sql = "SELECT "
 		res.status(200).json({
 			message: "get all partial task details successful",
 			success: true,
@@ -140,13 +140,19 @@ exports.createTask = async (req, res, next) => {
 
 		task_id = task_app_acronym + "_" + appRNumber_result[0].app_rnumber.toString();
 
-		task_state = "open";
+		let task_state = "open";
 
-		task_creator = username;
+		let task_creator = username;
 
-		task_owner = username;
+		let task_owner = username;
 
-		task_createdate = current_date;
+		let task_createdate = current_date;
+
+        let current_datetime = getFormattedDateTimeString();
+
+        if (task_notes) {
+            task_notes = task_notes + " \nTask Created by: " + username + " | On: " + current_datetime + " | State: " + task_state;
+        }
 
 		let createTask_sql =
 			"INSERT INTO task VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -602,6 +608,8 @@ exports.demoteTaskDone2Doing = async (req, res, next) => {
 exports.updateTaskNotes = async (req, res, next) => {
 	let username = req.user;
 	let isActive = await checkActive(username);
+    let current_datetime = getFormattedDateTimeString();
+
 	// console.log("isActive : " + isActive);
 
 	if (!isActive) {
@@ -611,11 +619,14 @@ exports.updateTaskNotes = async (req, res, next) => {
 		});
 	}
 	try {
-		let { task_id, task_app_acronym, task_notes } = req.body;
-		task_notes = "|" + task_notes;
+		let { task_id, task_app_acronym, task_notes, task_state } = req.body;
+        console.log(task_notes);
+        console.log(task_app_acronym);
+        console.log(task_id);
 		if (task_notes) {
+            task_notes = task_notes + " \nUpdated by: " + username + " | On: " + current_datetime + " | State: " + task_state + "␟";
 			let updateTaskNotes_sql =
-				"UPDATE task SET task_notes = CONCAT(task_notes, ?) WHERE task_id = ? AND task_app_acronym = ?";
+				"UPDATE task SET task_notes = CONCAT(?, task_notes) WHERE task_id = ? AND task_app_acronym = ?";
 
 			let updateTaskNotes_response = await pool.execute(updateTaskNotes_sql, [
 				task_notes,
@@ -682,6 +693,82 @@ exports.updateTaskPlan = async (req, res, next) => {
     }
 };
 
+exports.checkAppPermitState = async (req, res, next) => {
+    let {app_acronym, task_state} = req.body;
+
+    try {
+        if (task_state === 'create') {
+            let sql = "SELECT app_permit_create FROM application WHERE app_acronym = ?";
+            const [response, field] = await pool.query(sql, [app_acronym]);
+            console.log(response[0].app_permit_create);
+            let result = response[0].app_permit_create;
+            return res.status(200).json({
+                message : "Successfully check app permit state",
+                success : true,
+                result
+            })
+        }
+
+        if (task_state === 'open') {
+            let sql = "SELECT app_permit_open FROM application WHERE app_acronym = ?";
+            const [response, field] = await pool.query(sql, [app_acronym]);
+            console.log(response[0].app_permit_open);
+            let result = response[0].app_permit_open;
+            return res.status(200).json({
+                message : "Successfully check app permit state",
+                success : true,
+                result
+            })
+        }
+
+        if (task_state === 'todo') {
+            let sql = "SELECT app_permit_todolist FROM application WHERE app_acronym = ?";
+            const [response, field] = await pool.query(sql, [app_acronym]);
+            console.log(response[0].app_permit_todolist);
+            let result = response[0].app_permit_todolist;
+            return res.status(200).json({
+                message : "Successfully check app permit state",
+                success : true,
+                result
+            })
+        }
+
+        if (task_state === 'doing') {
+            let sql = "SELECT app_permit_doing FROM application WHERE app_acronym = ?";
+            const [response, field] = await pool.query(sql, [app_acronym]);
+            console.log(response[0].app_permit_doing);
+            let result = response[0].app_permit_doing;
+            return res.status(200).json({
+                message : "Successfully check app permit state",
+                success : true,
+                result
+            })
+        }
+
+        if (task_state === 'done') {
+            let sql = "SELECT app_permit_done FROM application WHERE app_acronym = ?";
+            const [response, field] = await pool.query(sql, [app_acronym]);
+            console.log(response[0].app_permit_done);
+            let result = response[0].app_permit_done;
+            return res.status(200).json({
+                message : "Successfully check app permit state",
+                success : true,
+                result
+            })
+        }
+
+        return res.status(400).json({
+            message : "not sure why this has to be here but a response is required so here it is",
+            success : false
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(200).json({
+            message : "Failed to check app permit state",
+            success : false
+        })
+    }
+}
 async function checkGroup(username, groupname) {
 	try {
 		let sql1 =
@@ -727,4 +814,15 @@ function getFormattedDateString() {
 
 	// Convert to string explicitly (though it's already a string)
 	return String(formattedDate);
+}
+
+function getFormattedDateTimeString() {
+    const currentdate = new Date(); 
+    const datetime = currentdate.getDate() + "/"
+                    + (currentdate.getMonth()+1)  + "/" 
+                    + currentdate.getFullYear() + " @ "  
+                    + currentdate.getHours() + ":"  
+                    + currentdate.getMinutes() + ":" 
+                    + currentdate.getSeconds();
+    return String(datetime);
 }

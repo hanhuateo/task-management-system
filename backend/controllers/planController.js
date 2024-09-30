@@ -60,19 +60,20 @@ exports.getAllPlanMVPName = async (req, res, next) => {
         })
     };
 
-    let is_project_lead_or_manager = await checkGroup(username, ["PL", "PM"]);
+    // let is_project_lead_or_manager = await checkGroup(username, ["PL", "PM"]);
 
-    if (!is_project_lead_or_manager) {
-        return res.status(400).json({
-            message : "Do not have permission to access this resource",
-            success : false
-        })
-    };
+    // if (!is_project_lead_or_manager) {
+    //     return res.status(400).json({
+    //         message : "Do not have permission to access this resource",
+    //         success : false
+    //     })
+    // };
     
     try {
-        let get_all_plan_mvp_name_sql = "SELECT plan_mvp_name FROM plan";
+        let {plan_app_acronym} = req.body;
+        let get_all_plan_mvp_name_sql = "SELECT plan_mvp_name FROM plan WHERE plan_app_acronym = ?";
         
-        const [result, field] = await pool.query(get_all_plan_mvp_name_sql);
+        const [result, field] = await pool.query(get_all_plan_mvp_name_sql, [plan_app_acronym]);
 
         return res.status(200).json({
             message : "Successfully retrieved all plan mvp name",

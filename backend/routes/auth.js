@@ -36,12 +36,12 @@ router.patch("/updateApp", authMiddle.verifyToken, appController.updateApp);
 
 // plan routes
 router.post("/createPlan", authMiddle.verifyToken, planController.createPlan);
-router.get("/getAllPlanMVPName", authMiddle.verifyToken, planController.getAllPlanMVPName);
+router.post("/getAllPlanMVPName", authMiddle.verifyToken, planController.getAllPlanMVPName);
 router.post("/getPlanDetails", authMiddle.verifyToken, planController.getPlanDetails);
 router.patch("/updatePlanDetails", authMiddle.verifyToken, planController.updatePlanDetails);
 
 // task routes
-router.get("/getAllPartialTaskDetails", authMiddle.verifyToken, taskController.getAllPartialTaskDetails);
+router.post("/getAllPartialTaskDetails", authMiddle.verifyToken, taskController.getAllPartialTaskDetails);
 router.post("/getFullTaskDetails", authMiddle.verifyToken, taskController.getFullTaskDetails);
 router.post("/createTask", authMiddle.verifyToken, taskController.createTask);
 router.get("/getTaskByState", authMiddle.verifyToken, taskController.getTaskByState);
@@ -53,5 +53,5 @@ router.patch("/demoteTaskDoing2Todo", authMiddle.verifyToken, taskController.dem
 router.patch("/demoteTaskDone2Doing", authMiddle.verifyToken, taskController.demoteTaskDone2Doing);
 router.patch("/updateTaskNotes", authMiddle.verifyToken, taskController.updateTaskNotes);
 router.patch("/updateTaskPlan", authMiddle.verifyToken, taskController.updateTaskPlan);
-
+router.post("/checkAppPermitState", authMiddle.verifyToken, taskController.checkAppPermitState);
 module.exports = router;

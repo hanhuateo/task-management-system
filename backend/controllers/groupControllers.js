@@ -71,7 +71,8 @@ exports.getUserGroup = async (req, res, next) => {
         let isProjectLead = false;
         let isProjectManager = false;
         const username = req.user;
-        let sql = 'SELECT Group_id FROM user_group WHERE User_name = ?';
+        // let sql = 'SELECT Group_id FROM user_group WHERE User_name = ?';
+        let sql = "SELECT ug.User_name, ug.Group_id, gl.Group_name FROM user_group ug JOIN group_list gl ON ug.Group_id = gl.Group_id WHERE ug.User_name = ?"
         const [result] = await pool.execute(sql, [username]);
         // console.log(result);
         // console.log(result[0].Group_id);
@@ -99,7 +100,7 @@ exports.getUserGroup = async (req, res, next) => {
             }
         }
 
-        result.unshift({'username': username});
+        // result.unshift({'username': username});
         res.status(200).json({message : "getUserGroup successful", 
             success : true,
             result,
