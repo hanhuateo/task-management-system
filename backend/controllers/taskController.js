@@ -307,6 +307,8 @@ exports.promoteTaskOpen2Todo = async (req, res, next) => {
 exports.promoteTaskTodo2Doing = async (req, res, next) => {
 	let username = req.user;
 	let isActive = await checkActive(username);
+    let current_datetime = getFormattedDateTimeString();
+
 	// console.log("isActive : " + isActive);
 
 	if (!isActive) {
@@ -317,7 +319,7 @@ exports.promoteTaskTodo2Doing = async (req, res, next) => {
 	}
 
 	try {
-		let { task_id, task_app_acronym } = req.body;
+		let { task_id, task_app_acronym, task_notes } = req.body;
 
 		let check_group_sql =
 			"SELECT app_permit_todolist FROM application WHERE app_acronym = ?";
@@ -339,7 +341,15 @@ exports.promoteTaskTodo2Doing = async (req, res, next) => {
 				groupname,
 			});
 		}
+        task_notes = "\nPromoted by: " + username + " From Todo to Doing | On: " + current_datetime + " \n########################################################################################## ␟" + task_notes;
+        let updateTaskNotes_sql =
+        "UPDATE task SET task_notes = ? WHERE task_id = ? AND task_app_acronym = ?";
 
+        let updateTaskNotes_response = await pool.execute(updateTaskNotes_sql, [
+            task_notes,
+            task_id,
+            task_app_acronym,
+        ]);
 		let promoteTaskTodo2Doing_sql =
 			"UPDATE task SET task_state = 'doing' WHERE task_id = ? AND task_app_acronym = ?";
 
@@ -371,6 +381,8 @@ exports.promoteTaskTodo2Doing = async (req, res, next) => {
 exports.promoteTaskDoing2Done = async (req, res, next) => {
 	let username = req.user;
 	let isActive = await checkActive(username);
+    let current_datetime = getFormattedDateTimeString();
+
 	// console.log("isActive : " + isActive);
 
 	if (!isActive) {
@@ -381,7 +393,7 @@ exports.promoteTaskDoing2Done = async (req, res, next) => {
 	}
 
 	try {
-		let { task_id, task_app_acronym } = req.body;
+		let { task_id, task_app_acronym, task_notes } = req.body;
 
 		let check_group_sql =
 			"SELECT app_permit_doing FROM application WHERE app_acronym = ?";
@@ -402,6 +414,16 @@ exports.promoteTaskDoing2Done = async (req, res, next) => {
 				checkGroup_result,
 			});
 		}
+
+        task_notes = "\nPromoted by: " + username + " From Doing to Done | On: " + current_datetime + " \n########################################################################################## ␟" + task_notes;
+        let updateTaskNotes_sql =
+        "UPDATE task SET task_notes = ? WHERE task_id = ? AND task_app_acronym = ?";
+
+        let updateTaskNotes_response = await pool.execute(updateTaskNotes_sql, [
+            task_notes,
+            task_id,
+            task_app_acronym,
+        ]);
 
 		let promoteTaskDoing2Done_sql =
 			"UPDATE task SET task_state = 'done' WHERE task_id = ? AND task_app_acronym = ?";
@@ -434,6 +456,8 @@ exports.promoteTaskDoing2Done = async (req, res, next) => {
 exports.promoteTaskDone2Close = async (req, res, next) => {
 	let username = req.user;
 	let isActive = await checkActive(username);
+    let current_datetime = getFormattedDateTimeString();
+
 	// console.log("isActive : " + isActive);
 
 	if (!isActive) {
@@ -444,7 +468,7 @@ exports.promoteTaskDone2Close = async (req, res, next) => {
 	}
 
 	try {
-		let { task_id, task_app_acronym } = req.body;
+		let { task_id, task_app_acronym, task_notes } = req.body;
 
 		let check_group_sql =
 			"SELECT app_permit_done FROM application WHERE app_acronym = ?";
@@ -465,6 +489,16 @@ exports.promoteTaskDone2Close = async (req, res, next) => {
 				checkGroup_result,
 			});
 		}
+
+        task_notes = "\nPromoted by: " + username + " From Done to Close | On: " + current_datetime + " \n########################################################################################## ␟" + task_notes;
+        let updateTaskNotes_sql =
+        "UPDATE task SET task_notes = ? WHERE task_id = ? AND task_app_acronym = ?";
+
+        let updateTaskNotes_response = await pool.execute(updateTaskNotes_sql, [
+            task_notes,
+            task_id,
+            task_app_acronym,
+        ]);
 
 		let promoteTaskDone2Close_sql =
 			"UPDATE task SET task_state = 'close' WHERE task_id = ? AND task_app_acronym = ?";
@@ -497,6 +531,8 @@ exports.promoteTaskDone2Close = async (req, res, next) => {
 exports.demoteTaskDoing2Todo = async (req, res, next) => {
 	let username = req.user;
 	let isActive = await checkActive(username);
+    let current_datetime = getFormattedDateTimeString();
+
 	// console.log("isActive : " + isActive);
 
 	if (!isActive) {
@@ -507,7 +543,7 @@ exports.demoteTaskDoing2Todo = async (req, res, next) => {
 	}
 
 	try {
-		let { task_id, task_app_acronym } = req.body;
+		let { task_id, task_app_acronym, task_notes } = req.body;
 
 		let check_group_sql =
 			"SELECT app_permit_doing FROM application WHERE app_acronym = ?";
@@ -528,6 +564,17 @@ exports.demoteTaskDoing2Todo = async (req, res, next) => {
 				checkGroup_result,
 			});
 		}
+
+
+        task_notes = "\nDemoted by: " + username + " From Doing to Todo | On: " + current_datetime + " \n########################################################################################## ␟" + task_notes;
+        let updateTaskNotes_sql =
+        "UPDATE task SET task_notes = ? WHERE task_id = ? AND task_app_acronym = ?";
+
+        let updateTaskNotes_response = await pool.execute(updateTaskNotes_sql, [
+            task_notes,
+            task_id,
+            task_app_acronym,
+        ]);
 
 		let demoteTaskDoing2Todo_sql =
 			"UPDATE task SET task_state = 'todo' WHERE task_id = ? AND task_app_acronym = ?";
@@ -560,6 +607,8 @@ exports.demoteTaskDoing2Todo = async (req, res, next) => {
 exports.demoteTaskDone2Doing = async (req, res, next) => {
 	let username = req.user;
 	let isActive = await checkActive(username);
+    let current_datetime = getFormattedDateTimeString();
+
 	// console.log("isActive : " + isActive);
 
 	if (!isActive) {
@@ -570,7 +619,7 @@ exports.demoteTaskDone2Doing = async (req, res, next) => {
 	}
 
 	try {
-		let { task_id, task_app_acronym } = req.body;
+		let { task_id, task_app_acronym, task_notes } = req.body;
 
 		let check_group_sql =
 			"SELECT app_permit_done FROM application WHERE app_acronym = ?";
@@ -591,6 +640,16 @@ exports.demoteTaskDone2Doing = async (req, res, next) => {
 				checkGroup_result,
 			});
 		}
+
+        task_notes = "\nDemoted by: " + username + " From Done to Doing | On: " + current_datetime + " \n########################################################################################## ␟" + task_notes;
+        let updateTaskNotes_sql =
+        "UPDATE task SET task_notes = ? WHERE task_id = ? AND task_app_acronym = ?";
+
+        let updateTaskNotes_response = await pool.execute(updateTaskNotes_sql, [
+            task_notes,
+            task_id,
+            task_app_acronym,
+        ]);
 
 		let demoteTaskDone2Doing_sql =
 			"UPDATE task SET task_state = 'doing' WHERE task_id = ? AND task_app_acronym = ?";
@@ -774,9 +833,8 @@ exports.checkAppPermitState = async (req, res, next) => {
             })
         }
 
-        return res.status(400).json({
+        return res.status(200).json({
             message : "not sure why this has to be here but a response is required so here it is",
-            success : false
         })
     } catch (error) {
         console.log(error);

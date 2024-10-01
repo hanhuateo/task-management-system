@@ -541,10 +541,112 @@
         try {
             const response = await axios.patch('http://localhost:3000/auth/promoteTaskTodo2Doing', 
                 {
-                    
+                    task_id : oneTask.Task_id,
+                    task_app_acronym : oneTask.Task_app_Acronym,
+                    task_notes : oneTask.Task_notes
+                },
+                {
+                    withCredentials : true
                 }
             )
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
         }
+        await getFullTaskDetails(oneTask.Task_id);
+        await checkAppPermitState();
+    }
+
+    const handleReviewButtonClick = async () => {
+        await checkStatus();
+        await updateNotes();
+        await getFullTaskDetails(oneTask.Task_id);
+        try {
+            const response = await axios.patch('http://localhost:3000/auth/promoteTaskDoing2Done',
+                {
+                    task_id : oneTask.Task_id,
+                    task_app_acronym : oneTask.Task_app_Acronym,
+                    task_notes : oneTask.Task_notes
+                },
+                {
+                    withCredentials : true
+                }
+            )
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+        await getFullTaskDetails(oneTask.Task_id);
+        await checkAppPermitState();
+    }
+
+    const handleGiveUpButtonClick = async () => {
+        await checkStatus();
+        await updateNotes();
+        await getFullTaskDetails(oneTask.Task_id);
+        try {
+            const response = await axios.patch('http://localhost:3000/auth/demoteTaskDoing2Todo',
+                {
+                    task_id : oneTask.Task_id,
+                    task_app_acronym : oneTask.Task_app_Acronym,
+                    task_notes : oneTask.Task_notes
+                },
+                {
+                    withCredentials : true
+                }
+            )
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+        await getFullTaskDetails(oneTask.Task_id);
+        await checkAppPermitState();
+    }
+
+    const handleApproveButtonClick = async () => {
+        await checkStatus();
+        await updateNotes();
+        await getFullTaskDetails(oneTask.Task_id);
+        try {
+            const response = await axios.patch('http://localhost:3000/auth/promoteTaskDone2Close',
+                {
+                    task_id : oneTask.Task_id,
+                    task_app_acronym : oneTask.Task_app_Acronym,
+                    task_notes : oneTask.Task_notes
+                },
+                {
+                    withCredentials : true
+                }
+            )
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+        await getFullTaskDetails(oneTask.Task_id);
+        await checkAppPermitState();
+    }
+
+    const handleRevertButtonClick = async () => {
+        await checkStatus();
+        await updateNotes();
+        await getFullTaskDetails(oneTask.Task_id);
+        try {
+            const response = await axios.patch('http://localhost:3000/auth/demoteTaskDone2Doing',
+                {
+                    task_id : oneTask.Task_id,
+                    task_app_acronym : oneTask.Task_app_Acronym,
+                    task_notes : oneTask.Task_notes
+                },
+                {
+                    withCredentials : true
+                }
+            )
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+        await getFullTaskDetails(oneTask.Task_id);
+        await checkAppPermitState();
     }
 </script>
 
@@ -1200,15 +1302,15 @@
                             <button class="release" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleReleaseButtonClick}>Release</button>
                         {/if}
                         {#if oneTask.Task_state === 'todo'}
-                            <button class="take-on" disabled={usergroup.includes(permittedGroup) ? false : true}>Take On</button>
+                            <button class="take-on" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleTakeOnButtonClick}>Take On</button>
                         {/if}
                         {#if oneTask.Task_state === 'doing'}
-                            <button class="review" disabled={usergroup.includes(permittedGroup) ? false : true}>Review</button>
-                            <button class="give-up" disabled={usergroup.includes(permittedGroup) ? false : true}>Give Up</button>
+                            <button class="review" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleReviewButtonClick}>Review</button>
+                            <button class="give-up" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleGiveUpButtonClick}>Give Up</button>
                         {/if}
                         {#if oneTask.Task_state === 'done'}
-                            <button class="approve" disabled={usergroup.includes(permittedGroup) ? false : true}>Approve</button>
-                            <button class="revert" disabled={usergroup.includes(permittedGroup) ? false : true}>Revert</button>
+                            <button class="approve" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleApproveButtonClick}>Approve</button>
+                            <button class="revert" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleRevertButtonClick}>Revert</button>
                         {/if}
                         
                     </div>
