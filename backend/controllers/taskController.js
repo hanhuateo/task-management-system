@@ -151,7 +151,9 @@ exports.createTask = async (req, res, next) => {
         let current_datetime = getFormattedDateTimeString();
 
         if (task_notes) {
-            task_notes = task_notes + " \nTask Created by: " + username + " | On: " + current_datetime + " | State: " + task_state;
+            task_notes = task_notes + " \nTask Created by: " + username + " | On: " + current_datetime + " | State: " + task_state + " \n##########################################################################################";
+        } else {
+            task_notes = "Task Created by: " + username + " | On: " + current_datetime + " | State: " + task_state + " \n##########################################################################################";
         }
 
 		let createTask_sql =
@@ -227,6 +229,8 @@ exports.getTaskByState = async (req, res, next) => {
 exports.promoteTaskOpen2Todo = async (req, res, next) => {
 	let username = req.user;
 	let isActive = await checkActive(username);
+    let current_datetime = getFormattedDateTimeString();
+
 	// console.log("isActive : " + isActive);
 
 	if (!isActive) {
@@ -237,27 +241,38 @@ exports.promoteTaskOpen2Todo = async (req, res, next) => {
 	}
 
 	try {
-		let { task_id, task_app_acronym } = req.body;
+        let { task_id, task_app_acronym, task_notes} = req.body;
 
-		let check_group_sql =
-			"SELECT app_permit_open FROM application WHERE app_acronym = ?";
+        let check_group_sql =
+            "SELECT app_permit_open FROM application WHERE app_acronym = ?";
 
-		let [checkGroup_result, checkGroup_fields] = await pool.query(
-			check_group_sql,
-			[task_app_acronym]
-		);
+        let [checkGroup_result, checkGroup_fields] = await pool.query(
+            check_group_sql,
+            [task_app_acronym]
+        );
+        let groupname = checkGroup_result[0].app_permit_open;
 
-		let groupname = checkGroup_result[0].app_permit_open;
+        let isAuthorizedGroups = await checkGroup(username, groupname);
 
-		let isAuthorizedGroups = await checkGroup(username, groupname);
+        if (!isAuthorizedGroups) {
+            return res.status(400).json({
+                message: "Do not have permission to access this resource",
+                success: false,
+                checkGroup_result,
+            });
+        }
 
-		if (!isAuthorizedGroups) {
-			return res.status(400).json({
-				message: "Do not have permission to access this resource",
-				success: false,
-				checkGroup_result,
-			});
-		}
+        task_notes = "\nPromoted by: " + username + " From Open to Todo | On: " + current_datetime + " \n########################################################################################## ␟" + task_notes;
+        let updateTaskNotes_sql =
+        "UPDATE task SET task_notes = ? WHERE task_id = ? AND task_app_acronym = ?";
+
+        let updateTaskNotes_response = await pool.execute(updateTaskNotes_sql, [
+            task_notes,
+            task_id,
+            task_app_acronym,
+        ]);
+
+
 
 		let promoteTaskOpen2Todo_sql =
 			"UPDATE task SET task_state = 'todo' WHERE task_id = ? AND task_app_acronym = ?";
@@ -623,8 +638,10 @@ exports.updateTaskNotes = async (req, res, next) => {
         console.log(task_notes);
         console.log(task_app_acronym);
         console.log(task_id);
+        console.log('updating task notes');
+
 		if (task_notes) {
-            task_notes = task_notes + " \nUpdated by: " + username + " | On: " + current_datetime + " | State: " + task_state + "␟";
+            task_notes = task_notes + " \nUpdated by: " + username + " | On: " + current_datetime + " | State: " + task_state + " \n##########################################################################################" + "␟";
 			let updateTaskNotes_sql =
 				"UPDATE task SET task_notes = CONCAT(?, task_notes) WHERE task_id = ? AND task_app_acronym = ?";
 
@@ -769,6 +786,7 @@ exports.checkAppPermitState = async (req, res, next) => {
         })
     }
 }
+
 async function checkGroup(username, groupname) {
 	try {
 		let sql1 =

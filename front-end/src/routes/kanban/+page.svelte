@@ -389,6 +389,7 @@
             )
             // console.log(response);
             oneTask = response.data.value[0];
+            // console.log(oneTask);
             notes = oneTask.Task_notes.split('␟').filter(note => note.trim() !== '');
             // console.log(notes);
         } catch (error) {
@@ -401,6 +402,11 @@
 
     const toggleShowTaskModal = () => {
         showTaskModal = !showTaskModal;
+    }
+
+    const handleCloseTaskClick = async () => {
+        await getAllPartialTaskDetails();
+        toggleShowTaskModal();
     }
     
     const handleViewTaskClick = async (task_id) => {
@@ -498,10 +504,46 @@
             for (let i = 0; i < response.data.result.length; i++) {
                 usergroup.push(response.data.result[i].Group_name);
             }
-            console.log(usergroup);
+            // console.log(usergroup);
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
+        }
+    }
+
+    const handleReleaseButtonClick = async () => {
+        await checkStatus();
+        await updateNotes();
+        await getFullTaskDetails(oneTask.Task_id);
+        try {
+            const response = await axios.patch('http://localhost:3000/auth/promoteTaskOpen2Todo',
+                {
+                    task_id : oneTask.Task_id,
+                    task_app_acronym : oneTask.Task_app_Acronym,
+                    task_notes : oneTask.Task_notes
+                },
+                {
+                    withCredentials : true
+                }
+            )
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+        await getFullTaskDetails(oneTask.Task_id);
+        await checkAppPermitState();
+    }
+
+    const handleTakeOnButtonClick = async () => {
+        await checkStatus();
+        await updateNotes();
+        await getFullTaskDetails(oneTask.Task_id);
+        try {
+            const response = await axios.patch('http://localhost:3000/auth/promoteTaskTodo2Doing', 
+                {
+                    
+                }
+            )
         }
     }
 </script>
@@ -1152,10 +1194,10 @@
                         <textarea placeholder="Enter notes here.." bind:value={additionalNotes} disabled={usergroup.includes(permittedGroup) ? false : true}></textarea>
                     </div>
                     <div class="task-actions">
-                        <button class="close" on:click={toggleShowTaskModal}>Close</button>
+                        <button class="close" on:click={handleCloseTaskClick}>Close</button>
                         <button class="save-changes" on:click={() => handleSaveChangesClick(oneTask.Task_id)} disabled={usergroup.includes(permittedGroup) ? false : true}>Save Changes</button>
                         {#if oneTask.Task_state === 'open'}
-                            <button class="release" disabled={usergroup.includes(permittedGroup) ? false : true}>Release</button>
+                            <button class="release" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleReleaseButtonClick}>Release</button>
                         {/if}
                         {#if oneTask.Task_state === 'todo'}
                             <button class="take-on" disabled={usergroup.includes(permittedGroup) ? false : true}>Take On</button>
