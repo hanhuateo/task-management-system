@@ -293,3 +293,24 @@ function convertToDate(dateString) {
     const [day, month, year] = dateString.split('-');
     return new Date(`${year}-${month}-${day}`)
 }
+
+exports.checkAppPermitCreate = async (req, res, next) => {
+    try {
+        let {app_acronym} = req.body
+        let sql = "SELECT app_permit_create FROM application WHERE app_acronym = ?";
+        const [response, field] = await pool.query(sql, [app_acronym]);
+        console.log(response);
+        let result = response[0].app_permit_create;
+        return res.status(200).json({
+            message : "Successfully checked app permit create",
+            success : true,
+            result
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json({
+            message : "failed to retrieve from db",
+            success : false
+        })
+    }
+}

@@ -34,6 +34,7 @@
         await getAllPlanMVPName();
         await getAllPartialTaskDetails();
         await getUserGroup();
+        await checkAppPermitCreate();
     })
 
     const checkStatus = async () => {
@@ -104,6 +105,8 @@
 
             isProjectLead = role_response.data.isProjectLead;
             isUserProjectLead = role_response.data.isUserProjectLead;
+            // console.log(isProjectLead);
+            // console.log(isUserProjectLead);
             // console.log(isProjectLead);
             // TASK: will have to tackle this part when doing anything related to project lead
             // if (!isProjectLead) {
@@ -296,7 +299,7 @@
     const handleUpdatePlanDetailsSubmitClick = async () => {
         await checkStatus();
         await checkProjectManager();
-        if (user_status === 1 && (isProjectManager || isUserProjectManager) === true) {
+        if (user_status === 1 && isProjectManager === true) {
             await updatePlanDetails();
         }
         toggleShowOnePlanModal();
@@ -311,7 +314,7 @@
     const handleShowNewPlanModalClick = async () => {
         await checkStatus();
         await checkProjectManager();
-        if (user_status === 1 && (isProjectManager || isUserProjectManager) === true) {
+        if (user_status === 1 && isProjectManager === true) {
             toggleShowNewPlanModal();
         }
     }
@@ -343,7 +346,7 @@
     const handleNewPlanSubmitClick = async () => {
         await checkStatus();
         await checkProjectManager();
-        if (user_status === 1 && (isProjectManager || isUserProjectManager) === true) {
+        if (user_status === 1 && isProjectManager === true) {
             await createNewPlan();
         }
         toggleShowNewPlanModal();
@@ -370,7 +373,7 @@
                     withCredentials : true
                 }
             );
-            console.log(response);
+            // console.log(response);
             tasks = response.data.value;
             // console.log(tasks);
         } catch (error) {
@@ -684,6 +687,25 @@
             disableButtons = true;
         } else {
             disableButtons = false;
+        }
+    }
+
+    let app_permit_create;
+    const checkAppPermitCreate = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/auth/checkAppPermitCreate',
+                {
+                    app_acronym : currentApp
+                },
+                {
+                    withCredentials : true
+                }
+            )
+            console.log(response);
+            app_permit_create = response.data.result;
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
         }
     }
 </script>
@@ -1162,10 +1184,10 @@
     </div>
 
     <div class="task-plan-container">
-        {#if isProjectLead || isUserProjectLead}
+        {#if usergroup.includes(app_permit_create)}
             <button on:click={handleCreateTaskClick}>Create Task</button>
         {/if}
-        {#if isProjectManager || isUserProjectManager}
+        {#if isProjectManager}
             <div role="button" class="view-plan" tabindex=0
             on:mouseenter={handleMouseEnterPlan}
             on:mouseleave={handleMouseLeavePlan}>

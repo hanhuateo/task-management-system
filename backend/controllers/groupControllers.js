@@ -94,11 +94,11 @@ exports.getUserGroup = async (req, res, next) => {
                 isProjectManager = true;
                 continue;
             }
-            if (result[i].Group_name.includes('pl')) {
+            if (result[i].Group_name.includes('pl') || result[i].Group_name.includes('PL')) {
                 isUserProjectLead = true;
                 continue;
             }
-            if (result[i].Group_name.includes('pm')) {
+            if (result[i].Group_name.includes('pm') || result[i].Group_name.includes('PM')) {
                 isUserProjectManager = true;
             }
         }

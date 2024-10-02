@@ -33,6 +33,7 @@ router.post("/createNewApp", authMiddle.verifyToken, appController.createNewApp)
 router.get("/getAllPartialAppDetails", authMiddle.verifyToken, appController.getAllPartialAppDetails);
 router.get("/getFullAppDetails", authMiddle.verifyToken, appController.getFullAppDetails);
 router.patch("/updateApp", authMiddle.verifyToken, appController.updateApp);
+router.post("/checkAppPermitCreate", authMiddle.verifyToken, appController.checkAppPermitCreate);
 
 // plan routes
 router.post("/createPlan", authMiddle.verifyToken, planController.createPlan);
