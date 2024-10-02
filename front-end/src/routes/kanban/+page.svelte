@@ -11,6 +11,8 @@
     let adminUserManagementFlag = false;
     let isProjectLead = false;
     let isProjectManager = false;
+    let isUserProjectLead = false;
+    let isUserProjectManager = false;
     let showCreateTaskModal = false;
     let projectLeadCreateTaskFlag = false;
     let usergroup = []
@@ -101,6 +103,8 @@
             });
 
             isProjectLead = role_response.data.isProjectLead;
+            isUserProjectLead = role_response.data.isUserProjectLead;
+            // console.log(isProjectLead);
             // TASK: will have to tackle this part when doing anything related to project lead
             // if (!isProjectLead) {
             //     goto('http://localhost:5173/');
@@ -132,6 +136,7 @@
             })
 
             isProjectManager = role_response.data.isProjectManager;
+            isUserProjectManager = role_response.data.isUserProjectManager;
         } catch (error) {
             console.log(error);
         }
@@ -151,7 +156,7 @@
         await checkStatus();
         projectLeadCreateTaskFlag = true;
         await checkProjectLead();
-        if (isProjectLead === true && projectLeadCreateTaskFlag === true) {
+        if ((isProjectLead || isUserProjectLead) === true && projectLeadCreateTaskFlag === true) {
             await getAllPlanMVPName();
             toggleCreateTaskModal();
         }
@@ -189,7 +194,7 @@
     const handleCreateTaskSubmitClick = async () => {
         await checkStatus();
         await checkProjectLead();
-        if (isProjectLead === true && projectLeadCreateTaskFlag === true) {
+        if ((isProjectLead || isUserProjectLead) === true && projectLeadCreateTaskFlag === true) {
             await createTask();
             toggleCreateTaskModal();
         }
@@ -306,7 +311,7 @@
     const handleShowNewPlanModalClick = async () => {
         await checkStatus();
         await checkProjectManager();
-        if (user_status === 1 && isProjectManager === true) {
+        if (user_status === 1 && (isProjectManager || isUserProjectManager) === true) {
             toggleShowNewPlanModal();
         }
     }
@@ -505,7 +510,7 @@
             for (let i = 0; i < response.data.result.length; i++) {
                 usergroup.push(response.data.result[i].Group_name);
             }
-            // console.log(usergroup);
+            console.log(usergroup);
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
@@ -1157,10 +1162,10 @@
     </div>
 
     <div class="task-plan-container">
-        {#if isProjectLead}
+        {#if isProjectLead || isUserProjectLead}
             <button on:click={handleCreateTaskClick}>Create Task</button>
         {/if}
-        {#if isProjectManager}
+        {#if isProjectManager || isUserProjectManager}
             <div role="button" class="view-plan" tabindex=0
             on:mouseenter={handleMouseEnterPlan}
             on:mouseleave={handleMouseLeavePlan}>
