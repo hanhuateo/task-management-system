@@ -1,4 +1,5 @@
 const pool = require("../utils/db");
+const nodemailer = require("nodemailer");
 
 exports.getAllPartialTaskDetails = async (req, res, next) => {
 	let username = req.user;
@@ -901,4 +902,33 @@ function getFormattedDateTimeString() {
                     + currentdate.getMinutes() + ":" 
                     + currentdate.getSeconds();
     return String(datetime);
+}
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false,
+    auth: {
+        user: "lera.heller2@ethereal.email",
+        pass: "JEC7Tt1C8sJwQhCaCZ"
+    },
+});
+
+exports.sendEmail = async (req, res, next) => {
+    try {
+        let { task_id, task_name } = req.body;
+        const info = await transporter.sendMail({
+            from: ' "Lera Heller " <lera.heller2@ethereal.email>',
+            to: "lera.heller2@ethereal.email",
+            subject: `${task_id}, ${task_name} to be reviewed`,
+            text: `${task_id}, ${task_name} has been completed, please review it`,
+            html: `<div>${task_id}, ${task_name} has been completed, please review it</div>`
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({
+            message : "Failed to send email",
+            success : false
+        })
+    }
 }

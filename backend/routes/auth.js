@@ -54,4 +54,5 @@ router.patch("/demoteTaskDone2Doing", authMiddle.verifyToken, taskController.dem
 router.patch("/updateTaskNotes", authMiddle.verifyToken, taskController.updateTaskNotes);
 router.patch("/updateTaskPlan", authMiddle.verifyToken, taskController.updateTaskPlan);
 router.post("/checkAppPermitState", authMiddle.verifyToken, taskController.checkAppPermitState);
+router.post("/sendEmail", authMiddle.verifyToken, taskController.sendEmail);
 module.exports = router;

@@ -413,6 +413,7 @@
         await checkStatus();
         await getFullTaskDetails(task_id);
         await checkAppPermitState();
+        originalPlan = oneTask.Task_plan;
         toggleShowTaskModal();
     }
 
@@ -513,6 +514,7 @@
 
     const handleReleaseButtonClick = async () => {
         await checkStatus();
+        await updatePlan();
         await updateNotes();
         await getFullTaskDetails(oneTask.Task_id);
         try {
@@ -578,6 +580,7 @@
         }
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
+        await sendEmail();
     }
 
     const handleGiveUpButtonClick = async () => {
@@ -628,6 +631,7 @@
 
     const handleRevertButtonClick = async () => {
         await checkStatus();
+        await updatePlan();
         await updateNotes();
         await getFullTaskDetails(oneTask.Task_id);
         try {
@@ -647,6 +651,35 @@
         }
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
+    }
+
+    const sendEmail = async () => {
+        try {
+            const response = await axios.post('http://localhost:3000/auth/sendEmail',
+                {
+                    task_id : oneTask.Task_id,
+                    task_name : oneTask.Task_name,
+                },
+                {
+                    withCredentials : true
+                }
+            )
+        } catch (error) {
+            console.log(error);
+            alert(error.response.data.message);
+        }
+    }
+
+    let disableButtons = false;
+    let originalPlan;
+    const onChange = () => {
+        console.log(originalPlan);
+        console.log(oneTask.Task_plan);
+        if (oneTask.Task_state === 'done' && originalPlan !== oneTask.Task_plan) {
+            disableButtons = true;
+        } else {
+            disableButtons = false;
+        }
     }
 </script>
 
@@ -1112,6 +1145,7 @@
                 <span>{username}</span>
                 <img src="https://via.placeholder.com/40" alt="user icon" class="user-icon" />
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
+                    <div><a href='/' on:click={checkStatus}>App List</a></div>
                     <div><a href='/user_profile' on:click={checkStatus}>View/Edit Profile</a></div>
                     {#if isAdmin}
                         <div><a href='/user_management' on:click={handleUserManagementClick}>User Management</a></div>
@@ -1270,16 +1304,29 @@
                         <p><strong>Description: </strong> {oneTask.Task_description}</p>
                         <p><strong>State: </strong> {oneTask.Task_state}</p>
                         <p><strong>Plan: </strong>
-                            <select bind:value={oneTask.Task_plan} disabled={usergroup.includes(permittedGroup) ? false : true}>
-                                <option value=null></option>
-                                {#each plans as plan}
-                                    {#if plan === oneTask.Task_plan}
-                                        <option selected>{plan}</option>
-                                    {:else}
-                                        <option>{plan}</option>
-                                    {/if}
-                                {/each}
-                            </select>
+                            {#if oneTask.Task_state === 'open' || oneTask.Task_state === 'done'}
+                                <select bind:value={oneTask.Task_plan} disabled={usergroup.includes(permittedGroup) ? false : true} on:change={onChange}>
+                                    <option value=null></option>
+                                    {#each plans as plan}
+                                        {#if plan === oneTask.Task_plan}
+                                            <option selected>{plan}</option>
+                                        {:else}
+                                            <option>{plan}</option>
+                                        {/if}
+                                    {/each}
+                                </select>
+                            {:else}
+                                <select bind:value={oneTask.Task_plan} disabled>
+                                    <option value=null></option>
+                                    {#each plans as plan}
+                                        {#if plan === oneTask.Task_plan}
+                                            <option selected>{plan}</option>
+                                        {:else}
+                                            <option>{plan}</option>
+                                        {/if}
+                                    {/each}
+                                </select>
+                            {/if}
                         </p>
                         <p><strong>Creator: </strong> {oneTask.Task_creator}</p>
                         <p><strong>Owner: </strong> {oneTask.Task_owner} </p>
@@ -1297,7 +1344,7 @@
                     </div>
                     <div class="task-actions">
                         <button class="close" on:click={handleCloseTaskClick}>Close</button>
-                        <button class="save-changes" on:click={() => handleSaveChangesClick(oneTask.Task_id)} disabled={usergroup.includes(permittedGroup) ? false : true}>Save Changes</button>
+                        <button class="save-changes" on:click={() => handleSaveChangesClick(oneTask.Task_id)} disabled={usergroup.includes(permittedGroup) ? disableButtons : true}>Save Changes</button>
                         {#if oneTask.Task_state === 'open'}
                             <button class="release" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleReleaseButtonClick}>Release</button>
                         {/if}
@@ -1309,7 +1356,7 @@
                             <button class="give-up" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleGiveUpButtonClick}>Give Up</button>
                         {/if}
                         {#if oneTask.Task_state === 'done'}
-                            <button class="approve" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleApproveButtonClick}>Approve</button>
+                            <button class="approve" disabled={usergroup.includes(permittedGroup) ? disableButtons : true} on:click={handleApproveButtonClick}>Approve</button>
                             <button class="revert" disabled={usergroup.includes(permittedGroup) ? false : true} on:click={handleRevertButtonClick}>Revert</button>
                         {/if}
                         

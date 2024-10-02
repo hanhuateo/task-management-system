@@ -624,6 +624,7 @@
                 <span>{username}</span>
                 <img src="https://via.placeholder.com/40" alt="user icon" class="user-icon" />
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
+                    <div><a href='/' on:click={checkStatus}>App List</a></div>
                     <div><a href='/user_profile' on:click={checkStatus}>View/Edit Profile</a></div>
                     {#if isAdmin}
                     <div><a href='/user_management' on:click={handleUserManagementClick}>User Management</a></div>
