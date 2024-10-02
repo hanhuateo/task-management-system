@@ -296,7 +296,7 @@
     const handleUpdatePlanDetailsSubmitClick = async () => {
         await checkStatus();
         await checkProjectManager();
-        if (user_status === 1 && isProjectManager === true) {
+        if (user_status === 1 && (isProjectManager || isUserProjectManager) === true) {
             await updatePlanDetails();
         }
         toggleShowOnePlanModal();
@@ -343,7 +343,7 @@
     const handleNewPlanSubmitClick = async () => {
         await checkStatus();
         await checkProjectManager();
-        if (user_status === 1 && isProjectManager === true) {
+        if (user_status === 1 && (isProjectManager || isUserProjectManager) === true) {
             await createNewPlan();
         }
         toggleShowNewPlanModal();
@@ -370,7 +370,7 @@
                     withCredentials : true
                 }
             );
-            // console.log(response);
+            console.log(response);
             tasks = response.data.value;
             // console.log(tasks);
         } catch (error) {
@@ -1232,10 +1232,10 @@
                         <input type="text" id="plan-name" name="plan-name" bind:value={editPlanDetails.Plan_MVP_name} disabled />
 
                         <label for="plan-start-date">Plan Start Date:</label>
-                        <input type="text" id="plan-start-date" name="plan-start-date" bind:value={editPlanDetails.Plan_startDate} />
+                        <input type="date" id="plan-start-date" name="plan-start-date" bind:value={editPlanDetails.Plan_startDate} />
 
                         <label for="plan-end-date">Plan End Date:</label>
-                        <input type="text" id="plan-end-date" name="plan-end-date" bind:value={editPlanDetails.Plan_endDate} />
+                        <input type="date" id="plan-end-date" name="plan-end-date" bind:value={editPlanDetails.Plan_endDate} />
 
                         <label for="plan-colour">Plan Colour:</label>
                         <input type="color" id="plan-colour" bind:value={editPlanDetails.Plan_colour} />
@@ -1263,10 +1263,10 @@
                         <input type="text" id="new-plan-name" name="new-plan-name" bind:value={newPlan.Plan_MVP_name} />
 
                         <label for="new-plan-start-date">Plan Start Date:</label>
-                        <input type="text" id="new-plan-start-date" name="new-plan-start-date" bind:value={newPlan.Plan_startDate} />
+                        <input type="date" id="new-plan-start-date" name="new-plan-start-date" bind:value={newPlan.Plan_startDate} />
 
                         <label for="new-plan-end-date">Plan End Date:</label>
-                        <input type="text" id="new-plan-end-date" name="new-plan-end-date" bind:value={newPlan.Plan_endDate} />
+                        <input type="date" id="new-plan-end-date" name="new-plan-end-date" bind:value={newPlan.Plan_endDate} />
 
                         <!-- Fix why the colour of this popup modal is not changing-->
                         <label for="new-plan-colour" >Plan Colour:</label>

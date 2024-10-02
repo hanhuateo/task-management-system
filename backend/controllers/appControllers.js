@@ -12,7 +12,7 @@ exports.createNewApp = async (req, res, next) => {
         })
     }
     
-    let is_project_lead = checkGroup(username, ["PL"]);
+    let is_project_lead = checkGroup(username, "%pl");
 
     if (!is_project_lead) {
         return res.status(500).json({
@@ -28,8 +28,20 @@ exports.createNewApp = async (req, res, next) => {
         } = req.body;
         // console.log(app_acronym);
         // console.log(app_rnumber);
-        // console.log(app_startdate);
-        // console.log(app_enddate);
+        console.log(app_startdate);
+        console.log(app_enddate);
+
+        const startdate = convertToDate(app_startdate);
+        const enddate = convertToDate(app_enddate);
+        console.log(startdate);
+        console.log(enddate);
+        if (startdate > enddate) {
+            return res.status(400).json({
+                message : "start date cannot be later than end date",
+                success : false
+            })
+        }
+
         if (app_rnumber <= 0) {
             return res.status(400).json({
                 message : "App RNumber has to be positive",
@@ -174,7 +186,7 @@ exports.updateApp = async (req, res, next) => {
         })
     }
 
-    let is_project_lead = checkGroup(username, ["PL"]);
+    let is_project_lead = checkGroup(username, "%pl");
 
     if (!is_project_lead) {
         return res.status(400).json({
@@ -242,10 +254,15 @@ exports.updateApp = async (req, res, next) => {
 async function checkGroup(username, groupname) {
 
     try {
+        // let sql1 = "SELECT gl.group_name " + 
+        //             "FROM user_group ug " + 
+        //             "JOIN group_list gl ON ug.group_id = gl.group_id " + 
+        //             "WHERE ug.user_name = ? AND gl.group_name IN (?)";
+
         let sql1 = "SELECT gl.group_name " + 
-                    "FROM user_group ug " + 
-                    "JOIN group_list gl ON ug.group_id = gl.group_id " + 
-                    "WHERE ug.user_name = ? AND gl.group_name IN (?)";
+        "FROM user_group ug " + 
+        "JOIN group_list gl on ug.group_id = gl.group_id " + 
+        "WHERE ug.user_name = ? AND gl.group_name LIKE ? ";
                     
         const [result] = await pool.query(sql1, [username, groupname]);
         
@@ -271,3 +288,8 @@ async function checkActive(username) {
         console.log(error);
     }
 };
+
+function convertToDate(dateString) {
+    const [day, month, year] = dateString.split('-');
+    return new Date(`${year}-${month}-${day}`)
+}

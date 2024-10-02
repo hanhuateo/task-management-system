@@ -11,7 +11,7 @@ exports.createPlan = async (req, res, next) => {
         })
     };
 
-    let is_project_manager = await checkGroup(username, ["PM"]);
+    let is_project_manager = await checkGroup(username, "%pm");
 
     if (!is_project_manager) {
         return res.status(400).json({
@@ -23,6 +23,16 @@ exports.createPlan = async (req, res, next) => {
     try {
         let {plan_mvp_name, plan_startdate, plan_enddate, 
             plan_app_acronym, plan_colour} = req.body;
+        
+        const startdate = convertToDate(plan_startdate);
+        const enddate = convertToDate(plan_enddate);
+
+        if (startdate > enddate) {
+            return res.status(400).json({
+                message : "start date cannot be later than end date",
+                success : false
+            })
+        }
 
         let create_plan_sql = "INSERT INTO plan (plan_mvp_name, plan_startdate, " +
                               "plan_enddate, plan_app_acronym, plan_colour) " +
@@ -100,7 +110,7 @@ exports.getPlanDetails = async (req, res, next) => {
         })
     };
 
-    let is_project_manager = await checkGroup(username, ["PM"]);
+    let is_project_manager = await checkGroup(username, '%pm');
 
     if (!is_project_manager) {
         return res.status(400).json({
@@ -143,7 +153,7 @@ exports.updatePlanDetails = async (req, res, next) => {
         })
     };
 
-    let is_project_manager = await checkGroup(username, ["PM"]);
+    let is_project_manager = await checkGroup(username, '%pm');
 
     if (!is_project_manager) {
         return res.status(400).json({
@@ -155,11 +165,26 @@ exports.updatePlanDetails = async (req, res, next) => {
     try {
         let {plan_mvp_name, plan_startdate, plan_enddate, 
             plan_app_acronym, plan_colour} = req.body;
-            console.log(plan_mvp_name);
-            console.log(plan_startdate);
-            console.log(plan_enddate);
-            console.log(plan_app_acronym);
-            console.log(plan_colour);
+
+        console.log(plan_mvp_name);
+        console.log(plan_startdate);
+        console.log(plan_enddate);
+        console.log(plan_app_acronym);
+        console.log(plan_colour);
+
+        const startdate = convertToDate(plan_startdate);
+        const enddate = convertToDate(plan_enddate);
+
+        console.log(startdate);
+        console.log(enddate);
+
+        if (startdate > enddate) {
+            return res.status(400).json({
+                message : "start date cannot be later than end date",
+                success : false
+            })
+        }
+        
         if (plan_startdate) {
             let update_plan_start_date_sql = "UPDATE plan SET plan_startdate = ? " + 
                                              "WHERE plan_mvp_name = ? AND plan_app_acronym = ?";
@@ -210,13 +235,18 @@ exports.updatePlanDetails = async (req, res, next) => {
 async function checkGroup(username, groupname) {
 
     try {
+        // let sql1 = "SELECT gl.group_name " + 
+        //             "FROM user_group ug " + 
+        //             "JOIN group_list gl ON ug.group_id = gl.group_id " + 
+        //             "WHERE ug.user_name = ? AND (gl.group_name IN (?) OR gl.group_name LIKE '%pl%') ";
+
         let sql1 = "SELECT gl.group_name " + 
                     "FROM user_group ug " + 
-                    "JOIN group_list gl ON ug.group_id = gl.group_id " + 
-                    "WHERE ug.user_name = ? AND gl.group_name IN (?)";
+                    "JOIN group_list gl on ug.group_id = gl.group_id " + 
+                    "WHERE ug.user_name = ? AND gl.group_name LIKE ? ";
                     
         const [result] = await pool.query(sql1, [username, groupname]);
-        
+        console.log(result);
         if (result.length === 0) {
             return false;
         }
@@ -239,4 +269,9 @@ async function checkActive(username) {
     } catch (error) {
         console.log(error);
     }
+}
+
+function convertToDate(dateString) {
+    const [year, month, day] = dateString.split('-');
+    return new Date(`${year}-${month}-${day}`)
 }

@@ -17,10 +17,10 @@ exports.getAllPartialTaskDetails = async (req, res, next) => {
         let {task_app_acronym} = req.body;
 		let get_all_partial_task_details_sql =
 			"SELECT t.task_id, t.task_name, t.task_description, t.task_owner, t.task_state, t.task_plan, p.plan_colour " +
-            "FROM task t LEFT JOIN plan p ON t.task_plan = p.plan_mvp_name WHERE task_app_acronym = ?;"
+            "FROM task t LEFT JOIN plan p ON t.task_app_acronym = p.plan_app_acronym AND  t.task_plan = p.plan_mvp_name WHERE task_app_acronym = ?"
 
 		const [value, field] = await pool.query(get_all_partial_task_details_sql, [task_app_acronym]);
-
+        console.log(value);
 		res.status(200).json({
 			message: "get all partial task details successful",
 			success: true,
@@ -98,6 +98,10 @@ exports.createTask = async (req, res, next) => {
 			task_app_acronym,
 		} = req.body;
 
+        if (task_description.length > 255) {
+            task_description = task_description.substring(0,255);
+        }
+
 		let check_group_sql =
 			"SELECT app_permit_create FROM application WHERE app_acronym = ?";
 
@@ -105,7 +109,7 @@ exports.createTask = async (req, res, next) => {
 			check_group_sql,
 			[task_app_acronym]
 		);
-
+        console.log(checkGroup_result);
 		let isAuthorizedGroups = await checkGroup(
 			username,
 			checkGroup_result[0].app_permit_create
