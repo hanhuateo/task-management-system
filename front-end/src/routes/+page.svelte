@@ -256,11 +256,30 @@
 
     function startEditing(index) {
         editingAppId.set(index);
-        // console.log(apps);
+        console.log(apps);
         updatedApp.app_acronym = apps[index].App_Acronym;
         updatedApp.app_rnumber = apps[index].App_Rnumber;
         updatedApp.app_startdate = apps[index].App_startDate;
         updatedApp.app_enddate = apps[index].App_endDate;
+        console.log(apps[index].App_Description);
+        if (apps[index].App_Description) {
+            updatedApp.app_description = apps[index].App_Description;
+        }
+        if (apps[index].App_permit_Create) {
+            updatedApp.app_permit_create = apps[index].App_permit_Create;
+        }
+        if (apps[index].App_permit_Doing) {
+            updatedApp.app_permit_doing = apps[index].App_permit_Doing;
+        }
+        if (apps[index].App_permit_Done) {
+            updatedApp.app_permit_done = apps[index].App_permit_Done;
+        }
+        if (apps[index].App_permit_toDoList) {
+            updatedApp.app_permit_todolist = apps[index].App_permit_toDoList;
+        }
+        if (apps[index].App_permit_Open) {
+            updatedApp.app_permit_open = apps[index].App_permit_Open;
+        }
     }
 
     const saveApp = async () => {
@@ -307,7 +326,7 @@
         await checkProjectLead();
         if (user_status === 1 && isProjectLead === true) {
             await saveApp();
-            toggleEditAppModal();
+            // toggleEditAppModal();
             await getFullAppDetails();
         }
     }

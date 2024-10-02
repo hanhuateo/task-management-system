@@ -26,20 +26,27 @@ exports.createNewApp = async (req, res, next) => {
             app_permit_create, app_permit_open, app_permit_todolist, app_permit_doing,
             app_permit_done
         } = req.body;
-
-        if (!app_acronym || !app_rnumber || !app_startdate || !app_enddate) {
-            return res.status(400).json({
-                message : "Please fill in the mandatory fields",
-                success : false
-            })
-        };
-
-        if (app_rnumber < 0) {
+        // console.log(app_acronym);
+        // console.log(app_rnumber);
+        // console.log(app_startdate);
+        // console.log(app_enddate);
+        if (app_rnumber <= 0) {
             return res.status(400).json({
                 message : "App RNumber has to be positive",
                 success : false
             })
         };
+
+        if (!app_acronym || !app_rnumber || !app_startdate || !app_enddate) {
+            return res.status(400).json({
+                message : "Please fill in the mandatory fields: Acronym, Rnumber, Start Date and End Date",
+                success : false
+            })
+        };
+
+        if (app_description.length > 255) {
+            app_description = app_description.substring(0,255);
+        }
 
         let check_duplicate_sql = "SELECT App_acronym FROM Application WHERE App_acronym = ?";
 
@@ -181,6 +188,9 @@ exports.updateApp = async (req, res, next) => {
             app_permit_todolist, app_permit_doing, app_permit_done} = req.body;
 
         if (app_description) {
+            if (app_description.length > 255) {
+                app_description = app_description.substring(0,255);
+            }
             let update_app_description_sql = "UPDATE application SET app_description = ? WHERE app_acronym = ?";
             const values = [app_description, app_acronym];
             const result = await pool.query(update_app_description_sql, values);
