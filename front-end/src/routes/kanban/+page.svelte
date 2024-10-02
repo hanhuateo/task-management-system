@@ -659,6 +659,7 @@
         }
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
+        disableButtons = false;
     }
 
     const sendEmail = async () => {
@@ -1114,6 +1115,10 @@
         margin-right: 8px;
     }
 
+    .task-details textarea { 
+        height: 200px;
+    }
+
     /* Task notes container taking up 3/4 width */
     .task-notes-container {
         flex: 1 1 80%;
@@ -1328,7 +1333,8 @@
                     <div class="task-details">
                         <p><strong>ID: </strong> {oneTask.Task_id}</p>
                         <p><strong>Name: </strong> {oneTask.Task_name}</p>
-                        <p><strong>Description: </strong> {oneTask.Task_description}</p>
+                        <p><strong>Description: </strong> </p>
+                        <textarea>{oneTask.Task_description}</textarea>
                         <p><strong>State: </strong> {oneTask.Task_state}</p>
                         <p><strong>Plan: </strong>
                             {#if oneTask.Task_state === 'open' || oneTask.Task_state === 'done'}
