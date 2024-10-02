@@ -26,7 +26,7 @@
                         withCredentials: true
                     }
                 )
-            console.log(user_response);
+            // console.log(user_response);
             username = user_response.data.val[0].user_name;
             user_status = user_response.data.val[0].active;
             current_email = user_response.data.val[0].email;
@@ -124,7 +124,7 @@
             const response = await axios.get('http://localhost:3000/auth/logout', {
                 withCredentials: true
             });
-            console.log(response);
+            // console.log(response);
             goto('http://localhost:5173/login');
         } catch (error) {
             console.log(error);

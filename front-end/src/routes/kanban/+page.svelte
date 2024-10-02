@@ -261,7 +261,7 @@
                     withCredentials : true
                 }
             )
-            console.log(response);
+            // console.log(response);
             editPlanDetails = response.data.result[0];
             editPlanDetails.Plan_colour = "#" + editPlanDetails.Plan_colour;
             console.log(editPlanDetails);
@@ -427,9 +427,9 @@
 
     const updateNotes = async () => {
         try {
-            console.log(oneTask.Task_id);
-            console.log(oneTask.Task_app_Acronym);
-            console.log(additionalNotes);
+            // console.log(oneTask.Task_id);
+            // console.log(oneTask.Task_app_Acronym);
+            // console.log(additionalNotes);
             const response = await axios.patch('http://localhost:3000/auth/updateTaskNotes',
                 {
                     task_id : oneTask.Task_id,
@@ -492,7 +492,7 @@
 
             // console.log(response);
             permittedGroup = response.data.result;
-            console.log(permittedGroup);
+            // console.log(permittedGroup);
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
@@ -510,7 +510,7 @@
             for (let i = 0; i < response.data.result.length; i++) {
                 usergroup.push(response.data.result[i].Group_name);
             }
-            console.log(usergroup);
+            // console.log(usergroup);
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);
@@ -678,8 +678,8 @@
     let disableButtons = false;
     let originalPlan;
     const onChange = () => {
-        console.log(originalPlan);
-        console.log(oneTask.Task_plan);
+        // console.log(originalPlan);
+        // console.log(oneTask.Task_plan);
         if (oneTask.Task_state === 'done' && originalPlan !== oneTask.Task_plan) {
             disableButtons = true;
         } else {

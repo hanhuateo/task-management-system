@@ -20,7 +20,7 @@ exports.getAllPartialTaskDetails = async (req, res, next) => {
             "FROM task t LEFT JOIN plan p ON t.task_app_acronym = p.plan_app_acronym AND  t.task_plan = p.plan_mvp_name WHERE task_app_acronym = ?"
 
 		const [value, field] = await pool.query(get_all_partial_task_details_sql, [task_app_acronym]);
-        console.log(value);
+        // console.log(value);
 		res.status(200).json({
 			message: "get all partial task details successful",
 			success: true,
@@ -109,7 +109,7 @@ exports.createTask = async (req, res, next) => {
 			check_group_sql,
 			[task_app_acronym]
 		);
-        console.log(checkGroup_result);
+        // console.log(checkGroup_result);
 		let isAuthorizedGroups = await checkGroup(
 			username,
 			checkGroup_result[0].app_permit_create
@@ -133,7 +133,7 @@ exports.createTask = async (req, res, next) => {
 			appRNumber_sql,
 			[task_app_acronym]
 		);
-        console.log(appRNumber_result);
+        // console.log(appRNumber_result);
 		let increment_appRNumber_sql =
 			"UPDATE application SET App_Rnumber = ? WHERE app_acronym = ?";
 
@@ -699,10 +699,10 @@ exports.updateTaskNotes = async (req, res, next) => {
 	}
 	try {
 		let { task_id, task_app_acronym, task_notes, task_state } = req.body;
-        console.log(task_notes);
-        console.log(task_app_acronym);
-        console.log(task_id);
-        console.log('updating task notes');
+        // console.log(task_notes);
+        // console.log(task_app_acronym);
+        // console.log(task_id);
+        // console.log('updating task notes');
 
 		if (task_notes) {
             task_notes = task_notes + " \nUpdated by: " + username + " | On: " + current_datetime + " | State: " + task_state + " \n##########################################################################################" + "␟";
@@ -781,7 +781,7 @@ exports.checkAppPermitState = async (req, res, next) => {
         if (task_state === 'create') {
             let sql = "SELECT app_permit_create FROM application WHERE app_acronym = ?";
             const [response, field] = await pool.query(sql, [app_acronym]);
-            console.log(response[0].app_permit_create);
+            // console.log(response[0].app_permit_create);
             let result = response[0].app_permit_create;
             return res.status(200).json({
                 message : "Successfully check app permit state",
@@ -793,7 +793,7 @@ exports.checkAppPermitState = async (req, res, next) => {
         if (task_state === 'open') {
             let sql = "SELECT app_permit_open FROM application WHERE app_acronym = ?";
             const [response, field] = await pool.query(sql, [app_acronym]);
-            console.log(response[0].app_permit_open);
+            // console.log(response[0].app_permit_open);
             let result = response[0].app_permit_open;
             return res.status(200).json({
                 message : "Successfully check app permit state",
@@ -805,7 +805,7 @@ exports.checkAppPermitState = async (req, res, next) => {
         if (task_state === 'todo') {
             let sql = "SELECT app_permit_todolist FROM application WHERE app_acronym = ?";
             const [response, field] = await pool.query(sql, [app_acronym]);
-            console.log(response[0].app_permit_todolist);
+            // console.log(response[0].app_permit_todolist);
             let result = response[0].app_permit_todolist;
             return res.status(200).json({
                 message : "Successfully check app permit state",
@@ -817,7 +817,7 @@ exports.checkAppPermitState = async (req, res, next) => {
         if (task_state === 'doing') {
             let sql = "SELECT app_permit_doing FROM application WHERE app_acronym = ?";
             const [response, field] = await pool.query(sql, [app_acronym]);
-            console.log(response[0].app_permit_doing);
+            // console.log(response[0].app_permit_doing);
             let result = response[0].app_permit_doing;
             return res.status(200).json({
                 message : "Successfully check app permit state",
@@ -829,7 +829,7 @@ exports.checkAppPermitState = async (req, res, next) => {
         if (task_state === 'done') {
             let sql = "SELECT app_permit_done FROM application WHERE app_acronym = ?";
             const [response, field] = await pool.query(sql, [app_acronym]);
-            console.log(response[0].app_permit_done);
+            // console.log(response[0].app_permit_done);
             let result = response[0].app_permit_done;
             return res.status(200).json({
                 message : "Successfully check app permit state",

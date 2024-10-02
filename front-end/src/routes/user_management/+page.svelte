@@ -140,7 +140,7 @@
                     withCredentials: true
                 }
             )
-            console.log(response);
+            // console.log(response);
         } catch (error) {
             console.log(error);
             alert(error.response.data.message);

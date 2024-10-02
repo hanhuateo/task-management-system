@@ -28,13 +28,13 @@ exports.createNewApp = async (req, res, next) => {
         } = req.body;
         // console.log(app_acronym);
         // console.log(app_rnumber);
-        console.log(app_startdate);
-        console.log(app_enddate);
+        // console.log(app_startdate);
+        // console.log(app_enddate);
 
         const startdate = convertToDate(app_startdate);
         const enddate = convertToDate(app_enddate);
-        console.log(startdate);
-        console.log(enddate);
+        // console.log(startdate);
+        // console.log(enddate);
         if (startdate > enddate) {
             return res.status(400).json({
                 message : "start date cannot be later than end date",

@@ -151,7 +151,7 @@ exports.updateUserEmail = async (req, res, next) => {
 
     let sql = "UPDATE user SET email = ? WHERE User_name = ?";
     const [result] = await pool.execute(sql, values);
-    console.log(result);
+    // console.log(result);
     res.status(200).json({
       message: "User email has been updated",
       success: true,
@@ -194,7 +194,7 @@ exports.updateUserPassword = async (req, res, next) => {
 
     const values = [hashed, username];
     const [result] = await pool.execute(sql, values);
-    console.log(result);
+    // console.log(result);
     res.status(200).json({
       message: "User password has been updated",
       success: true,
@@ -224,7 +224,7 @@ exports.adminUpdateUserStatus = async (req, res, next) => {
 
     let sql = "UPDATE user SET active = ? WHERE User_name = ?";
     const [result] = await pool.execute(sql, values);
-    console.log(result);
+    // console.log(result);
     res.status(200).json({
       message: "User status has been changed",
       result,
@@ -252,7 +252,7 @@ exports.adminUpdateUserGroup = async (req, res, next) => {
     // console.log(typeof group_name);
     group_name = JSON.stringify(group_name);
     // console.log(typeof group_name);
-    console.log("group_name is : " + group_name);
+    // console.log("group_name is : " + group_name);
     // let sql = "UPDATE user_group SET Group_id = ? WHERE User_name = ?";
     // const [result] = await pool.execute(sql, values);
     // console.log(result);
@@ -261,11 +261,11 @@ exports.adminUpdateUserGroup = async (req, res, next) => {
     const group_ids = group_mapping
         .filter(group => group_name.includes(group.Group_name))  // Find matching Group_name
         .map(group => group.Group_id);  // Extract the corresponding Group_id
-    console.log(group_ids);
-    console.log(group_mapping);
+    // console.log(group_ids);
+    // console.log(group_mapping);
     let delete_sql = "DELETE FROM user_group WHERE User_name = ?";
     const [delete_result] = await pool.execute(delete_sql, [username]);
-    console.log(delete_result);
+    // console.log(delete_result);
     
     let insert_sql = "INSERT INTO user_group (User_name, Group_id) VALUES (?, ?)";
     for (let i = 0; i < group_ids.length; i++) {
@@ -313,7 +313,7 @@ exports.adminUpdateUserEmail = async (req, res, next) => {
 
     let sql = "UPDATE user SET email = ? WHERE User_name = ?";
     const [result] = await pool.execute(sql, values);
-    console.log(result);
+    // console.log(result);
     res.status(200).json({
       message: "User email has been updated",
       success: true,
@@ -353,7 +353,7 @@ exports.adminUpdateUserPassword = async (req, res, next) => {
 
     const values = [hashed, username];
     const [result] = await pool.execute(sql, values);
-    console.log(result);
+    // console.log(result);
     res.status(200).json({
       message: "User password has been updated",
       success: true,

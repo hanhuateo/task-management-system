@@ -166,17 +166,17 @@ exports.updatePlanDetails = async (req, res, next) => {
         let {plan_mvp_name, plan_startdate, plan_enddate, 
             plan_app_acronym, plan_colour} = req.body;
 
-        console.log(plan_mvp_name);
-        console.log(plan_startdate);
-        console.log(plan_enddate);
-        console.log(plan_app_acronym);
-        console.log(plan_colour);
+        // console.log(plan_mvp_name);
+        // console.log(plan_startdate);
+        // console.log(plan_enddate);
+        // console.log(plan_app_acronym);
+        // console.log(plan_colour);
 
         const startdate = convertToDate(plan_startdate);
         const enddate = convertToDate(plan_enddate);
 
-        console.log(startdate);
-        console.log(enddate);
+        // console.log(startdate);
+        // console.log(enddate);
 
         if (startdate > enddate) {
             return res.status(400).json({
@@ -246,7 +246,7 @@ async function checkGroup(username, groupname) {
                     "WHERE ug.user_name = ? AND gl.group_name LIKE ? ";
                     
         const [result] = await pool.query(sql1, [username, groupname]);
-        console.log(result);
+        // console.log(result);
         if (result.length === 0) {
             return false;
         }
