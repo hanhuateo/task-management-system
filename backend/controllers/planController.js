@@ -27,6 +27,12 @@ exports.createPlan = async (req, res, next) => {
         const startdate = convertToDate(plan_startdate);
         const enddate = convertToDate(plan_enddate);
 
+        if (plan_mvp_name.length > 64) {
+            return res.status(400).json({
+                message : "Plan name must be 1-64 characters"
+            })
+        }
+
         if (startdate > enddate) {
             return res.status(400).json({
                 message : "start date cannot be later than end date",

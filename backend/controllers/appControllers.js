@@ -49,6 +49,14 @@ exports.createNewApp = async (req, res, next) => {
             })
         };
 
+        const appAcronymRegex = /^[a-zA-Z0-9_]{1,64}$/;
+
+        if (!appAcronymRegex.test(app_acronym)){
+            return res.status(400).json({
+                message : "Acronym must be 1-64 chars, only containing letters and underscore"
+            })
+        }
+
         if (!app_acronym || !app_rnumber || !app_startdate || !app_enddate) {
             return res.status(400).json({
                 message : "Please fill in the mandatory fields: Acronym, Rnumber, Start Date and End Date",

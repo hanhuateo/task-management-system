@@ -98,6 +98,12 @@ exports.createTask = async (req, res, next) => {
 			task_app_acronym,
 		} = req.body;
 
+        if (task_name > 64) {
+            return res.status(400).json({
+                message : "task name has must be 1-64 characters"
+            })
+        }
+        
         if (task_description.length > 255) {
             task_description = task_description.substring(0,255);
         }
