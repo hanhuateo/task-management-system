@@ -542,6 +542,7 @@
         }
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
+        await getAllPartialTaskDetails();
     }
 
     const handleTakeOnButtonClick = async () => {
@@ -565,6 +566,7 @@
         }
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
+        await getAllPartialTaskDetails();
     }
 
     const handleReviewButtonClick = async () => {
@@ -589,6 +591,7 @@
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
         await sendEmail();
+        await getAllPartialTaskDetails();
     }
 
     const handleGiveUpButtonClick = async () => {
@@ -612,6 +615,7 @@
         }
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
+        await getAllPartialTaskDetails();
     }
 
     const handleApproveButtonClick = async () => {
@@ -635,6 +639,7 @@
         }
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
+        await getAllPartialTaskDetails();
     }
 
     const handleRevertButtonClick = async () => {
@@ -660,6 +665,7 @@
         await getFullTaskDetails(oneTask.Task_id);
         await checkAppPermitState();
         disableButtons = false;
+        await getAllPartialTaskDetails();
     }
 
     const sendEmail = async () => {
@@ -1346,7 +1352,7 @@
             <div class="kanban-column">
                 <h3>{status}</h3>
                 {#each tasks.filter(task => task.task_state === status) as task, index}
-                    <div class="task-card {task.task_state.toLowerCase()}" style="border-left-color: #{task.plan_colour}">
+                    <div class="task-card {task.task_state.toLowerCase()}" style="border-left-color: #{task.plan_colour ? task.plan_colour : '000000'}">
                         <h4>{task.task_name}</h4>
                         <p>{task.task_description}</p>
                         <p class="task-owner">{task.task_owner}</p>
