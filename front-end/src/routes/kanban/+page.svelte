@@ -960,6 +960,20 @@
         margin: 0;
     }
 
+    .name-description-plan-notes-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .name-plan-container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .name-description-plan-notes-container textarea {
+        height: 130px;
+    }
+
     .plan-dropdown {
         display: none;
         position: absolute;
@@ -1216,7 +1230,7 @@
 
                 <div class="modal-body">
                     <form>
-                        <div class="name-description-container">
+                        <!-- <div class="name-description-container">
                             <label for="task-name">Name:</label>
                             <input type="text" id="task-name" name="task-name" bind:value={newTask.task_name}/>
 
@@ -1231,6 +1245,24 @@
                                     <option value={plan} >{plan}</option>
                                 {/each}
                             </select>
+
+                            <label for="task-notes">Notes:</label>
+                            <textarea id="task-notes" name="task-notes" bind:value={newTask.task_notes}></textarea>
+                        </div> -->
+                        <div class="name-description-plan-notes-container">
+                            <div class="name-plan-container">
+                                <label for="task-name">Name:</label>
+                                <input type="text" id="task-name" name="task-name" bind:value={newTask.task_name}/>
+                                <label for="task-plan">Plan:</label>
+                                <select id="task-plan" name="task-plan" bind:value={newTask.task_plan}>
+                                    <option value=""></option>
+                                    {#each plans as plan}
+                                        <option value={plan} >{plan}</option>
+                                    {/each}
+                                </select>
+                            </div>
+                            <label for="task-description">Description:</label>
+                            <textarea id="task-description" name="task-description" bind:value={newTask.task_description}></textarea>
 
                             <label for="task-notes">Notes:</label>
                             <textarea id="task-notes" name="task-notes" bind:value={newTask.task_notes}></textarea>
