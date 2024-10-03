@@ -714,7 +714,7 @@
                             <input type="text" id="app-acronym" name="app-acronym" bind:value={newApp.app_acronym}/>
 
                             <label for="app-description">Description: </label>
-                            <textarea id="app-description" name="app-description" bind:value={newApp.app_description}></textarea>
+                            <textarea id="app-description" name="app-description" bind:value={newApp.app_description} maxlength="255"></textarea>
                         </div>
                         <label for="app-rnumber">R Number: </label>
                         <input type="text" id="app-rnumber" name="app-rnumber" bind:value={newApp.app_rnumber}/>

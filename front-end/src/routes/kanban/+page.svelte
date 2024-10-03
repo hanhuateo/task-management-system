@@ -1268,7 +1268,7 @@
                                 </select>
                             </div>
                             <label for="task-description">Description:</label>
-                            <textarea id="task-description" name="task-description" bind:value={newTask.task_description}></textarea>
+                            <textarea id="task-description" name="task-description" bind:value={newTask.task_description} maxlength="255"></textarea>
 
                             <label for="task-notes">Notes:</label>
                             <textarea id="task-notes" name="task-notes" bind:value={newTask.task_notes}></textarea>
