@@ -63,5 +63,5 @@ router.post("/sendEmail", authMiddle.verifyToken, taskController.sendEmail);
 // assignment 3 routes
 router.post("/createTask3", createTaskController.createTask);
 router.post("/getTaskByState3", getTaskByStateController.getTaskByState);
-// router.post("/promoteTask2Done3", authMiddle.verifyToken, promoteTask2DoneController.promoteTask2Done);
+router.post("/promoteTask2Done3", promoteTask2DoneController.promoteTask2Done);
 module.exports = router;
