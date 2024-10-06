@@ -133,21 +133,21 @@ exports.createTask = async (req, res, next) => {
 
         const [app_permit_create] = await pool.query("SELECT app_permit_create FROM application WHERE app_acronym = ?", [task_app_acronym]);
 
-        console.log(app_permit_create); // [ { app_permit_create: 'farm_pl' } ]
+        //console.log(app_permit_create); // [ { app_permit_create: 'farm_pl' } ]
 
         const permitted_groups = app_permit_create[0].app_permit_create;
 
         const isPermitted = await checkGroup(username, permitted_groups);
 
         if (!isPermitted) {
-            console.log('not permitted');
+            // console.log('not permitted');
             return res.status(400).json({code: code.auth03});
         }
 
         if (task_plan) {
             const [task_plan_exist] = await pool.execute("SELECT plan_mvp_name FROM plan WHERE plan_mvp_name = ? AND plan_app_acronym = ?", [task_plan, task_app_acronym]);
 
-            console.log(task_plan_exist) // [ { plan_mvp_name: 'sprint 1' } ]
+            // console.log(task_plan_exist) // [ { plan_mvp_name: 'sprint 1' } ]
 
             if (!task_plan_exist) {
                 return res.status(400).json({code: code.payload02});
@@ -155,7 +155,7 @@ exports.createTask = async (req, res, next) => {
         }
 
         const [app_rnumber] = await pool.query("SELECT app_rnumber FROM application WHERE app_acronym = ?", [task_app_acronym]);
-        console.log(app_rnumber); // [ { app_rnumber: 23 } ]
+        //console.log(app_rnumber); // [ { app_rnumber: 23 } ]
         const rnumber = app_rnumber[0].app_rnumber;
         const task_id = `${task_app_acronym}_${rnumber}`;
 
