@@ -762,10 +762,10 @@ exports.updateTaskPlan = async (req, res, next) => {
 
     try {
         let { task_id, task_app_acronym, task_plan } = req.body;
-
+        console.log(task_plan);
         let updateTaskPlan_sql = "UPDATE task SET task_plan = ? WHERE task_id = ? AND task_app_acronym = ?"
 
-        let [updateTaskPlan_result, updateTaskPlan_field] = await pool.execute(updateTaskPlan_sql, [task_plan, task_id, task_app_acronym]);
+        let [updateTaskPlan_result, updateTaskPlan_field] = await pool.query(updateTaskPlan_sql, [task_plan || null, task_id, task_app_acronym]);
 
         return res.status(200).json({
             message : "successfully updated task plan",

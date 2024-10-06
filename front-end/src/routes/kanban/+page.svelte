@@ -18,11 +18,12 @@
     let usergroup = []
     // $:currentApp = $appData;
     // $:{console.log(currentApp)};
-    let currentApp;
+    let currentApp = $appData;
+    console.log(currentApp);
 
-    appData.subscribe(value => {
-        currentApp = value;
-    });
+    // appData.subscribe(value => {
+    //     currentApp = value;
+    // });
 
     onMount(async () => {
         // console.log(currentApp);
@@ -349,7 +350,7 @@
         if (user_status === 1 && isProjectManager === true) {
             await createNewPlan();
         }
-        toggleShowNewPlanModal();
+        // toggleShowNewPlanModal();
     }
 
     // let tasks = [
@@ -415,6 +416,7 @@
     const handleCloseTaskClick = async () => {
         await getAllPartialTaskDetails();
         toggleShowTaskModal();
+        disableButtons = false;
     }
     
     const handleViewTaskClick = async (task_id) => {
@@ -458,7 +460,7 @@
                 {
                     task_id : oneTask.Task_id,
                     task_app_acronym : oneTask.Task_app_Acronym,
-                    task_plan : oneTask.Task_plan
+                    task_plan : oneTask.Task_plan || null
                 },
                 {
                     withCredentials : true
@@ -688,8 +690,8 @@
     let disableButtons = false;
     let originalPlan;
     const onChange = () => {
-        // console.log(originalPlan);
-        // console.log(oneTask.Task_plan);
+        console.log(originalPlan);
+        console.log(oneTask.Task_plan);
         if (oneTask.Task_state === 'done' && originalPlan !== oneTask.Task_plan) {
             disableButtons = true;
         } else {
@@ -714,6 +716,11 @@
             console.log(error);
             alert(error.response.data.message);
         }
+    }
+
+    const handleAppListClick = async () => {
+        await checkStatus()
+        $appData = null;
     }
 </script>
 
@@ -1186,6 +1193,7 @@
     }
 </style>
 
+
 <div class="container">
      <!-- Header Section -->
     <div class="header">
@@ -1197,7 +1205,7 @@
                 <span>{username}</span>
                 <img src="https://via.placeholder.com/40" alt="user icon" class="user-icon" />
                 <div class="dropdown" class:dropdown-visible={showDropdown}>
-                    <div><a href='/' on:click={checkStatus}>App List</a></div>
+                    <div><a href='/' on:click={handleAppListClick}>App List</a></div>
                     <div><a href='/user_profile' on:click={checkStatus}>View/Edit Profile</a></div>
                     {#if isAdmin}
                         <div><a href='/user_management' on:click={handleUserManagementClick}>User Management</a></div>
@@ -1354,7 +1362,7 @@
                 {#each tasks.filter(task => task.task_state === status) as task, index}
                     <div class="task-card {task.task_state.toLowerCase()}" style="border-left-color: #{task.plan_colour ? task.plan_colour : '000000'}">
                         <h4>{task.task_name}</h4>
-                        <p>{task.task_description}</p>
+                        <p>{task.task_description ? task.task_description : '-'}</p>
                         <p class="task-owner">{task.task_owner}</p>
                         <div class="view-task"><button class="view-task-btn" on:click={() => handleViewTaskClick(task.task_id)}>View</button></div>
                     </div>
@@ -1372,12 +1380,12 @@
                         <p><strong>ID: </strong> {oneTask.Task_id}</p>
                         <p><strong>Name: </strong> {oneTask.Task_name}</p>
                         <p><strong>Description: </strong> </p>
-                        <textarea>{oneTask.Task_description}</textarea>
+                        <textarea disabled>{oneTask.Task_description}</textarea>
                         <p><strong>State: </strong> {oneTask.Task_state}</p>
                         <p><strong>Plan: </strong>
                             {#if oneTask.Task_state === 'open' || oneTask.Task_state === 'done'}
                                 <select bind:value={oneTask.Task_plan} disabled={usergroup.includes(permittedGroup) ? false : true} on:change={onChange}>
-                                    <option value=null></option>
+                                    <option value={null}></option>
                                     {#each plans as plan}
                                         {#if plan === oneTask.Task_plan}
                                             <option selected>{plan}</option>

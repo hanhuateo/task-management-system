@@ -215,7 +215,7 @@
         }
         projectLeadCreateAppFlag = false;
         await getFullAppDetails();
-        toggleCreateAppModal();
+        // toggleCreateAppModal();
     }
 
     let groups = [];
@@ -339,9 +339,12 @@
         toggleEditAppModal();
     }
 
-    const handleViewAppClick = async (index) => {
+    const handleViewAppClick = async (App_Acronym) => {
         await checkStatus();
-        appData.set(apps[index].App_Acronym);
+        $appData = App_Acronym;
+        // appData.set(App_Acronym);
+        console.log($appData);
+        goto('/kanban');
     }
 </script>
   
@@ -789,7 +792,7 @@
                 <div class="details">
                     <div class="number">{app.App_Rnumber}</div>
                     <div class="app-actions">
-                        <a href="/kanban" class="app-view" on:click={() => handleViewAppClick(index)}>View</a>
+                        <button class="app-view" on:click={() => handleViewAppClick(app.App_Acronym)}>View</button>
                          <!-- <button class="app-view">View</button> -->
                         {#if isProjectLead}
                             <button class="app-edit" on:click={() => handleToggleEditAppModalClick(index)}>Edit</button>
@@ -872,7 +875,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="close-btn" on:click|preventDefault={handleCancelEditingAppClick}>Close</button>
-                            <button type="submit" class="submit-create-app-btn" on:click|preventDefault={handleSubmitEditAppClick}>Edit App</button>
+                            <button type="submit" class="submit-create-app-btn" on:click|preventDefault={handleSubmitEditAppClick}>Save Changes</button>
                         </div>
                     </form>
                 </div>

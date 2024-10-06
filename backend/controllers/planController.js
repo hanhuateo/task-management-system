@@ -23,7 +23,11 @@ exports.createPlan = async (req, res, next) => {
     try {
         let {plan_mvp_name, plan_startdate, plan_enddate, 
             plan_app_acronym, plan_colour} = req.body;
-        
+        console.log(plan_mvp_name);
+        console.log(plan_startdate);
+        console.log(plan_enddate);
+        console.log(plan_app_acronym);
+        console.log(plan_colour);
         const startdate = convertToDate(plan_startdate);
         const enddate = convertToDate(plan_enddate);
 
