@@ -6,6 +6,9 @@ const groupController = require('../controllers/groupControllers');
 const appController = require('../controllers/appControllers');
 const taskController = require('../controllers/taskController');
 const planController = require('../controllers/planController');
+const createTaskController = require('../controllers/createTaskController');
+const getTaskByStateController = require('../controllers/getTaskByStateController');
+const promoteTask2DoneController = require('../controllers/promoteTask2DoneController');
 const authMiddle = require('../middlewares/authMiddle');
 
 // login/logout routes
@@ -56,4 +59,9 @@ router.patch("/updateTaskNotes", authMiddle.verifyToken, taskController.updateTa
 router.patch("/updateTaskPlan", authMiddle.verifyToken, taskController.updateTaskPlan);
 router.post("/checkAppPermitState", authMiddle.verifyToken, taskController.checkAppPermitState);
 router.post("/sendEmail", authMiddle.verifyToken, taskController.sendEmail);
+
+// assignment 3 routes
+router.post("/createTask3", createTaskController.createTask);
+// router.post("/getTaskByState3", authMiddle.verifyToken, getTaskByStateController.getTaskByState);
+// router.post("/promoteTask2Done3", authMiddle.verifyToken, promoteTask2DoneController.promoteTask2Done);
 module.exports = router;
