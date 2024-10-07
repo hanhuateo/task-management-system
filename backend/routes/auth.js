@@ -47,8 +47,8 @@ router.patch("/updatePlanDetails", authMiddle.verifyToken, planController.update
 // task routes
 router.post("/getAllPartialTaskDetails", authMiddle.verifyToken, taskController.getAllPartialTaskDetails);
 router.post("/getFullTaskDetails", authMiddle.verifyToken, taskController.getFullTaskDetails);
-router.post("/createTask", authMiddle.verifyToken, taskController.createTask);
-router.get("/getTaskByState", authMiddle.verifyToken, taskController.getTaskByState);
+// router.post("/createTask", authMiddle.verifyToken, taskController.createTask);
+// router.get("/getTaskByState", authMiddle.verifyToken, taskController.getTaskByState);
 router.patch("/promoteTaskOpen2Todo", authMiddle.verifyToken, taskController.promoteTaskOpen2Todo);
 router.patch("/promoteTaskTodo2Doing", authMiddle.verifyToken, taskController.promoteTaskTodo2Doing);
 router.patch("/promoteTaskDoing2Done", authMiddle.verifyToken, taskController.promoteTaskDoing2Done);
@@ -61,7 +61,7 @@ router.post("/checkAppPermitState", authMiddle.verifyToken, taskController.check
 router.post("/sendEmail", authMiddle.verifyToken, taskController.sendEmail);
 
 // assignment 3 routes
-router.post("/createTask3", createTaskController.createTask);
-router.post("/getTaskByState3", getTaskByStateController.getTaskByState);
-router.post("/promoteTask2Done3", promoteTask2DoneController.promoteTask2Done);
+router.post("/createTask", createTaskController.createTask);
+router.post("/getTaskByState", getTaskByStateController.getTaskByState);
+router.patch("/promoteTask2Done", promoteTask2DoneController.promoteTask2Done);
 module.exports = router;

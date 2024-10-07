@@ -16,23 +16,27 @@ const code = {
 
 exports.getTaskByState = async (req, res, next) => {
 
-    if (req.originalUrl !== "/auth/getTaskByState3") {
+    if (req.originalUrl !== "/api/task/getTaskByState") {
         return res.status(400).json({ code: code.url01 });
     }
 
     const {
         username,
         password,
-        task_app_acronym,
+        task_appAcronym,
         task_state
     } = req.body;
 
-    if (!username || !password || !task_app_acronym || !task_state) {
+    if (!username || !password || !task_appAcronym || !task_state) {
         return res.status(400).json({ code: code.payload01}); // invalid credentials
     }
 
-    if (task_app_acronym && task_app_acronym.lengh > 64) {
-        return res.status(400).json({ code: code.payload02}); // task_app_acronym payload value too long
+    if (password.length > 10) {
+        return res.status(400).json({code: code.auth01});
+    }
+
+    if (task_appAcronym && task_appAcronym.length > 64) {
+        return res.status(400).json({ code: code.payload02}); // task_appAcronym payload value too long
     }
 
     if (task_state && !(['open', 'todo', 'doing', 'done', 'close'].includes(task_state))) {
@@ -42,7 +46,7 @@ exports.getTaskByState = async (req, res, next) => {
     try {
         const [user] = await pool.execute("SELECT * FROM user WHERE user_name = ?", [username]);
 
-                // console.log(user); 
+        // console.log(user); 
         /* [
             {
               user_name: 'PL1',
@@ -55,7 +59,7 @@ exports.getTaskByState = async (req, res, next) => {
         
         if (!user || !(await bcrypt.compare(password, user[0].password))) {
             return res.status (400).json({
-                code: code.auth01, // invalud credentials
+                code: code.auth01, // invalid credentials
             });
         }
 
@@ -65,12 +69,12 @@ exports.getTaskByState = async (req, res, next) => {
             })
         }
 
-        const [acronym] = await pool.execute("SELECT app_acronym FROM application WHERE app_acronym = ?", [task_app_acronym]);
+        const [acronym] = await pool.execute("SELECT app_acronym FROM application WHERE app_acronym = ?", [task_appAcronym]);
 
         // console.log(acronym);
         // [ { app_acronym: 'Zoo' } ]
 
-        if (!acronym) {
+        if (acronym.length === 0) {
             return res.status(400).json({code: code.payload02}) // invalid app_acronym value in payload
         }
 
@@ -78,7 +82,7 @@ exports.getTaskByState = async (req, res, next) => {
             `SELECT t.task_id, t.task_name, t.task_description, t.task_owner, t.task_state, t.task_plan, p.plan_colour
             FROM task t 
             LEFT JOIN plan p ON t.task_app_acronym = p.plan_app_acronym AND  t.task_plan = p.plan_mvp_name 
-            WHERE t.task_state = ? AND t.task_app_acronym = ?`, [task_state, task_app_acronym]);
+            WHERE t.task_state = ? AND t.task_app_acronym = ?`, [task_state, task_appAcronym]);
 
         return res.status(201).json({
             data: result,

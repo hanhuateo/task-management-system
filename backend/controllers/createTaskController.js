@@ -61,12 +61,13 @@ const code = {
 	payload04: "P004", // task state error
     url01: "U001", // url is incorrect
     success01: "S001", // no errors, successful
-    error01: "E001" // general error
+    error01: "E001", // general error
+    trans01: "T001" // duplicate task id
 };
 
 exports.createTask = async (req, res, next) => {
 
-    if (req.originalUrl !== "/auth/createTask3") {
+    if (req.originalUrl !== "/api/task/createTask") {
         return res.status(400).json({ code: code.url01 });
     }
     
@@ -76,22 +77,26 @@ exports.createTask = async (req, res, next) => {
 		task_name,
 		task_description,
 		task_plan,
-		task_app_acronym,
+		task_appAcronym,
 	} = req.body;
 
     let {task_notes} = req.body;
 
-    if (!username || !password || !task_name || !task_app_acronym) {
+    if (!username || !password || !task_name || !task_appAcronym) {
         return res.status(400).json({ code: code.payload01}); // missing mandatory keys
     }
 
-    if (task_name && task_name.length > 64) {
-        return res.status(400).json({ code: code.payload02}); // task_name too long
+    if (password.length > 10) {
+        return res.status(400).json({code: code.auth01});
     }
 
-    if (task_app_acronym && task_app_acronym.lengh > 64) {
-        return res.status(400).json({ code: code.payload02}); // task_app_acronym too long
+    if (task_name && task_name.length > 64) {
+        return res.status(400).json({ code: code.payload03}); // task_name too long
     }
+
+    // if (task_appAcronym && task_appAcronym.length > 64) {
+    //     return res.status(400).json({ code: code.payload03}); // task_appAcronym too long
+    // }
 
     if (task_description && task_description.length > 255) {
         return res.status(400).json({ code: code.payload03}); // task_description too long
@@ -115,9 +120,9 @@ exports.createTask = async (req, res, next) => {
         ] */
 
         
-        if (!user || !(await bcrypt.compare(password, user[0].password))) {
+        if (!user || user.length === 0 || !(await bcrypt.compare(password, user[0].password))) {
             return res.status (400).json({
-                code: code.auth01, // invalud credentials
+                code: code.auth01, // invalid credentials
             });
         }
 
@@ -127,16 +132,17 @@ exports.createTask = async (req, res, next) => {
             })
         }
 
-        const [acronym] = await pool.execute("SELECT app_acronym FROM application WHERE app_acronym = ?", [task_app_acronym]);
+        const [acronym] = await pool.execute("SELECT app_acronym FROM application WHERE app_acronym = ?", [task_appAcronym]);
 
         // console.log(acronym);
         // [ { app_acronym: 'Zoo' } ]
 
-        if (!acronym) {
+        if (acronym.length === 0) {
+            console.log('acronym');
             return res.status(400).json({code: code.payload02}) // invalid app_acronym value in payload
         }
 
-        const [app_permit_create] = await pool.query("SELECT app_permit_create FROM application WHERE app_acronym = ?", [task_app_acronym]);
+        const [app_permit_create] = await pool.query("SELECT app_permit_create FROM application WHERE app_acronym = ?", [task_appAcronym]);
 
         //console.log(app_permit_create); // [ { app_permit_create: 'farm_pl' } ]
 
@@ -150,19 +156,20 @@ exports.createTask = async (req, res, next) => {
         }
 
         if (task_plan) {
-            const [task_plan_exist] = await pool.execute("SELECT plan_mvp_name FROM plan WHERE plan_mvp_name = ? AND plan_app_acronym = ?", [task_plan, task_app_acronym]);
+            const [task_plan_exist] = await pool.execute("SELECT plan_mvp_name FROM plan WHERE plan_mvp_name = ? AND plan_app_acronym = ?", [task_plan, task_appAcronym]);
 
             // console.log(task_plan_exist) // [ { plan_mvp_name: 'sprint 1' } ]
 
-            if (!task_plan_exist) {
+            if (!task_plan_exist || task_plan_exist.length === 0) {
+                console.log('plan');
                 return res.status(400).json({code: code.payload02});
             }
         }
 
-        const [app_rnumber] = await pool.query("SELECT app_rnumber FROM application WHERE app_acronym = ?", [task_app_acronym]);
+        const [app_rnumber] = await pool.query("SELECT app_rnumber FROM application WHERE app_acronym = ?", [task_appAcronym]);
         //console.log(app_rnumber); // [ { app_rnumber: 23 } ]
-        const rnumber = app_rnumber[0].app_rnumber;
-        const task_id = `${task_app_acronym}_${rnumber}`;
+        const rnumber = app_rnumber[0].app_rnumber + 1;
+        const task_id = `${task_appAcronym}_${rnumber}`;
 
         const current_datetime  = getFormattedDateTimeString();
 
@@ -182,7 +189,7 @@ exports.createTask = async (req, res, next) => {
 
         await pool.query(`START TRANSACTION;`);
 
-        await pool.query(`UPDATE application SET app_rnumber = ? WHERE app_acronym = ?`, [rnumber + 1, task_app_acronym]);
+        await pool.query(`UPDATE application SET app_rnumber = ? WHERE app_acronym = ?`, [rnumber , task_appAcronym]);
 
         await pool.query(`INSERT INTO task (task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
@@ -191,7 +198,7 @@ exports.createTask = async (req, res, next) => {
 				task_description || null,
 				task_notes || null,
 				task_plan || null,
-				task_app_acronym,
+				task_appAcronym,
 				task_state,
 				task_creator,
 				task_owner,
@@ -201,10 +208,16 @@ exports.createTask = async (req, res, next) => {
 
         await pool.query(`COMMIT;`);
 
-        return res.status(201).json({code: code.success01});
+        return res.status(201).json({
+            task_id: task_id,
+            code: code.success01
+        });
     } catch (error) {
         console.log(error);
         await pool.query(`ROLLBACK;`);
+        if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({code : code.trans01})
+        }
         return res.status(500).json({
             code: code.error01,
         });

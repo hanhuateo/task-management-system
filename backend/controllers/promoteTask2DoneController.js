@@ -62,7 +62,8 @@ const code = {
 	payload04: "P004", // task state error
     url01: "U001", // url is incorrect
     success01: "S001", // no errors, successful
-    error01: "E001" // general error
+    error01: "E001", // general error
+    trans01: "T001"
 };
 
     const transporter = nodemailer.createTransport({
@@ -95,7 +96,7 @@ const code = {
 
 exports.promoteTask2Done = async (req, res, next) => {
 
-    if (req.originalUrl !== "/auth/promoteTask2Done3") {
+    if (req.originalUrl !== "/api/task/promoteTask2Done") {
         return res.status(400).json({ code: code.url01 });
     }
 
@@ -113,9 +114,13 @@ exports.promoteTask2Done = async (req, res, next) => {
     //     return res.status(400).json({ code: code.payload02}); // task_app_acronym too long
     // }
 
-    if (task_id && task_id.length > 128) {
-        return res.status(400).json({code: code.payload02}); // task_id too long
+    if (password.length > 10) {
+        return res.status(400).json({code: code.auth01});
     }
+
+    // if (task_id && task_id.length > 128) {
+    //     return res.status(400).json({code: code.payload02}); // task_id too long
+    // }
 
     try {
         const [user] = await pool.execute("SELECT * FROM user WHERE user_name = ?", [username]);
@@ -131,9 +136,9 @@ exports.promoteTask2Done = async (req, res, next) => {
         ] */
 
         
-        if (!user || !(await bcrypt.compare(password, user[0].password))) {
+        if (!user || user.length === 0 || !(await bcrypt.compare(password, user[0].password))) {
             return res.status (400).json({
-                code: code.auth01, // invalud credentials
+                code: code.auth01, // invalid credentials
             });
         }
 
@@ -144,6 +149,12 @@ exports.promoteTask2Done = async (req, res, next) => {
         }
 
         const [app_acronym] = await pool.query("SELECT task_app_acronym FROM task WHERE task_id = ?", [task_id])
+
+        if (app_acronym.length === 0 ) {
+            return res.status(400).json({
+                code: code.payload02 // invalid task id
+            })
+        }
 
         const [app_permit_doing] = await pool.query("SELECT app_permit_doing FROM application WHERE app_acronym = ?", [app_acronym[0].task_app_acronym]);
 
@@ -163,7 +174,7 @@ exports.promoteTask2Done = async (req, res, next) => {
 
         if (task_state[0].task_state !== 'doing') {
             return res.status(400).json({
-                code : code.payload04
+                code : code.payload04 // task in the wrong state
             })
         }
 
@@ -185,7 +196,11 @@ exports.promoteTask2Done = async (req, res, next) => {
 
         await pool.execute(`UPDATE task SET task_notes = ? WHERE task_id = ?`, [task_notes, task_id]);
 
-        await pool.execute(`UPDATE task SET task_state = 'done';`);
+        const [rows] = await pool.execute(`UPDATE task SET task_state = 'done';`);
+
+        if (rows.affectedRows === 0) {
+            return res.status(400).json({ code: code.trans01})
+        }
 
         await pool.query(`COMMIT;`);
 
