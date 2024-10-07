@@ -65,11 +65,43 @@ const code = {
     error01: "E001" // general error
 };
 
+    const transporter = nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        secure: false,
+        auth: {
+            user: "lera.heller2@ethereal.email",
+            pass: "JEC7Tt1C8sJwQhCaCZ"
+        },
+    });
+
+    const sendEmail = async (task_id, task_name) => {
+    try {
+        const info = await transporter.sendMail({
+            from: ' "Lera Heller " <lera.heller2@ethereal.email>',
+            to: "lera.heller2@ethereal.email",
+            subject: `${task_id}, ${task_name} to be reviewed`,
+            text: `${task_id}, ${task_name} has been completed, please review it`,
+            html: `<div>${task_id}, ${task_name} has been completed, please review it</div>`
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json({
+            message : "Failed to send email",
+            success : false
+        })
+    }
+}
+
 exports.promoteTask2Done = async (req, res, next) => {
+
+    if (req.originalUrl !== "/auth/promoteTask2Done3") {
+        return res.status(400).json({ code: code.url01 });
+    }
+
     const {
         username,
         password,
-        app_acronym,
         task_id
     } = req.body;
 
@@ -77,9 +109,9 @@ exports.promoteTask2Done = async (req, res, next) => {
         return res.status(400).json({code: code.payload01}); // missing mandatory keys
     }
 
-    if (app_acronym && app_acronym.lengh > 64) {
-        return res.status(400).json({ code: code.payload02}); // task_app_acronym too long
-    }
+    // if (app_acronym && app_acronym.lengh > 64) {
+    //     return res.status(400).json({ code: code.payload02}); // task_app_acronym too long
+    // }
 
     if (task_id && task_id.length > 128) {
         return res.status(400).json({code: code.payload02}); // task_id too long
@@ -111,7 +143,9 @@ exports.promoteTask2Done = async (req, res, next) => {
             })
         }
 
-        const [app_permit_doing] = await pool.query("SELECT app_permit_doing FROM application WHERE app_acronym = ?", [app_acronym]);
+        const [app_acronym] = await pool.query("SELECT task_app_acronym FROM task WHERE task_id = ?", [task_id])
+
+        const [app_permit_doing] = await pool.query("SELECT app_permit_doing FROM application WHERE app_acronym = ?", [app_acronym[0].task_app_acronym]);
 
         // console.log(app_permit_doing); // [ { app_permit_doing: 'farm_dev } ]
 
@@ -154,6 +188,10 @@ exports.promoteTask2Done = async (req, res, next) => {
         await pool.execute(`UPDATE task SET task_state = 'done';`);
 
         await pool.query(`COMMIT;`);
+
+        const [task_name] = await pool.query("SELECT task_name FROM task WHERE task_id = ?", [task_id]);
+
+        sendEmail(task_id, task_name[0].task_name);
 
         return res.status(201).json({code: code.success01});
     } catch (error) {

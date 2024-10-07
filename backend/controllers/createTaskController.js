@@ -65,6 +65,11 @@ const code = {
 };
 
 exports.createTask = async (req, res, next) => {
+
+    if (req.originalUrl !== "/auth/createTask3") {
+        return res.status(400).json({ code: code.url01 });
+    }
+    
 	const {
 		username,
 		password,

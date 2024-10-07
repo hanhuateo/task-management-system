@@ -15,6 +15,11 @@ const code = {
 };
 
 exports.getTaskByState = async (req, res, next) => {
+
+    if (req.originalUrl !== "/auth/getTaskByState3") {
+        return res.status(400).json({ code: code.url01 });
+    }
+
     const {
         username,
         password,

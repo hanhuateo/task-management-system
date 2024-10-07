@@ -16,6 +16,19 @@ app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 
+const code = {
+	auth01: "A001", // invalid credentials
+	auth02: "A002", // user is not active
+	auth03: "A003", // user does not have permission
+	payload01: "P001", // mandatory keys missing
+	payload02: "P002", // invalid values
+	payload03: "P003", // value out of range
+	payload04: "P004", // task state error
+    url01: "U001", // url is incorrect
+    success01: "S001", // no errors, successful
+    error01: "E001" // general error
+};
+
 const corsOption = {
     credentials: true,
     origin: 'http://localhost:5173',
@@ -27,10 +40,12 @@ app.use("/auth", auth);
 
 // handle unhandled routes
 app.all("*", (req, res, next) => {
-    next(new ErrorHandler(`${req.originalUrl} route not found`, 404));
+    // next(new ErrorHandler(`${req.originalUrl} route not found`, 404));
+    return res.status(400).json({ code: code.url01 });
 });
 
 app.use(errorMiddleware);
+
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
