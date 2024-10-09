@@ -6,12 +6,13 @@ const code = {
 	auth02: "A002", // user is not active
 	auth03: "A003", // user does not have permission
 	payload01: "P001", // mandatory keys missing
-	payload02: "P002", // invalid values
-	payload03: "P003", // value out of range
-	payload04: "P004", // task state error
     url01: "U001", // url is incorrect
     success01: "S001", // no errors, successful
-    error01: "E001" // general error
+    error01: "E001", // general error
+	trans01: "T001", // invalid values
+	trans02: "T002", // value out of range
+	trans03: "T003", // task state error
+    trans04: "T004", // transaction failed
 };
 
 exports.getTaskByState = async (req, res, next) => {
@@ -36,11 +37,11 @@ exports.getTaskByState = async (req, res, next) => {
     }
 
     if (task_appAcronym && task_appAcronym.length > 64) {
-        return res.status(400).json({ code: code.payload02}); // task_appAcronym payload value too long
+        return res.status(400).json({ code: code.trans02}); // task_appAcronym value too long
     }
 
     if (task_state && !(['open', 'todo', 'doing', 'done', 'close'].includes(task_state))) {
-        return res.status(400).json({ code: code.payload02}); // task_state payload value not in the ENUM stated in the DB
+        return res.status(400).json({ code: code.trans01}); // task_state value not in the ENUM stated in the DB
     }
 
     try {
@@ -75,7 +76,7 @@ exports.getTaskByState = async (req, res, next) => {
         // [ { app_acronym: 'Zoo' } ]
 
         if (acronym.length === 0) {
-            return res.status(400).json({code: code.payload02}) // invalid app_acronym value in payload
+            return res.status(400).json({code: code.trans02}) // invalid app_acronym value 
         }
 
         const [result] = await pool.query(

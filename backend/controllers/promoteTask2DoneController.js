@@ -57,13 +57,13 @@ const code = {
 	auth02: "A002", // user is not active
 	auth03: "A003", // user does not have permission
 	payload01: "P001", // mandatory keys missing
-	payload02: "P002", // invalid values
-	payload03: "P003", // value out of range
-	payload04: "P004", // task state error
     url01: "U001", // url is incorrect
     success01: "S001", // no errors, successful
     error01: "E001", // general error
-    trans01: "T001"
+	trans01: "T001", // invalid values
+	trans02: "T002", // value out of range
+	trans03: "T003", // task state error
+    trans04: "T004", // transaction failed
 };
 
     const transporter = nodemailer.createTransport({
@@ -111,7 +111,7 @@ exports.promoteTask2Done = async (req, res, next) => {
     }
 
     // if (app_acronym && app_acronym.lengh > 64) {
-    //     return res.status(400).json({ code: code.payload02}); // task_app_acronym too long
+    //     return res.status(400).json({ code: code.trans02}); // task_app_acronym too long
     // }
 
     if (password.length > 10) {
@@ -119,7 +119,7 @@ exports.promoteTask2Done = async (req, res, next) => {
     }
 
     // if (task_id && task_id.length > 128) {
-    //     return res.status(400).json({code: code.payload02}); // task_id too long
+    //     return res.status(400).json({code: code.trans02}); // task_id too long
     // }
 
     try {
@@ -152,7 +152,7 @@ exports.promoteTask2Done = async (req, res, next) => {
 
         if (app_acronym.length === 0 ) {
             return res.status(400).json({
-                code: code.payload02 // invalid task id
+                code: code.trans01 // invalid task id
             })
         }
 
@@ -174,7 +174,7 @@ exports.promoteTask2Done = async (req, res, next) => {
 
         if (task_state[0].task_state !== 'doing') {
             return res.status(400).json({
-                code : code.payload04 // task in the wrong state
+                code : code.trans03 // task in the wrong state
             })
         }
 
@@ -199,7 +199,7 @@ exports.promoteTask2Done = async (req, res, next) => {
         const [rows] = await pool.execute(`UPDATE task SET task_state = 'done';`);
 
         if (rows.affectedRows === 0) {
-            return res.status(400).json({ code: code.trans01})
+            return res.status(400).json({ code: code.trans04}) // database transaction error
         }
 
         await pool.query(`COMMIT;`);

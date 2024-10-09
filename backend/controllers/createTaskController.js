@@ -56,13 +56,13 @@ const code = {
 	auth02: "A002", // user is not active
 	auth03: "A003", // user does not have permission
 	payload01: "P001", // mandatory keys missing
-	payload02: "P002", // invalid values
-	payload03: "P003", // value out of range
-	payload04: "P004", // task state error
     url01: "U001", // url is incorrect
     success01: "S001", // no errors, successful
     error01: "E001", // general error
-    trans01: "T001" // duplicate task id
+	trans01: "T001", // invalid values
+	trans02: "T002", // value out of range
+	trans03: "T003", // task state error
+    trans04: "T004", // transaction failed
 };
 
 exports.createTask = async (req, res, next) => {
@@ -91,19 +91,19 @@ exports.createTask = async (req, res, next) => {
     }
 
     if (task_name && task_name.length > 64) {
-        return res.status(400).json({ code: code.payload03}); // task_name too long
+        return res.status(400).json({ code: code.trans02}); // task_name too long
     }
 
     // if (task_appAcronym && task_appAcronym.length > 64) {
-    //     return res.status(400).json({ code: code.payload03}); // task_appAcronym too long
+    //     return res.status(400).json({ code: code.trans02}); // task_appAcronym too long
     // }
 
     if (task_description && task_description.length > 255) {
-        return res.status(400).json({ code: code.payload03}); // task_description too long
+        return res.status(400).json({ code: code.trans02}); // task_description too long
     }
 
     if (task_notes && task_notes.length > 65535) {
-        return res.status(400).json({ code: code.payload03}); // task_notes too long
+        return res.status(400).json({ code: code.trans02}); // task_notes too long
     }
 
     try {
@@ -139,7 +139,7 @@ exports.createTask = async (req, res, next) => {
 
         if (acronym.length === 0) {
             console.log('acronym');
-            return res.status(400).json({code: code.payload02}) // invalid app_acronym value in payload
+            return res.status(400).json({code: code.trans01}) // invalid app_acronym value
         }
 
         const [app_permit_create] = await pool.query("SELECT app_permit_create FROM application WHERE app_acronym = ?", [task_appAcronym]);
@@ -162,7 +162,7 @@ exports.createTask = async (req, res, next) => {
 
             if (!task_plan_exist || task_plan_exist.length === 0) {
                 console.log('plan');
-                return res.status(400).json({code: code.payload02});
+                return res.status(400).json({code: code.trans01}); // invalid plan value
             }
         }
 
@@ -216,7 +216,7 @@ exports.createTask = async (req, res, next) => {
         console.log(error);
         await pool.query(`ROLLBACK;`);
         if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({code : code.trans01})
+            return res.status(400).json({code : code.trans04}) // database transaction error
         }
         return res.status(500).json({
             code: code.error01,
