@@ -1,0 +1,14 @@
+node_modules
+Dockerfile
+.dockerignore
+config/config.env
+
+middlewares/*
+controllers/*
+
+!controllers/createTaskController.js
+!controllers/getTaskByStateController.js
+!controllers/promoteTask2DoneController.js
+
+*.tgz
+*.tar

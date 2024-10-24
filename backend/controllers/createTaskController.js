@@ -1,5 +1,5 @@
 const pool = require("../utils/db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 async function checkGroup(username, groupname) {
 	try {
@@ -56,21 +56,20 @@ const code = {
 	auth02: "A002", // user is not active
 	auth03: "A003", // user does not have permission
 	payload01: "P001", // mandatory keys missing
-    url01: "U001", // url is incorrect
-    success01: "S001", // no errors, successful
-    error01: "E001", // general error
+	url01: "U001", // url is incorrect
+	success01: "S001", // no errors, successful
+	error01: "E001", // general error
 	trans01: "T001", // invalid values
 	trans02: "T002", // value out of range
 	trans03: "T003", // task state error
-    trans04: "T004", // transaction failed
+	trans04: "T004", // transaction failed
 };
 
 exports.createTask = async (req, res, next) => {
+	if (req.originalUrl !== "/api/task/createTask") {
+		return res.status(400).json({ code: code.url01 });
+	}
 
-    if (req.originalUrl !== "/api/task/createTask") {
-        return res.status(400).json({ code: code.url01 });
-    }
-    
 	const {
 		username,
 		password,
@@ -80,37 +79,40 @@ exports.createTask = async (req, res, next) => {
 		task_appAcronym,
 	} = req.body;
 
-    let {task_notes} = req.body;
+	let { task_notes } = req.body;
 
-    if (!username || !password || !task_name || !task_appAcronym) {
-        return res.status(400).json({ code: code.payload01}); // missing mandatory keys
-    }
+	if (!username || !password || !task_name || !task_appAcronym) {
+		return res.status(400).json({ code: code.payload01 }); // missing mandatory keys
+	}
 
-    if (password.length > 10) {
-        return res.status(400).json({code: code.auth01});
-    }
+	if (password.length > 10) {
+		return res.status(400).json({ code: code.auth01 });
+	}
 
-    if (task_name && task_name.length > 64) {
-        return res.status(400).json({ code: code.trans02}); // task_name too long
-    }
+	if (task_name && task_name.length > 64) {
+		return res.status(400).json({ code: code.trans02 }); // task_name too long
+	}
 
-    // if (task_appAcronym && task_appAcronym.length > 64) {
-    //     return res.status(400).json({ code: code.trans02}); // task_appAcronym too long
-    // }
+	// if (task_appAcronym && task_appAcronym.length > 64) {
+	//     return res.status(400).json({ code: code.trans02}); // task_appAcronym too long
+	// }
 
-    if (task_description && task_description.length > 255) {
-        return res.status(400).json({ code: code.trans02}); // task_description too long
-    }
+	if (task_description && task_description.length > 255) {
+		return res.status(400).json({ code: code.trans02 }); // task_description too long
+	}
 
-    if (task_notes && task_notes.length > 65535) {
-        return res.status(400).json({ code: code.trans02}); // task_notes too long
-    }
+	if (task_notes && task_notes.length > 65535) {
+		return res.status(400).json({ code: code.trans02 }); // task_notes too long
+	}
 
-    try {
-        const [user] = await pool.execute("SELECT * FROM user WHERE user_name = ?", [username]);
+	try {
+		const [user] = await pool.execute(
+			"SELECT * FROM user WHERE user_name = ?",
+			[username]
+		);
 
-        // console.log(user); 
-        /* [
+		// console.log(user);
+		/* [
             {
               user_name: 'PL1',
               password: '$2b$10$RVT8DyHKxVU3ec9Ds4ZFJuAgOCVrA/FAN6f5kUFvxdpV8tj7Ps0JW',
@@ -119,81 +121,115 @@ exports.createTask = async (req, res, next) => {
             }
         ] */
 
-        
-        if (!user || user.length === 0 || !(await bcrypt.compare(password, user[0].password))) {
-            return res.status (400).json({
-                code: code.auth01, // invalid credentials
-            });
-        }
+		if (
+			!user ||
+			user.length === 0 ||
+			!(await bcrypt.compare(password, user[0].password))
+		) {
+			return res.status(400).json({
+				code: code.auth01, // invalid credentials
+			});
+		}
 
-        if (user[0].active === 0) {
-            return res.status(400).json({
-                code: code.auth02 // user active status is false
-            })
-        }
+		if (user[0].active === 0) {
+			return res.status(400).json({
+				code: code.auth02, // user active status is false
+			});
+		}
 
-        const [acronym] = await pool.execute("SELECT app_acronym FROM application WHERE app_acronym = ?", [task_appAcronym]);
+		const [acronym] = await pool.execute(
+			"SELECT app_acronym FROM application WHERE app_acronym = ?",
+			[task_appAcronym]
+		);
 
-        // console.log(acronym);
-        // [ { app_acronym: 'Zoo' } ]
+		// console.log(acronym);
+		// [ { app_acronym: 'Zoo' } ]
 
-        if (acronym.length === 0) {
-            console.log('acronym');
-            return res.status(400).json({code: code.trans01}) // invalid app_acronym value
-        }
+		if (acronym.length === 0) {
+			console.log("acronym");
+			return res.status(400).json({ code: code.trans01 }); // invalid app_acronym value
+		}
 
-        const [app_permit_create] = await pool.query("SELECT app_permit_create FROM application WHERE app_acronym = ?", [task_appAcronym]);
+		const [app_permit_create] = await pool.query(
+			"SELECT app_permit_create FROM application WHERE app_acronym = ?",
+			[task_appAcronym]
+		);
 
-        //console.log(app_permit_create); // [ { app_permit_create: 'farm_pl' } ]
+		//console.log(app_permit_create); // [ { app_permit_create: 'farm_pl' } ]
 
-        const permitted_groups = app_permit_create[0].app_permit_create;
+		const permitted_groups = app_permit_create[0].app_permit_create;
 
-        const isPermitted = await checkGroup(username, permitted_groups);
+		const isPermitted = await checkGroup(username, permitted_groups);
 
-        if (!isPermitted) {
-            // console.log('not permitted');
-            return res.status(400).json({code: code.auth03});
-        }
+		if (!isPermitted) {
+			// console.log('not permitted');
+			return res.status(400).json({ code: code.auth03 });
+		}
 
-        if (task_plan) {
-            const [task_plan_exist] = await pool.execute("SELECT plan_mvp_name FROM plan WHERE plan_mvp_name = ? AND plan_app_acronym = ?", [task_plan, task_appAcronym]);
+		if (task_plan) {
+			const [task_plan_exist] = await pool.execute(
+				"SELECT plan_mvp_name FROM plan WHERE plan_mvp_name = ? AND plan_app_acronym = ?",
+				[task_plan, task_appAcronym]
+			);
 
-            // console.log(task_plan_exist) // [ { plan_mvp_name: 'sprint 1' } ]
+			// console.log(task_plan_exist) // [ { plan_mvp_name: 'sprint 1' } ]
 
-            if (!task_plan_exist || task_plan_exist.length === 0) {
-                console.log('plan');
-                return res.status(400).json({code: code.trans01}); // invalid plan value
-            }
-        }
+			if (!task_plan_exist || task_plan_exist.length === 0) {
+				console.log("plan");
+				return res.status(400).json({ code: code.trans01 }); // invalid plan value
+			}
+		}
 
-        const [app_rnumber] = await pool.query("SELECT app_rnumber FROM application WHERE app_acronym = ?", [task_appAcronym]);
-        //console.log(app_rnumber); // [ { app_rnumber: 23 } ]
-        const rnumber = app_rnumber[0].app_rnumber + 1;
-        const task_id = `${task_appAcronym}_${rnumber}`;
+		const [app_rnumber] = await pool.query(
+			"SELECT app_rnumber FROM application WHERE app_acronym = ?",
+			[task_appAcronym]
+		);
+		//console.log(app_rnumber); // [ { app_rnumber: 23 } ]
+		const rnumber = app_rnumber[0].app_rnumber + 1;
+		const task_id = `${task_appAcronym}_${rnumber}`;
 
-        const current_datetime  = getFormattedDateTimeString();
+		const current_datetime = getFormattedDateTimeString();
 
-        let task_state = "open";
+		let task_state = "open";
 
-        let task_creator = username;
+		let task_creator = username;
 
-        let task_owner = username;
+		let task_owner = username;
 
-        let task_createdate = getFormattedDateString();
+		let task_createdate = getFormattedDateString();
 
-        if (task_notes) {
-            task_notes = task_notes + " \nTask Created by: " + username + " | On: " + current_datetime + " | State: " + task_state + " \n##########################################################################################";
-        } else {
-            task_notes = "Task Created by: " + username + " | On: " + current_datetime + " | State: " + task_state + " \n##########################################################################################";
-        }
+		if (task_notes) {
+			task_notes =
+				task_notes +
+				" \nTask Created by: " +
+				username +
+				" | On: " +
+				current_datetime +
+				" | State: " +
+				task_state +
+				" \n##########################################################################################";
+		} else {
+			task_notes =
+				"Task Created by: " +
+				username +
+				" | On: " +
+				current_datetime +
+				" | State: " +
+				task_state +
+				" \n##########################################################################################";
+		}
 
-        await pool.query(`START TRANSACTION;`);
+		await pool.query(`START TRANSACTION;`);
 
-        await pool.query(`UPDATE application SET app_rnumber = ? WHERE app_acronym = ?`, [rnumber , task_appAcronym]);
+		await pool.query(
+			`UPDATE application SET app_rnumber = ? WHERE app_acronym = ?`,
+			[rnumber, task_appAcronym]
+		);
 
-        await pool.query(`INSERT INTO task (task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                task_id,
+		await pool.query(
+			`INSERT INTO task (task_id, task_name, task_description, task_notes, task_plan, task_app_acronym, task_state, task_creator, task_owner, task_createDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			[
+				task_id,
 				task_name,
 				task_description || null,
 				task_notes || null,
@@ -203,23 +239,23 @@ exports.createTask = async (req, res, next) => {
 				task_creator,
 				task_owner,
 				task_createdate,
-            ]
-        )
+			]
+		);
 
-        await pool.query(`COMMIT;`);
+		await pool.query(`COMMIT;`);
 
-        return res.status(201).json({
-            task_id: task_id,
-            code: code.success01
-        });
-    } catch (error) {
-        console.log(error);
-        await pool.query(`ROLLBACK;`);
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({code : code.trans04}) // database transaction error
-        }
-        return res.status(500).json({
-            code: code.error01,
-        });
-    }
+		return res.status(201).json({
+			task_id: task_id,
+			code: code.success01,
+		});
+	} catch (error) {
+		console.log(error);
+		await pool.query(`ROLLBACK;`);
+		if (error.code === "ER_DUP_ENTRY") {
+			return res.status(400).json({ code: code.trans04 }); // database transaction error
+		}
+		return res.status(500).json({
+			code: code.error01,
+		});
+	}
 };

@@ -8,7 +8,6 @@ const cors = require("cors")
 const auth = require("./routes/auth");
 
 // const errorMiddleware = require("./middlewares/errors");
-// const ErrorHandler = require("./utils/errorHandler");
 
 const app = express();
 
@@ -40,7 +39,6 @@ app.use("/api/task", auth);
 
 // handle unhandled routes
 app.use((req, res, next) => {
-    // next(new ErrorHandler(`${req.originalUrl} route not found`, 404));
     return res.status(400).json({ code: code.url01 });
 });
 
