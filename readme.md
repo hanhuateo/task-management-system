@@ -15,6 +15,5 @@ Requirements Solicitation
 3. Created a user story map to chain together the various user stories and how the most complex user story will initiated
 
 Install Dependencies
-Please cd into /backend and /front-end respectively and "npm install".
-The required versions of each dependencies are in package.json in both folders
+- Please cd into /backend and /front-end respectively and "npm install". The required versions of each dependencies are in package.json in both folders
 
